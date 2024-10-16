@@ -555,4 +555,44 @@ ObjData *gf3d_obj_merge(ObjData *ObjA,GFC_Vector3D offsetA,ObjData *ObjB,GFC_Vec
     return ObjNew;
 }
 
+// ray tracing test
+// by the way, all this data is being referenced from and built by checking the definitions of objs and stuff then seeing how they work
+// so we can reproduce it to create a function here
+
+// put this function in the header file of this (there is probably one there already, but that isnt supposed to be there just
+// replace it with this one)
+
+// this needs to work with a bounding box function that isn't made yet, becuase if a obj is relly far from this, something bad happens(? idk what)
+// take a min of all the x's, tkae a min of all the y's and z's to check if theyre out of range from something
+// if theyre out of range ,reject it
+// this is to check if a line is actually intersecting with a triangle so that there's no reason to iterate through the entire object
+Uint8 gf3d_obj_line_test(ObjData* obj, GFC_Edge3D e, GFC_Vector3D* contact) {
+    int i;
+    Uint32 index;
+    GFC_Triangle3D t;
+
+    if (!obj) {
+        return 0;
+    }
+
+    if (!obj->outFace || !obj->faceVertices) {
+        return 0;
+    }
+
+    for (i = 0; i < obj->face_count; i++) {
+       index = obj->outFace[i].verts[0];
+       t.a = obj->faceVertices[index].vertex;
+       index = obj->outFace[i].verts[0];
+       t.b = obj->faceVertices[index].vertex;
+       index = obj->outFace[i].verts[0];
+       t.c = obj->faceVertices[index].vertex;
+       
+       if (gfc_trigfc_angle_edge_test(e, t, contact)) {
+           return 1;
+       }
+    }
+    return 0;
+
+}
+
 /*eol@eof*/

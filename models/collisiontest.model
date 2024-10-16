@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/collisiontest/collisiontest.obj",
+        "texture": "models/collisiontest/collisiontest.png"
+    }
+}

@@ -46,6 +46,15 @@ layout(location = 2) out vec3 position;
 
 void main()
 {
+    // ME: modified stuff
+    vec4 lightDir;
+    vec4 lightColor;
+    vec4 lightPos;
+    float angle;
+    float brightness;
+    float falloff;
+    float padding;
+
     vec4 tempPosition;
     mat4 bone;
     mat4 mvp = ubo.mesh.proj * ubo.mesh.view * ubo.mesh.model;

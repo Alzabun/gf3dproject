@@ -27,6 +27,10 @@ layout(binding = 0) uniform UniformBufferObject
 {
     MeshUBO         mesh;
     MaterialUBO     material;   //this may become an array
+    // ME: new stuff
+    vec4 lightDir;
+    vec4 lightColor;
+    LightUBO light[8]; // ME: for the limit
 }ubo;
 
 layout(binding = 1) uniform sampler2D texSampler;
@@ -39,14 +43,39 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {   
+
+    // ME: new stuff and modified stuff
+    // this probably has a lot of syntax errors and dmissing dependencies but i dont know how to make this not jst black and white text
+
     int i;
     vec4 surfaceColor = texture(texSampler, fragTexCoord);
     vec3 normal = fragNormal;
-    vec3 surfaceToCamera = normalize(ubo.mesh.camera.xyz - position);
-    
-    surfaceColor.xyz *= ubo.material.diffuse.xyz;
-    surfaceColor.w *= ubo.material.diffuse.w * ubo.material.transparency;
+    vec4 lightTotals = vec4{0};
 
-    outColor = surfaceColor;
+    for (int i = 0; i < 8; i++){
+       if (ubo.light[i].inUse > 0.0){
+        vec3 surfaceToCamera = normalize(ubo.mesh.camera.xyz - position);
+        vec3 surfaceToLight - normalize(ubo.light[i].lightDir.xyz);
+
+        if (ubo.light[i].lightPos.w > 0.0){
+            surfaceToLight = normalize(ubo.light[i].lightPos.xyz - position);
+        }
+    
+        surfaceColor.xyz *= ubo.material.diffuse.xyz;
+        surfaceColor.w *= ubo.material.diffuse.w * ubo.material.transparency;
+
+    
+        float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight))
+        vec3 diffuse = diffuseCoefficient * surfaceColor.rgb * ubo.light[i].lightColor.xyz;
+
+        lightTotals += vec4(diffuse,0);
+
+        //outColor = surfaceColor + diffuse * attentuation; // or attentiton?
+        //outColor = surfaceColor + vec4(diffuse,0); // idk whats supposed to be commented and not commented here
+        } 
+    }
+        outColor = surfaceColor; // this is a fallback if there is no ubo (no lighting, everything is black), so instead we have this lighting
+        //this might just end up making it look lkie nothing happened
+        // now you make a ubo light subsystem or something (for more than one light)
 }
 
