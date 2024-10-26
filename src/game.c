@@ -127,7 +127,7 @@ int main(int argc,char *argv[])
     gf3d_camera_set_rotate_step(0.05);
     
    // gf3d_camera_enable_free_look(1);
-    dino_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
+    player_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
     terrain_spawn(gfc_vector3d(0, 0, -100));
     
     //windows

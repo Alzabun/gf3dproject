@@ -3,6 +3,6 @@
 
 #include "entity.h"
 
-Entity* dino_spawn(GFC_Vector3D position);
+Entity* player_spawn(GFC_Vector3D position);
 
 #endif

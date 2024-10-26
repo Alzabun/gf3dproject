@@ -2,6 +2,9 @@
 #include "gfc_matrix.h"
 #include "entity.h"
 
+#include "gfc_primitives.h"
+#include "gf3d_obj_load.h"
+
 //entity stuff should be building on top of gf3d_mesh.c stuff
 // make sure to constantly compile to check for errors
 // also, some things may be missing or if statements may be ordered incorrectly
@@ -188,6 +191,61 @@ void entity_update_all() {
 		}
 		entity_update(&entity_manager.entityList[i]);
 	}
+	collision_check();
 }
 
-/*elof@eof*/ // this doesnt matter but it looks cool or something
+//collision test
+
+int collisiontest(Entity* self, Entity* other) {
+	// how do i make a bounding box
+	GFC_Box* first = &self->BoundingBox;
+	GFC_Box* second = &other->BoundingBox;
+	// should check if its actually inside a box
+
+	if (first->x >= second->x && first->x <= second->x + second->w &&
+		first->y >= second->y && first->y <= second->y + second->d &&
+		first->z >= second->z && first->z <= second->z + second->h){
+		return 1;
+	}
+	return 0;
+}
+
+void entity_touch(Entity* self) {
+	
+}
+
+void entity_touch_all(Entity* self) {
+	for (int i = 0; i < entity_manager.entityMax; i++) {
+		if (!entity_manager.entityList[i]._inuse) {
+			continue;
+		}
+		entity_touch(&entity_manager.entityList[i]);
+	}
+}
+
+void collision_check() {
+	for (int i = 0; i < entity_manager.entityMax; i++) {
+		Entity* first = &entity_manager.entityList[i];
+		
+		if (!first->_inuse) {
+			continue;
+		}
+
+		for (int j = i; j < entity_manager.entityMax; j++) {
+			Entity* second = &entity_manager.entityList[j];
+
+			if (!second->_inuse) {
+				continue;
+			}
+
+			if (collisiontest(first, second)) {
+				if (first->touch) {
+					first->touch(first, second);
+				}
+				if (second->touch) {
+					second->touch(second, first);
+				}
+			}
+		}
+	}
+}

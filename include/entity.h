@@ -6,6 +6,8 @@
 #include "gfc_vector.h"
 #include "gf3d_model.h"
 
+#include "gfc_primitives.h"
+
 // C does not have a string type by default, but you can use a makeshift one made in gfc/ i forgor / gfc string or something
 // go to include for entity.c (i dont know if its supposed to be here)
 
@@ -23,7 +25,10 @@ typedef struct Entity_S{
 	void (*update) (struct Entity_S* self); // called every frame for the entity to update its state
 	int (*draw) (struct Entity_s *self); // for custom drawing code (this was void originally but is used fro the == -1 thing)
 	void (*free) (struct Entity_s* self); // called when the entity is cle ed up to to clean up custom data
-	void* data; // entity for cstom data - for everything beyond the basics
+	void* data; // entity for custom data - for everything beyond the basics
+
+	GFC_Box BoundingBox; // this better work
+	void (*touch) (struct Entity_s* self, struct Entity_S* other);
 
 }Entity; // you can change the name of this to the name of the game later (or dont)
 
@@ -73,5 +78,10 @@ void entity_think_all();
 void entity_update(Entity* self);
 // all entities update
 void entity_update_all();
+
+
+// * collision stuff *
+int collisiontest(Entity* self, Entity* other);
+void collision_check();
 
 #endif __ENTITY_H__ // should this be here???

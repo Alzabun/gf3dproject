@@ -6,8 +6,10 @@
 #include "gfc_vector.h"
 
 void terrain_think(Entity* self);
-//void terrain_update(Entity* self);
+void terrain_update(Entity* self);
 void terrain_free(Entity* self);
+void terrain_touch(Entity* self, Entity* other);
+
 
 typedef struct {
 	Uint8 exist;
@@ -27,6 +29,18 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	self->free = terrain_free;
 	self->think = terrain_think;
 	self->position = position;
+	self->touch = terrain_touch;
+
+	self->BoundingBox.x = position.x;
+	self->BoundingBox.y = position.y;
+	self->BoundingBox.z = position.z;
+
+	self->BoundingBox.w = 5;
+	self->BoundingBox.d = 5;
+	self->BoundingBox.h = 5;
+
+	// well this is a really lazy way to have collision for terrain
+	// obviously the enviroment won't just be a straight line (box) but at this point i need anything i can do to test collision
 
 	exist = gfc_allocate_array(sizeof(TerrainData), 1);
 	if (exist) {
@@ -34,6 +48,8 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	}
 	return self;
 }
+
+// everything below this is unnecessary but you never know
 
 void terrain_free(Entity* self) { // frees up entity
 	TerrainData* exist;
@@ -50,20 +66,19 @@ void terrain_free(Entity* self) { // frees up entity
 }
 
 void terrain_think(Entity* self) { // these are the actions the entity will do when the game loads
-	int dx, dy;
 	TerrainData* data;
-	GFC_Vector2D dir_x = { 0,-1 }; // will only rotate in 2 dimensions
-	GFC_Vector2D dir_y = { -1, 0 };
 
 	if (!self || !self->data) {
 		return;
 	}
 	data = self->data;
 
-	dir_x = gfc_vector2d_rotate(dir_x, self->rotation.z);
-	dir_y = gfc_vector2d_rotate(dir_y, self->rotation.z);
-
-	self->rotation.z = 50;
+	self->rotation.z = 500; // rotated to fit with the player angle but this is probably a really dumb way of doing it
 }
-// void terrain_update(Entity* self);
+void terrain_update(Entity* self) {
+	gfc_vector3d_copy(self->position, self->position);
+}
 
+void terrain_touch(Entity* self, Entity* other) {
+	slog("touch is activtating from terrain\n");
+}
