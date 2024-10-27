@@ -197,21 +197,54 @@ void entity_update_all() {
 //collision test
 
 int collisiontest(Entity* self, Entity* other) {
-	// how do i make a bounding box
-	GFC_Box* first = &self->BoundingBox;
-	GFC_Box* second = &other->BoundingBox;
+	GFC_Box* firstbox = &self->BoundingBox;
+	GFC_Box* secondbox = &other->BoundingBox;
 	// should check if its actually inside a box
 
-	if (first->x >= second->x && first->x <= second->x + second->w &&
-		first->y >= second->y && first->y <= second->y + second->d &&
-		first->z >= second->z && first->z <= second->z + second->h){
-		return 1;
+	if (firstbox->x + firstbox->w <= secondbox->x || secondbox->x + secondbox->w <= firstbox->x) {
+		return 0;
 	}
-	return 0;
+
+	if (firstbox->y + firstbox->d <= secondbox->y || secondbox->y + secondbox->d <= firstbox->y) {
+		return 0;
+	}
+
+	if (firstbox->z + firstbox->h <= secondbox->z || secondbox->z + secondbox->h <= firstbox->z) {
+		return 0;
+	}
+
+	return 1;
+}
+
+void collision_check() {
+	for (int i = 0; i < entity_manager.entityMax; i++) {
+		Entity* first = &entity_manager.entityList[i];
+
+		if (!first->_inuse) {
+			continue;
+		}
+
+		for (int j = i + 1; j < entity_manager.entityMax; j++) {
+			Entity* second = &entity_manager.entityList[j];
+
+			if (!second->_inuse) {
+				continue;
+			}
+
+			if (collisiontest(first, second) == 1) { // when the bounding boxes intersect for the two entities, they will have both their
+				if (first->touch) {					 // touch functions activated
+					first->touch(first, second);
+				}
+				if (second->touch) {
+					second->touch(second, first);
+				}
+			}
+		}
+	}
 }
 
 void entity_touch(Entity* self) {
-	
+	// idk if i needed this actually
 }
 
 void entity_touch_all(Entity* self) {
@@ -220,32 +253,5 @@ void entity_touch_all(Entity* self) {
 			continue;
 		}
 		entity_touch(&entity_manager.entityList[i]);
-	}
-}
-
-void collision_check() {
-	for (int i = 0; i < entity_manager.entityMax; i++) {
-		Entity* first = &entity_manager.entityList[i];
-		
-		if (!first->_inuse) {
-			continue;
-		}
-
-		for (int j = i; j < entity_manager.entityMax; j++) {
-			Entity* second = &entity_manager.entityList[j];
-
-			if (!second->_inuse) {
-				continue;
-			}
-
-			if (collisiontest(first, second)) {
-				if (first->touch) {
-					first->touch(first, second);
-				}
-				if (second->touch) {
-					second->touch(second, first);
-				}
-			}
-		}
 	}
 }

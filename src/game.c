@@ -128,7 +128,7 @@ int main(int argc,char *argv[])
     
    // gf3d_camera_enable_free_look(1);
     player_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
-    terrain_spawn(gfc_vector3d(0, 0, -100));
+    terrain_spawn(gfc_vector3d(0, 0, -150));
     
     //windows
 

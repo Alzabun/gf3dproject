@@ -29,6 +29,7 @@ typedef struct Entity_S{
 
 	GFC_Box BoundingBox; // this better work
 	void (*touch) (struct Entity_s* self, struct Entity_S* other);
+	GFC_Vector3D velocity;
 
 }Entity; // you can change the name of this to the name of the game later (or dont)
 

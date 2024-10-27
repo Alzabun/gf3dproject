@@ -5,9 +5,9 @@
 #include "gf3d_camera.h"
 #include "gfc_vector.h"
 
-void terrain_think(Entity* self);
-void terrain_update(Entity* self);
-void terrain_free(Entity* self);
+//void terrain_think(Entity* self);
+//void terrain_update(Entity* self);
+//void terrain_free(Entity* self);
 void terrain_touch(Entity* self, Entity* other);
 
 
@@ -20,24 +20,26 @@ typedef struct {
 Entity* terrain_spawn(GFC_Vector3D position) {
 	Entity* self;
 	TerrainData* exist;
+	GFC_Vector3D dir_z = { 0, 0, 1 };
 
 	self = entity_new();
 	if (!self) {
 		return NULL;
 	}
 	self->model = gf3d_model_load("models/collisiontest.model");
-	self->free = terrain_free;
-	self->think = terrain_think;
+	//self->free = terrain_free;
+	//self->think = terrain_think;
 	self->position = position;
 	self->touch = terrain_touch;
 
 	self->BoundingBox.x = position.x;
 	self->BoundingBox.y = position.y;
 	self->BoundingBox.z = position.z;
+	// i think you can reference the scale values in blender for how big the bounding box should be
+	self->BoundingBox.w = 1000;
+	self->BoundingBox.d = 1000;
+	self->BoundingBox.h = 135; // idk whats with this one 
 
-	self->BoundingBox.w = 5;
-	self->BoundingBox.d = 5;
-	self->BoundingBox.h = 5;
 
 	// well this is a really lazy way to have collision for terrain
 	// obviously the enviroment won't just be a straight line (box) but at this point i need anything i can do to test collision
@@ -50,7 +52,7 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 }
 
 // everything below this is unnecessary but you never know
-
+/*
 void terrain_free(Entity* self) { // frees up entity
 	TerrainData* exist;
 	if (!self) {
@@ -73,12 +75,14 @@ void terrain_think(Entity* self) { // these are the actions the entity will do w
 	}
 	data = self->data;
 
-	self->rotation.z = 500; // rotated to fit with the player angle but this is probably a really dumb way of doing it
+	//self->rotation.z = 750; // rotated to fit with the player angle but this is probably a really dumb way of doing it
 }
 void terrain_update(Entity* self) {
-	gfc_vector3d_copy(self->position, self->position);
+	//gfc_vector3d_copy(self->position, self->position);
 }
-
+*/
 void terrain_touch(Entity* self, Entity* other) {
-	slog("touch is activtating from terrain\n");
+	printf("Terrain touched Player at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
+		self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
+		self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);
 }
