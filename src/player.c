@@ -13,8 +13,11 @@ void player_think(Entity* self);
 void player_update(Entity* self);
 void player_free(Entity* self);
 void player_touch(Entity* self, Entity* other);
+void player_camera(Entity* self);
 
-const int MAXSPEED = 3; // testing
+const int MAXSPEED = 3;
+const int JUMPTIME = 15;
+const float MAXSPINDASHSPEED = 10;
 
 typedef struct {
 	GFC_Vector3D position;
@@ -24,7 +27,28 @@ typedef struct {
 	GFC_Vector3D acceleration; 
 	int airborne;
 	int jumpTime;
+	int spindash;
+	float storedvelocity;
+	int rotdir; // 1 = left, 2 = right
 }playerData;
+
+// DRAW CUBE TO SEE BOUNDING BOX DONT FORGET
+// DRAW CUBE TO SEE BOUNDING BOX
+// DRAW CUBE TO SEE BOUNDING BOX
+
+// DRAW CUBE TO SEE BOUNDING BOX DONT FORGET
+
+// DRAW CUBE TO SEE BOUNDING BOX
+// DRAW CUBE TO SEE BOUNDING BOX
+// DRAW CUBE TO SEE BOUNDING BOX
+// DRAW CUBE TO SEE BOUNDING BOX
+
+
+// DRAW CUBE TO SEE BOUNDING BOX
+// DRAW CUBE TO SEE BOUNDING BOX
+
+// DRAW CUBE TO SEE BOUNDING BOX
+// DRAW CUBE TO SEE BOUNDING BOX
 
 Entity* player_spawn(GFC_Vector3D position) {
 	Entity* self;
@@ -41,7 +65,6 @@ Entity* player_spawn(GFC_Vector3D position) {
 	self->position = position;
 	self->touch = player_touch;
 	self->velocity = gfc_vector3d(0, 0, 0);
-	self->acceleration = gfc_vector3d(0, 0, 0);
 
 	self->BoundingBox.x = position.x;
 	self->BoundingBox.y = position.y;
@@ -82,20 +105,46 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	data = self->data;
 	
 	// right is negative and left is positive because ?????????
-	
+
 	// MOVEMENT
 	if (gfc_input_command_held("walkleft")) {
-		self->velocity.y += 0.1;
+		/*if (self->rotation.z != 0) {
+			printf("z rotation (going left): %f\n", self->rotation.z);
+		}*/
+
 		// SPEED CAP
-		if (self->velocity.y > MAXSPEED) {
+		if (self->velocity.y >= MAXSPEED) {
 			self->velocity.y = MAXSPEED;
+		}
+		else {
+			self->velocity.y += 0.1;
+		}
+		// ROTATION CAP
+		if (self->rotation.z <= -3.2) { 
+			self->rotation.z = -3.2; 
+		}
+		else {
+			self->rotation.z -= 0.2;
 		}
 	}
 	else if (gfc_input_command_held("walkright")) {
-		self->velocity.y -= 0.1;
+		/*if (self->rotation.z != 0) {
+			printf("z rotation (going right): %f\n", self->rotation.z);
+		}*/
+
 		// SPEED CAP
-		if (self->velocity.y < -MAXSPEED) {
+		if (self->velocity.y <= -MAXSPEED) {
 			self->velocity.y = -MAXSPEED;
+		}
+		else {
+			self->velocity.y -= 0.1;
+		}
+		// ROTATION CAP
+		if (self->rotation.z >= 0) {
+			self->rotation.z = 0;
+		}
+		else {
+			self->rotation.z += 0.2;
 		}
 	}
 	else {
@@ -112,37 +161,104 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 				self->velocity.y = 0;
 			}
 		}
+		// ROTATION FALLBACK (stopping mid-turn) (also a left direction cap)
+		if (self->rotation.z <= -1.5) { // LEFT
+			
+			if (self->rotation.z <= -3.2) {
+				self->rotation.z = -3.2;
+			}
+			else {
+				self->rotation.z -= 0.2;
+			}
+		}
+		else if (self->rotation.z >= -1.5) { // RIGHT
+			if (self->rotation.z >= 0) {
+				self->rotation.z = 0;
+				
+			}
+			else {
+				self->rotation.z += 0.2;
+			}
+		}
 	}
 
 	// JUMPING
 	// very similar to sonic
 	// hold longer to jump higher
-
+	// binded to w for now, but i want it to also be binded to space except i didnt find the input documentation for space yet
 	if (gfc_input_command_down("jump")) { 
-		if (data->airborne == 0) {
+		if (data->airborne == 0 && data->spindash == 0) {
 			data->jumpTime = 0;
 			self->velocity.z = 2;
 			self->model = gf3d_model_load("models/dino_jump.model");
 		}
 	}
 
-	if (gfc_input_command_held("jump") && data->jumpTime <= 10) {
+	if (gfc_input_command_held("jump") && data->jumpTime <= JUMPTIME && data->spindash == 0) {
 		//printf("jumptime: %i \n", data->jumpTime);
 		data->jumpTime += 1;
 		self->velocity.z += 0.1;
 	}
 
-	if (gfc_input_command_down("walkback")) { // for testing only, wont be in the final game
-		gfc_vector3d_sub(self->position, self->position, dir_z);
+	// SPINDASH
+	// functions just like sonic's spindash
+	// hold down (s) to curl into a ball then spam jump to charge it until maximum allowed speed
+	// you can also hold jump to charge it but thats not intended, though i shouldnt waste time trying to fix that since this still works
+	if (gfc_input_command_held("spindash")) {
+		data->spindash = 1;
+		if (data->airborne == 0) {
+			self->velocity.y = 0;
+		}
+		
+		self->model = gf3d_model_load("models/dino_jump.model");
+
+		if (gfc_input_command_down("jump") && data->airborne == 0) {
+			if (data->rotdir == 1) {
+				if (data->storedvelocity <= MAXSPINDASHSPEED) { // LEFT DIR SPINDASH
+					data->storedvelocity += 0.5;
+					//printf("increasing left velocity\n");
+					//play sound or display velocity on a ui
+				}
+			}
+			else if (data->rotdir == 2) {
+				if (data->storedvelocity >= -MAXSPINDASHSPEED) { // RIGHT DIR SPINDASH
+					data->storedvelocity -= 0.5;
+					//printf("increased right velocity\n");
+					//play sound or display velocity on a ui
+				}
+			}
+			//printf("stored velocity: %.2f\n", data->storedvelocity);
+		}
+		// if charged at least once, keep spinning and scale with speed
+		if (data->storedvelocity > 0) { 
+			self->rotation.y -= (data->storedvelocity * 0.1);
+		}
+		else if (data->storedvelocity < 0){
+			self->rotation.y += (data->storedvelocity * 0.1);
+		}
+		else {
+			self->rotation.y = 0;
+		}
+
+		if (data->storedvelocity >= MAXSPINDASHSPEED && data->rotdir == 1) {
+			data->storedvelocity = MAXSPINDASHSPEED;
+		}
+		else if (data->storedvelocity <= -MAXSPINDASHSPEED && data->rotdir == 2) {
+			data->storedvelocity = -MAXSPINDASHSPEED;
+		}
+	}
+	else {
+		data->spindash = 0;
+		if (data->storedvelocity != 0) {
+			self->velocity.y = data->storedvelocity;
+			data->storedvelocity = 0;
+		}
 	}
 
 	//data->cameraPitch += dy * 0.01;
 }
 void player_update(Entity* self) {
-	GFC_Vector3D lookTarget, camera, dir = { 0 };
-	playerData* data;
-
-	int ground; 
+	playerData* data; 
 
 	if (!self) {
 		return;
@@ -156,10 +272,6 @@ void player_update(Entity* self) {
 	self->position.y += self->velocity.y;
 	self->position.z += self->velocity.z;
 
-	if (self->velocity.y > MAXSPEED) { // i think this is redundant actually
-		self->velocity.y = MAXSPEED;
-	}
-
 	/*if (self->velocity.y != 0) {
 		printf("y velocity: %f\n", self->velocity.y);
 	}*/
@@ -169,11 +281,17 @@ void player_update(Entity* self) {
 	self->BoundingBox.y = self->position.y;
 	self->BoundingBox.z = self->position.z;
 
+	printf("rotdir: %i\n", data->rotdir);
+
 	// GRAVITY
 	// DONT MOVE THIS, IT DOESNT WORK OTHERWISE
 	if (data->airborne == 1) {
 		self->velocity.z -= 0.1;
-		self->rotation.y += 0.1;
+
+		if (data->spindash == 0) { // prevent animation when spindashing unless its from the spindash itself
+			self->rotation.y += 0.1;
+		}
+		
 		// respawn player on top of the map if they fall into the void
 		if (self->position.z <= -250) {
 			self->position.z = 100;
@@ -185,25 +303,34 @@ void player_update(Entity* self) {
 		// im pretty sure i can use the bounding box sides to fix this tho, but that means changing a lot of how this works right now
 	}
 
+	if (self->rotation.z >= -1.5) { // idk if i had to put an extra rotation detection here (probably not)
+		data->rotdir = 2; // facing right
+	}
+	else {
+		data->rotdir = 1; // facing left
+	}
+
+	player_camera(self); // this is fine for now
 
 	/*printf("Player box: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
        self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
        self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);*/
-	
+}
 
-	// everything below here should probably be moved but i dont feel like figuring it out yet
+void player_camera(Entity* self) {
+	GFC_Vector3D lookTarget, camera, dir = { 0 };
 
 	// CAMERA SYSTEM
-	gfc_vector3d_copy(lookTarget, self->position); // keeps track of position (this is outdate dprobably)
-	lookTarget.z += 5; // this changes the offset of the camera
-	//gf3d_camera_look_at(lookTarget, const GFC_Vector3D *position);
-	dir.x = 50.0; // not sure how this works still but this gives the 2d camera angle like sonic games
-	// could change to 3d pov just by changing the values of this and the camera below
-	gfc_vector3d_rotate_about_z(&dir, self->rotation.z); // the rotation the camera will go along with
-	gfc_vector3d_sub(camera, self->position, dir);
-	camera.z += 10;
-	gf3d_camera_look_at(lookTarget, &camera);
+	gfc_vector3d_copy(lookTarget, self->position);
 
+	lookTarget.z += 5; // this changes the offset of the camera
+	dir.x = 50.0;
+	//gf3d_camera_look_at(lookTarget, const GFC_Vector3D *position);
+	// could change to 3d pov just by changing the values of this and the camera below
+	//gfc_vector3d_rotate_about_z(&dir, self->rotation.z); // the rotation the camera will go along with
+	gfc_vector3d_sub(camera, self->position, dir);
+	camera.z += 15; // changes angle of camera from by rotating around the player's z 
+	gf3d_camera_look_at(lookTarget, &camera);
 }
 	
 void player_touch(Entity* self, Entity* other) {
@@ -214,10 +341,13 @@ void player_touch(Entity* self, Entity* other) {
 	// example: if other->TERRAIN 
 	data = self->data;
 
-	self->rotation.y = 0;
 	self->velocity.z = 0;
 	data->airborne = 0;
-	self->model = gf3d_model_load("models/dino.model");
+	if (data->spindash == 0) {
+		self->model = gf3d_model_load("models/dino.model");
+		self->rotation.y = 0;
+	}
+	
 
 	//slog("touch is activtating from player\n");
 	/*printf("Player touched Terrain at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
