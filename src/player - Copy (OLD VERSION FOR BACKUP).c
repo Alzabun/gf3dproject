@@ -14,7 +14,7 @@ void player_update(Entity* self);
 void player_free(Entity* self);
 void player_touch(Entity* self, Entity* other);
 
-const int MAXSPEED = 3; // testing
+const int maxHeight = 100;
 
 typedef struct {
 	GFC_Vector3D position;
@@ -23,7 +23,7 @@ typedef struct {
 	GFC_Vector3D velocity;
 	GFC_Vector3D acceleration; 
 	int airborne;
-	int jumpTime;
+	int jumpHeight;
 }playerData;
 
 Entity* player_spawn(GFC_Vector3D position) {
@@ -55,6 +55,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 	if (data) {
 		self->data = data;
 	}
+
 	return self;
 }
 
@@ -74,62 +75,46 @@ void player_free(Entity* self) { // frees up entity
 
 void player_think(Entity* self) { // these are the actions the entity will do when the game loads
 	playerData* data;
+	GFC_Vector2D dir_x = { 0,-1 }; // will only rotate in 2 dimensions
 	GFC_Vector3D dir_z = { 0, 0, 1 };
+	GFC_Vector2D dir_y = { -1, 0 };
 
 	if (!self || !self->data) {
 		return;
 	}
 	data = self->data;
-	
-	// right is negative and left is positive because ?????????
-	
-	// MOVEMENT
-	if (gfc_input_command_held("walkleft")) {
-		self->velocity.y += 0.1;
-		// SPEED CAP
-		if (self->velocity.y > MAXSPEED) {
-			self->velocity.y = MAXSPEED;
-		}
+
+	dir_x = gfc_vector2d_rotate(dir_x, self->rotation.z);
+	dir_y = gfc_vector2d_rotate(dir_y, self->rotation.z);
+
+	// walking right/left moves in the y-axis because of the camera direction
+	// walking into the 3rd dimension is the x-axis
+	// up/down should be the z-axis
+	if (gfc_input_command_down("walkright")) { 
+		gfc_vector2d_add(self->position, self->position, dir_x); // go check function defintion to check the macros for this (the parameters)
 	}
-	else if (gfc_input_command_held("walkright")) {
-		self->velocity.y -= 0.1;
-		// SPEED CAP
-		if (self->velocity.y < -MAXSPEED) {
-			self->velocity.y = -MAXSPEED;
+
+	if (gfc_input_command_down("walkleft")) {
+		gfc_vector2d_sub(self->position, self->position, dir_x);
+	}
+
+	if (gfc_input_command_down("jump") && data->airborne == 0) {
+		data->jumpHeight = 0;
+		data->airborne = 1;
+		self->velocity.z = 10;
+	}
+	
+	if (gfc_input_command_held("jump") && data->airborne == 1) {
+		self->model = gf3d_model_load("models/dino_jump.model");
+		gfc_vector3d_add(self->position, self->position, dir_z);
+		if (data->jumpHeight <= maxHeight) {
+			self->velocity.z += 1;
+			data->jumpHeight += self->velocity.z;
 		}
 	}
 	else {
-		// FRICTION
-		if (self->velocity.y > 0) {
-			self->velocity.y -= 0.1;
-			if (self->velocity.y < 0) {
-				self->velocity.y = 0;
-			}
-		}
-		else if (self->velocity.y < 0) {
-			self->velocity.y += 0.1;
-			if (self->velocity.y > 0) {
-				self->velocity.y = 0;
-			}
-		}
-	}
-
-	// JUMPING
-	// very similar to sonic
-	// hold longer to jump higher
-
-	if (gfc_input_command_down("jump")) { 
-		if (data->airborne == 0) {
-			data->jumpTime = 0;
-			self->velocity.z = 2;
-			self->model = gf3d_model_load("models/dino_jump.model");
-		}
-	}
-
-	if (gfc_input_command_held("jump") && data->jumpTime <= 10) {
-		//printf("jumptime: %i \n", data->jumpTime);
-		data->jumpTime += 1;
-		self->velocity.z += 0.1;
+		self->velocity.z = 0;
+		data->jumpHeight = 0;
 	}
 
 	if (gfc_input_command_down("walkback")) { // for testing only, wont be in the final game
@@ -137,55 +122,52 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 
 	//data->cameraPitch += dy * 0.01;
+	//self->rotation.z += 0.01; // will rotate the playersaur every frame by 0.01
 }
 void player_update(Entity* self) {
 	GFC_Vector3D lookTarget, camera, dir = { 0 };
 	playerData* data;
-
-	int ground; 
 
 	if (!self) {
 		return;
 	}
 	data = self->data;
 
-	data->airborne = 1; // assume airborne unless a collision happens
+	// velocity process
+	// i kind of want to make the x/y velocity go faster and faster the longer you run in one direction without interruption
+	// like a normal sonic game (capped at a certain point obviously)
+	// remember to do this later
 
-	// for movement speed tracking and changing
+	self->velocity.y += self->acceleration.y;
+
 	self->position.x += self->velocity.x;
 	self->position.y += self->velocity.y;
 	self->position.z += self->velocity.z;
 
-	if (self->velocity.y > MAXSPEED) { // i think this is redundant actually
-		self->velocity.y = MAXSPEED;
+
+	// 100 = max speed
+	if (self->velocity.y > 100 ) {
+		self->velocity.y = 100;
 	}
-
-	/*if (self->velocity.y != 0) {
-		printf("y velocity: %f\n", self->velocity.y);
-	}*/
-
+	else if (self->velocity.y < -100) {
+		self->velocity.y = -100;
+	}
 
 	self->BoundingBox.x = self->position.x;
 	self->BoundingBox.y = self->position.y;
 	self->BoundingBox.z = self->position.z;
 
-	// GRAVITY
-	// DONT MOVE THIS, IT DOESNT WORK OTHERWISE
 	if (data->airborne == 1) {
 		self->velocity.z -= 0.1;
-		self->rotation.y += 0.1;
 		// respawn player on top of the map if they fall into the void
 		if (self->position.z <= -250) {
 			self->position.z = 100;
-			self->position.x = 0;
-			self->position.y = 0;
 			self->velocity.z = 0;
 		}
-		// this is obviously going to cause problems when t	here has to be collisions with walls and probably enemies
+		// this is obviously going to cause problems when there has to be collisions with walls and probably enemies
 		// im pretty sure i can use the bounding box sides to fix this tho, but that means changing a lot of how this works right now
 	}
-
-
+	gfc_vector3d_copy(lookTarget, self->position); // keeps track of position (this is outdate dprobably)
 	/*printf("Player box: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
        self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
        self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);*/
@@ -193,8 +175,7 @@ void player_update(Entity* self) {
 
 	// everything below here should probably be moved but i dont feel like figuring it out yet
 
-	// CAMERA SYSTEM
-	gfc_vector3d_copy(lookTarget, self->position); // keeps track of position (this is outdate dprobably)
+
 	lookTarget.z += 5; // this changes the offset of the camera
 	//gf3d_camera_look_at(lookTarget, const GFC_Vector3D *position);
 	dir.x = 50.0; // not sure how this works still but this gives the 2d camera angle like sonic games
@@ -211,16 +192,16 @@ void player_touch(Entity* self, Entity* other) {
 	// this whole thing is kind of based on the fact that the terrain is the only other entity at this point
 	// i think theres a way to like have a flag system for each separate entity (when i make them)
 	// so change it later
-	// example: if other->TERRAIN 
 	data = self->data;
 
+	// if other->Terrain (implement this)
 	self->rotation.y = 0;
 	self->velocity.z = 0;
 	data->airborne = 0;
-	self->model = gf3d_model_load("models/dino.model");
 
+	self->model = gf3d_model_load("models/dino.model");
 	//slog("touch is activtating from player\n");
-	/*printf("Player touched Terrain at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
+	printf("Player touched Terrain at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
 		self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
-		self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);*/
+		self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);
 }

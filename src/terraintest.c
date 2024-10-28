@@ -36,6 +36,8 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	self->BoundingBox.y = position.y;
 	self->BoundingBox.z = position.z;
 	// i think you can reference the scale values in blender for how big the bounding box should be
+	// so the model and object are clearly not in sync because the collision for this model goes
+	// way further to the left beyond its model and doesnt even go to the right at all???
 	self->BoundingBox.w = 1000;
 	self->BoundingBox.d = 1000;
 	self->BoundingBox.h = 135; // idk whats with this one 
@@ -82,7 +84,7 @@ void terrain_update(Entity* self) {
 }
 */
 void terrain_touch(Entity* self, Entity* other) {
-	printf("Terrain touched Player at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
-		self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
-		self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);
+	//printf("Terrain touched Player at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
+		//self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
+		//self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);
 }
