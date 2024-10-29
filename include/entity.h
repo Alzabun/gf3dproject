@@ -9,7 +9,14 @@
 #include "gfc_primitives.h"
 
 // C does not have a string type by default, but you can use a makeshift one made in gfc/ i forgor / gfc string or something
-// go to include for entity.c (i dont know if its supposed to be here)
+
+typedef enum { // enum is good enough, i think there was smoething else that coudlve been done that does this too but i forgor
+	PLAYER,
+	TERRAIN,
+	ENEMY,
+	PROJECTILE,
+	IGNORE
+}EntityFlag;
 
 typedef struct Entity_S{
 
@@ -30,6 +37,7 @@ typedef struct Entity_S{
 	GFC_Box BoundingBox; // this better work
 	void (*touch) (struct Entity_s* self, struct Entity_S* other);
 	GFC_Vector3D velocity;
+	EntityFlag flag;
 
 }Entity; // you can change the name of this to the name of the game later (or dont)
 
@@ -85,4 +93,6 @@ void entity_update_all();
 int collisiontest(Entity* self, Entity* other);
 void collision_check();
 
+// * bounding box debugging *
+void entity_show_box(Entity* self, GFC_Color color);
 #endif __ENTITY_H__ // should this be here???

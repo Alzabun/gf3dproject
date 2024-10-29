@@ -42,8 +42,8 @@ void exitGame()
 {
     _done = 1;
 }
-
-void draw_origin()
+// i dont think ill ever need this again, but this is the code for the 3 axis lines
+/*void draw_origin() 
 {
     gf3d_draw_edge_3d(
         gfc_edge3d_from_vectors(gfc_vector3d(-100,0,0),gfc_vector3d(100,0,0)),
@@ -54,7 +54,7 @@ void draw_origin()
     gf3d_draw_edge_3d(
         gfc_edge3d_from_vectors(gfc_vector3d(0,0,-100),gfc_vector3d(0,0,100)),
         gfc_vector3d(0,0,0),gfc_vector3d(0,0,0),gfc_vector3d(1,1,1),0.1,gfc_color(0,0,1,1));
-}
+}*/
 
 // ME: *** EVERYTHING is dependant on this function, this is how the program starts (it's the main function obviously)
 
@@ -128,39 +128,39 @@ int main(int argc,char *argv[])
     
    // gf3d_camera_enable_free_look(1);
     player_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
-    terrain_spawn(gfc_vector3d(0, 0, -150));
+    terrain_spawn(gfc_vector3d(0, 0, -200));
     
     //windows
 
     // main game loop    
-    while(!_done) // ME: self explanatory - updates the primary functions constantly as long as the game is open
-    {
-        gfc_input_update();
-        gf2d_mouse_update();
-        gf2d_font_update();
+        while(!_done) // ME: self explanatory - updates the primary functions constantly as long as the game is open
+        {
+            gfc_input_update();
+            gf2d_mouse_update();
+            gf2d_font_update();
+            // new stuff
+            entity_think_all();
+            entity_update_all();
 
-        entity_think_all(); // me: create this
-        entity_update_all(); // me: uhh
+            //camera updaes
+            gf3d_camera_controls_update();
+            gf3d_camera_update_view();
+            gf3d_camera_get_view_mat4(gf3d_vgraphics_get_view_matrix());
 
-        //camera updaes
-        gf3d_camera_controls_update();
-        gf3d_camera_update_view();
-        gf3d_camera_get_view_mat4(gf3d_vgraphics_get_view_matrix());
+            gf3d_vgraphics_render_start();
 
-        gf3d_vgraphics_render_start();
-
-        //3D draws
+            //3D draws
         
-        gf3d_model_draw_sky(sky,skyMat,GFC_COLOR_WHITE);
-        /*gf3d_model_draw(
-            dino, // dinosaur model location, if y  ou delete it it wont appear in the game UNLESS YOU HVAE ANOTHER WAY OF SAPWNING IT
-            dinoMat,
-            GFC_COLOR_WHITE,
-            NULL,
-            0);*/
-        entity_draw_all(); // because this is already done in entity.c
-        draw_origin();
-        //2D draws
+            gf3d_model_draw_sky(sky,skyMat,GFC_COLOR_WHITE);
+            /*gf3d_model_draw(
+                dino, // dinosaur model location, if y  ou delete it it wont appear in the game UNLESS YOU HVAE ANOTHER WAY OF SAPWNING IT
+                dinoMat,
+                GFC_COLOR_WHITE,
+                NULL,
+                0);*/
+        
+            entity_draw_all(); // because this is already done in entity.c
+            //2D draws
         gf2d_mouse_draw();
         gf2d_font_draw_line_tag("alt+f4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
         gf3d_vgraphics_render_end();

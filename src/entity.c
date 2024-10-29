@@ -4,6 +4,8 @@
 
 #include "gfc_primitives.h"
 #include "gf3d_obj_load.h"
+#include "gfc_color.h"
+#include "gf3d_draw.h"
 
 //entity stuff should be building on top of gf3d_mesh.c stuff
 // make sure to constantly compile to check for errors
@@ -55,7 +57,7 @@ void entity_system_init(Uint32 maxEnts) {
 		return;
 	}
 	entity_manager.entityMax = maxEnts;
-	atexit(entity_system_close); // atexit not atexot (typo)
+	atexit(entity_system_close);
 }
 
 // * drawing stuff *
@@ -97,6 +99,8 @@ void entity_draw_generic(Entity* self) { // this is where we make a matrix of 4x
 // theres supposed to be things like this for draw_all and think_all and think and draw
 
 void entity_draw(Entity *self) {
+	GFC_Color red = { 1, 0, 0, 1 };
+
 	if (!self) {
 		return;
 	}
@@ -108,6 +112,7 @@ void entity_draw(Entity *self) {
 	}
 
 	entity_draw_generic(self);
+	entity_show_box(self, red); // for debugging reasons, shows bounding box for every entity
 }
 
 void entity_draw_all() {
@@ -219,20 +224,18 @@ int collisiontest(Entity* self, Entity* other) {
 void collision_check() {
 	for (int i = 0; i < entity_manager.entityMax; i++) {
 		Entity* first = &entity_manager.entityList[i];
-
 		if (!first->_inuse) {
 			continue;
 		}
 
 		for (int j = i + 1; j < entity_manager.entityMax; j++) {
 			Entity* second = &entity_manager.entityList[j];
-
-			if (!second->_inuse) {
+			if (!second->_inuse) { 
 				continue;
 			}
 
-			if (collisiontest(first, second) == 1) { // when the bounding boxes intersect for the two entities, they will have both their
-				if (first->touch) {					 // touch functions activated
+			if (collisiontest(first, second) == 1) { // when the bounding boxes intersect for the two entities, they will have both their touch functions activated
+				if (first->touch) {
 					first->touch(first, second);
 				}
 				if (second->touch) {
@@ -254,4 +257,35 @@ void entity_touch_all(Entity* self) {
 		}
 		entity_touch(&entity_manager.entityList[i]);
 	}
+}
+
+void entity_show_box(Entity* self, GFC_Color color) {
+	GFC_Box box;
+	GFC_Vector3D position, rotation, scale;
+	// r g b a (only from 1 to 0 for each)
+	// so from what im understanding, this is either not working how it should be or im misunderstanding something
+	// more specifically, this box is not reflecting what the box actually looks like
+	// this is giving me a headache i think i should just start making other deliverables while the collision is in this state
+
+
+	if (!self) {
+		return;
+	}
+
+	position = self->position;
+	rotation = self->rotation;
+	scale = self->scale;
+
+	box.x = self->BoundingBox.x;
+	box.y = self->BoundingBox.y;
+	box.z = self->BoundingBox.z;
+
+	box.w = self->BoundingBox.w;
+	box.d = self->BoundingBox.d;
+	box.h = self->BoundingBox.h;
+
+	self->flag = IGNORE;
+
+	//printf("box position: x=%.2f, y=%.2f, z=%.2f\n", self->position.x, self->position.y, self->position.z);
+	gf3d_draw_cube_solid(box, position, rotation, scale, color);
 }

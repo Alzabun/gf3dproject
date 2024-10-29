@@ -8,14 +8,12 @@
 //void terrain_think(Entity* self);
 //void terrain_update(Entity* self);
 //void terrain_free(Entity* self);
-void terrain_touch(Entity* self, Entity* other);
+//void terrain_touch(Entity* self, Entity* other);
 
 
 typedef struct {
 	Uint8 exist;
 }TerrainData;
-
-// if something isnt working that you thin should work then just reference player.c
 
 Entity* terrain_spawn(GFC_Vector3D position) {
 	Entity* self;
@@ -30,7 +28,7 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	//self->free = terrain_free;
 	//self->think = terrain_think;
 	self->position = position;
-	self->touch = terrain_touch;
+	//self->touch = terrain_touch;
 
 	self->BoundingBox.x = position.x;
 	self->BoundingBox.y = position.y;
@@ -38,10 +36,11 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	// i think you can reference the scale values in blender for how big the bounding box should be
 	// so the model and object are clearly not in sync because the collision for this model goes
 	// way further to the left beyond its model and doesnt even go to the right at all???
-	self->BoundingBox.w = 1000;
-	self->BoundingBox.d = 1000;
-	self->BoundingBox.h = 135; // idk whats with this one 
-
+	self->BoundingBox.w = 100;
+	self->BoundingBox.d = 100;
+	self->BoundingBox.h = 5; // idk whats with this one 
+	
+	self->flag = TERRAIN;
 
 	// well this is a really lazy way to have collision for terrain
 	// obviously the enviroment won't just be a straight line (box) but at this point i need anything i can do to test collision
@@ -54,7 +53,7 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 }
 
 // everything below this is unnecessary but you never know
-/*
+
 void terrain_free(Entity* self) { // frees up entity
 	TerrainData* exist;
 	if (!self) {
@@ -69,22 +68,13 @@ void terrain_free(Entity* self) { // frees up entity
 	self->data = NULL;
 }
 
-void terrain_think(Entity* self) { // these are the actions the entity will do when the game loads
-	TerrainData* data;
+//void terrain_think(Entity* self) { // this thing not thinking about anything!!!
+//}
+//void terrain_update(Entity* self){
+//}
 
-	if (!self || !self->data) {
-		return;
-	}
-	data = self->data;
-
-	//self->rotation.z = 750; // rotated to fit with the player angle but this is probably a really dumb way of doing it
-}
-void terrain_update(Entity* self) {
-	//gfc_vector3d_copy(self->position, self->position);
-}
-*/
-void terrain_touch(Entity* self, Entity* other) {
+//void terrain_touch(Entity* self, Entity* other) {
 	//printf("Terrain touched Player at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
 		//self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
 		//self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);
-}
+//}
