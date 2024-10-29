@@ -25,8 +25,9 @@ C:\Users\Sampl\gf3dproject\gfc\src\gfc_text.c;C:\Users\Sampl\gf3dproject\win\win
 C:\Users\Sampl\gf3dproject\gfc\src\gfc_types.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\gfc_types.obj
 C:\Users\Sampl\gf3dproject\gfc\src\gfc_vector.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\gfc_vector.obj
 C:\Users\Sampl\gf3dproject\gfc\src\miniz.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\miniz.obj
-C:\Users\Sampl\gf3dproject\src\player.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\player.obj
+C:\Users\Sampl\gf3dproject\src\enemy.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\enemy.obj
 C:\Users\Sampl\gf3dproject\src\entity.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\entity.obj
+C:\Users\Sampl\gf3dproject\src\player.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\player.obj
 C:\Users\Sampl\gf3dproject\src\game.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\game.obj
 C:\Users\Sampl\gf3dproject\src\gf2d_actor.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\gf2d_actor.obj
 C:\Users\Sampl\gf3dproject\src\gf2d_draw.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\gf2d_draw.obj

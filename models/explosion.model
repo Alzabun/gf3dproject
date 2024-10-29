@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/explosion/explosion.obj",
+        "texture":"models/explosion/explosion.png"
+    }
+}

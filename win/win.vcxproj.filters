@@ -180,10 +180,13 @@
     <ClCompile Include="..\src\player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\entity.c">
+    <ClCompile Include="..\src\terraintest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\terraintest.c">
+    <ClCompile Include="..\src\enemy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\entity.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -363,6 +366,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\enemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

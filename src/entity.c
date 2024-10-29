@@ -169,8 +169,6 @@ void entity_free(Entity* self) {
 	}
 	gf3d_model_free(self->model);
 	memset(self, 0, sizeof(Entity));
-
-
 }
 
 // * updating stuff * 
@@ -284,8 +282,18 @@ void entity_show_box(Entity* self, GFC_Color color) {
 	box.d = self->BoundingBox.d;
 	box.h = self->BoundingBox.h;
 
-	self->flag = IGNORE;
+	//self->flag = IGNORE; THIS WAS CAUSING ME PROBLEMS THE ENTIRE TIME THIS IS WHY I SHOULDNT FORGET ABOUT THINGS
 
 	//printf("box position: x=%.2f, y=%.2f, z=%.2f\n", self->position.x, self->position.y, self->position.z);
 	gf3d_draw_cube_solid(box, position, rotation, scale, color);
+}
+
+// * deletion stuff *
+
+void sentence_to_death(Entity* self) { // freeing in the middle of a function crashes the game, so use this to kill an entity
+	for (int i = 0; i < entity_manager.entityMax; i++) {
+		if (entity_manager.entityList[i]._inuse) {
+			entity_free(self);
+		}
+	}
 }

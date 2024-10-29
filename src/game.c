@@ -28,6 +28,7 @@
 #include "entity.h"
 #include "player.h"
 #include "terraintest.h"
+#include "enemy.h"
 
 extern int __DEBUG;
 
@@ -127,8 +128,10 @@ int main(int argc,char *argv[])
     gf3d_camera_set_rotate_step(0.05);
     
    // gf3d_camera_enable_free_look(1);
+    // i should turn this into a function for entity  spawning probably
     player_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
-    terrain_spawn(gfc_vector3d(0, 0, -200));
+    terrain_spawn(gfc_vector3d(0, -100, -200));
+    enemy_spawn(gfc_vector3d(0, 0, 0));
     
     //windows
 

@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/enemytest/enemytest.obj",
+        "texture": "models/enemytest/enemytest.png"
+    }
+}

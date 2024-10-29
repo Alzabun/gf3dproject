@@ -14,6 +14,7 @@ void player_update(Entity* self);
 void player_free(Entity* self);
 void player_touch(Entity* self, Entity* other);
 void player_camera(Entity* self);
+void player_damage(Entity* self);
 
 const int MAXSPEED = 3;
 const int JUMPTIME = 15;
@@ -28,6 +29,7 @@ typedef struct {
 	// why didnt i check first? idk who cares this functions the same way
 	int airborne; // 1 = yes, 2 = no
 	int spindash; // 1 = yes, 2 = no
+	int inball; // 1 = yes, 2 = no
 	int rotdir; // 1 = left, 2 = right
 }playerData;
 
@@ -171,6 +173,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// binded to w for now, but i want it to also be binded to space except i didnt find the input documentation for space yet
 	if (gfc_input_command_down("jump")) { 
 		if (data->airborne == 0 && data->spindash == 0) {
+			data->inball = 1;
 			data->jumpTime = 0;
 			self->velocity.z = 2;
 			self->model = gf3d_model_load("models/dino_jump.model");
@@ -214,9 +217,11 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		}
 		// if charged at least once, keep spinning and scale with speed
 		if (data->storedvelocity > 0) { 
+			data->inball = 1; // you dont get to do dmg if you're just curled without speed
 			self->rotation.y += (data->storedvelocity * 0.1); // left
 		}
 		else if (data->storedvelocity < 0){
+			data->inball = 1; // you dont get to do dmg if you're just curled without speed
 			self->rotation.y -= (data->storedvelocity * 0.1); // right
 		}
 		else {
@@ -233,6 +238,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	else {
 		data->spindash = 0;
 		if (data->storedvelocity != 0) {
+			// implement damage while you still have speed from spindashing (and still in a ball) later
 			self->velocity.y = data->storedvelocity;
 			data->storedvelocity = 0;
 		}
@@ -329,8 +335,40 @@ void player_touch(Entity* self, Entity* other) {
 	playerData* data;
 	data = self->data;
 
-	if (other->flag == TERRAIN) {
-		printf("collided with terrain\n");
+	if (other->flag == TERRAIN) { // only happening once then never again for some reason
+		//slog("collided with terrain");
+		self->velocity.z = 0;
+		if (data->airborne == 1 && data->inball == 1) {
+			data->inball = 0;
+		}
+		data->airborne = 0;
+		if (data->spindash == 0) {
+			self->model = gf3d_model_load("models/dino.model");
+			self->rotation.y = 0;
+		}
+	}
+	else if (other->flag == ENEMY) {
+		if (data->inball) {
+			// kill the enemy
+			self->velocity.z = 2; // reject gravity 
+			other->model = gf3d_model_load("models/explosion.model"); // refer to note
+			// NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
+			sentence_to_death(other);
+			slog("collided with enemy (attack)");
+		}
+		else {
+			// do damage
+			slog("collided with enemy (damage)");
+		}
+	}
+	else if (other->flag == DAMAGE) {
+		slog("collided with something dangerous");
+	}
+	else if (other->flag == IGNORE) {
+		slog("collided with something unimportant");
+	}
+	else {
+		//slog("collided with misc?");
 		self->velocity.z = 0;
 		data->airborne = 0;
 		if (data->spindash == 0) {
@@ -338,19 +376,8 @@ void player_touch(Entity* self, Entity* other) {
 			self->rotation.y = 0;
 		}
 	}
+}
 
-	printf("collided with terrain\n");
-	self->velocity.z = 0;
-	data->airborne = 0;
-	if (data->spindash == 0) {
-		self->model = gf3d_model_load("models/dino.model");
-		self->rotation.y = 0;
-	}
+void player_damage(Entity* self) {
 
-	//printf("collided with some debugging tool\n");
-
-	//slog("touch is activtating from player\n");
-	/*printf("Player touched Terrain at: x=%.2f, y=%.2f, z=%.2f, w=%.2f, d=%.2f, h=%.2f\n",
-		self->BoundingBox.x, self->BoundingBox.y, self->BoundingBox.z,
-		self->BoundingBox.w, self->BoundingBox.d, self->BoundingBox.h);*/
 }

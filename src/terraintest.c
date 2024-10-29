@@ -36,9 +36,12 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	// i think you can reference the scale values in blender for how big the bounding box should be
 	// so the model and object are clearly not in sync because the collision for this model goes
 	// way further to the left beyond its model and doesnt even go to the right at all???
-	self->BoundingBox.w = 100;
-	self->BoundingBox.d = 100;
-	self->BoundingBox.h = 5; // idk whats with this one 
+	// THEY ARE WRONG BECAUSE THE CAMERA ANGLE DOES NOT REFLECT WHAT THE DIMENSIONS ACTUALLY ARE
+	// they seem to be changing depending on someting???????
+	// CRAZY DIMENSIONS FROM AN ALTERNATE UNIVERSE
+	self->BoundingBox.w = 500; 
+	self->BoundingBox.d = 500;
+	self->BoundingBox.h = 50; 
 	
 	self->flag = TERRAIN;
 

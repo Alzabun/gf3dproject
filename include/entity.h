@@ -14,8 +14,9 @@ typedef enum { // enum is good enough, i think there was smoething else that cou
 	PLAYER,
 	TERRAIN,
 	ENEMY,
-	PROJECTILE,
-	IGNORE
+	DAMAGE,
+	IGNORE,
+	DYING
 }EntityFlag;
 
 typedef struct Entity_S{
@@ -31,13 +32,14 @@ typedef struct Entity_S{
 	void (*think) (struct Entity_S *self); // called every frame for	the entity to decide things
 	void (*update) (struct Entity_S* self); // called every frame for the entity to update its state
 	int (*draw) (struct Entity_s *self); // for custom drawing code (this was void originally but is used fro the == -1 thing)
-	void (*free) (struct Entity_s* self); // called when the entity is cle ed up to to clean up custom data
+	void (*free) (struct Entity_s* self); // called when the entity is cleaned up to to clean up custom data
 	void* data; // entity for custom data - for everything beyond the basics
 
 	GFC_Box BoundingBox; // this better work
-	void (*touch) (struct Entity_s* self, struct Entity_S* other);
 	GFC_Vector3D velocity;
 	EntityFlag flag;
+	void (*touch) (struct Entity_s* self, struct Entity_S* other);
+	//void (*dying) (struct Entity_s* self);
 
 }Entity; // you can change the name of this to the name of the game later (or dont)
 
@@ -96,3 +98,6 @@ void collision_check();
 // * bounding box debugging *
 void entity_show_box(Entity* self, GFC_Color color);
 #endif __ENTITY_H__ // should this be here???
+
+// * deleting stuff *
+void sentence_to_death(Entity* self);
