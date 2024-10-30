@@ -29,6 +29,7 @@
 #include "player.h"
 #include "terraintest.h"
 #include "enemy.h"
+#include "rings.h"
 
 extern int __DEBUG;
 
@@ -132,6 +133,9 @@ int main(int argc,char *argv[])
     player_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
     terrain_spawn(gfc_vector3d(0, -100, -200));
     enemy_spawn(gfc_vector3d(0, 0, 0));
+
+    // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
+    rings_spawn(gfc_vector3d(0, -30, -140));
     
     //windows
 
@@ -165,7 +169,7 @@ int main(int argc,char *argv[])
             entity_draw_all(); // because this is already done in entity.c
             //2D draws
         gf2d_mouse_draw();
-        gf2d_font_draw_line_tag("alt+f4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
+        //gf2d_font_draw_line_tag("alt+f4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();

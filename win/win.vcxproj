@@ -198,6 +198,7 @@
     <ClCompile Include="..\src\gf3d_validation.c" />
     <ClCompile Include="..\src\gf3d_vgraphics.c" />
     <ClCompile Include="..\src\gf3d_vqueues.c" />
+    <ClCompile Include="..\src\rings.c" />
     <ClCompile Include="..\src\terraintest.c" />
   </ItemGroup>
   <ItemGroup>
@@ -260,6 +261,7 @@
     <ClInclude Include="..\include\gf3d_vgraphics.h" />
     <ClInclude Include="..\include\gf3d_vqueues.h" />
     <ClInclude Include="..\include\lighting.h" />
+    <ClInclude Include="..\include\rings.h" />
     <ClInclude Include="..\include\terraintest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

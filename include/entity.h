@@ -16,7 +16,8 @@ typedef enum { // enum is good enough, i think there was smoething else that cou
 	ENEMY,
 	DAMAGE,
 	IGNORE,
-	DYING
+	DYING,
+	RINGS
 }EntityFlag;
 
 typedef struct Entity_S{
@@ -39,7 +40,6 @@ typedef struct Entity_S{
 	GFC_Vector3D velocity;
 	EntityFlag flag;
 	void (*touch) (struct Entity_s* self, struct Entity_S* other);
-	//void (*dying) (struct Entity_s* self);
 
 }Entity; // you can change the name of this to the name of the game later (or dont)
 

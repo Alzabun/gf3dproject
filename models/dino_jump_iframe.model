@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/dino_jump/dino_jump.obj",
+        "texture":"models/dino_jump/dino_jump_iframe.png"
+    }
+}

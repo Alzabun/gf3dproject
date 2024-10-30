@@ -112,7 +112,7 @@ void entity_draw(Entity *self) {
 	}
 
 	entity_draw_generic(self);
-	entity_show_box(self, red); // for debugging reasons, shows bounding box for every entity
+	//entity_show_box(self, red); // for debugging reasons, shows bounding box for every entity
 }
 
 void entity_draw_all() {
@@ -241,19 +241,6 @@ void collision_check() {
 				}
 			}
 		}
-	}
-}
-
-void entity_touch(Entity* self) {
-	// idk if i needed this actually
-}
-
-void entity_touch_all(Entity* self) {
-	for (int i = 0; i < entity_manager.entityMax; i++) {
-		if (!entity_manager.entityList[i]._inuse) {
-			continue;
-		}
-		entity_touch(&entity_manager.entityList[i]);
 	}
 }
 

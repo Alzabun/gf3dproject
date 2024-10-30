@@ -189,6 +189,9 @@
     <ClCompile Include="..\src\entity.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\rings.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\gf2d_actor.h">
@@ -369,6 +372,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\enemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\rings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
