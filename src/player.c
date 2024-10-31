@@ -1,13 +1,42 @@
 #include "simple_logger.h" // always log stuff
 
-#include "player.h"
-#include "terraintest.h"
-
 #include "gf3d_camera.h"
 #include "gfc_vector.h"
 #include "gfc_input.h"
-
 #include "gf2d_font.h"
+
+#include "player.h"
+#include "terraintest.h"
+#include "enemy.h"
+#include "rings.h"
+
+// world obstacles:
+// springs
+// moving platforms
+// spikes
+// loops (maybe)
+// rings (do they count?)
+// cannon (if not impossible to make)
+// item box (can also contain power-ups)
+// 
+// power ups:
+// fire shield
+// electricity shield
+// bubble shield
+// normal shield
+// custom shield (2x velocity cap increase or magnet shield which collects nearby rings)
+//
+// enemies:
+// generic enemy
+// generic projectile enemy
+// flying projectile/generic enemy
+// worm enemy
+// bomb projectile enemy
+// spiked enemy
+//
+// dont forget to at least make some generic terrain model in blender to act as the background
+
+
 
 void player_think(Entity* self);
 void player_update(Entity* self);
@@ -256,6 +285,10 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	if (gfc_input_command_down("giverings")) {
 		data->health += 1;
 	}
+	if (gfc_input_command_down("spawnprojectilenemy")) { // no work what the heck!
+		projectile_enemy_spawn(self->position);
+		data->invincibility = 3; // time to get out of the way
+	}
 }
 void player_update(Entity* self) {
 	playerData* data; 
@@ -317,6 +350,17 @@ void player_update(Entity* self) {
 	}
 
 	player_camera(self); // this is fine for now
+
+	// UI UPDATES
+
+	// RING COUNTER
+	gf2d_font_draw_line_tag("RINGS: %i", FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
+
+	// SCORE COUNTER
+	// add score system
+	
+	// TIME COUNTER
+	// maybe
 }
 
 void player_camera(Entity* self) {
@@ -365,7 +409,7 @@ void player_touch(Entity* self, Entity* other) {
 			self->rotation.y = 0;
 		}
 	}
-	else if (other->flag == ENEMY) { // kill the enemy or take damage from the enemy
+	if (other->flag == ENEMY) { // kill the enemy or take damage from the enemy
 		if (data->inball == 1) {
 			if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
 				self->velocity.z = RECOIL; // reject gravity 
@@ -379,19 +423,22 @@ void player_touch(Entity* self, Entity* other) {
 			//slog("collided with enemy (damage)");
 		}
 	}
-	else if (other->flag == DAMAGE) { // for things like spikes
+	if (other->flag == PROJECTILE) {
+		player_damage(self); // take damage from projectile
+	}
+	if (other->flag == DAMAGE) { // for things like spikes
 		slog("collided with something dangerous");
 	}
-	else if (other->flag == RINGS) {
+	if (other->flag == RINGS) {
 		data->health += 1;
 		//play sound
 		sentence_to_death(other);
 	}
-	else if (other->flag == IGNORE) {
-		slog("collided with something unimportant");
-	}
-	else {
-		slog("collided with misc?");
+	if (other->flag == IGNORE || other->flag == DROPPED) {
+		//slog("ignored a collision");
+		// collide with rings unless they're the dropped ones from taking damage
+		// to prevent instantly picking them back up
+		// rings.c handles the DROPPED flag collision
 	}
 }
 
@@ -421,10 +468,12 @@ void player_damage(Entity* self) {
 	// also include invincibility frames if there's time
 
 	if (data->health > 0) {
+		rings_dropped(self, self->position, data->health); // scatter rings everywhere
 		data->health = 0; //needs ui element
 	}
 	else {
-		player_die(self); // took dmg at 0 health so you lose!
+		//player_die(self); // took dmg at 0 health so you lose!
+		// off for now cus this is annoying while play testing
 	}
 
 	// make rings explode everywhere too
@@ -444,4 +493,16 @@ void player_die(Entity* self) {
 	self->position.x = 0;
 	self->position.y = 0;
 	self->velocity.z = 0;
+}
+
+void give_ring(Entity* self) {
+	playerData* data;
+
+	if (!self) {
+		return;
+	}
+	data = self->data;
+
+	//slog("gained ring back from dropped");
+	data->health += 1;
 }

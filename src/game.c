@@ -129,13 +129,34 @@ int main(int argc,char *argv[])
     gf3d_camera_set_rotate_step(0.05);
     
    // gf3d_camera_enable_free_look(1);
-    // i should turn this into a function for entity  spawning probably
-    player_spawn(gfc_vector3d(0, 0, 0)); // spawn an entity instead 
-    terrain_spawn(gfc_vector3d(0, -100, -200));
-    enemy_spawn(gfc_vector3d(0, 0, 0));
+    // ENTITY SPAWNING
+    // z value -140 - -180 is close enough to ground (collisiontest) and within the player's reach
+    // these are all hard-coded (for now????? forever????)
+  
+    // PLAYER SPAWN
+    player_spawn(gfc_vector3d(0, 0, -100));
+
+    // TERRAIN SPAWN
+    terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+
+    // ENEMY SPAWNS
+    enemy_spawn(gfc_vector3d(0, 50, 0));
+    projectile_enemy_spawn(gfc_vector3d(0, 0, -140));
 
     // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
-    rings_spawn(gfc_vector3d(0, -30, -140));
+    // 
+    // SECTION: midterm deliverable positions
+    //
+    // (first 3: grounded)
+    rings_spawn(gfc_vector3d(0, -50, -155), 0);
+    rings_spawn(gfc_vector3d(0, -40, -155), 0);
+    rings_spawn(gfc_vector3d(0, -30, -155), 0);
+    // (second 3: aerial)
+    rings_spawn(gfc_vector3d(0, 30, -135), 0);
+    rings_spawn(gfc_vector3d(0, 40, -135), 0);
+    rings_spawn(gfc_vector3d(0, 50, -135), 0);
+    //
+    
     
     //windows
 
@@ -168,7 +189,7 @@ int main(int argc,char *argv[])
         
             entity_draw_all(); // because this is already done in entity.c
             //2D draws
-        gf2d_mouse_draw();
+        //gf2d_mouse_draw();
         //gf2d_font_draw_line_tag("alt+f4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition

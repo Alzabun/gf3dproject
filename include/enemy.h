@@ -5,4 +5,6 @@
 
 Entity* enemy_spawn(GFC_Vector3D position);
 
+Entity* projectile_enemy_spawn(GFC_Vector3D position);
+
 #endif

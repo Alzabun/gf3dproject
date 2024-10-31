@@ -17,7 +17,9 @@ typedef enum { // enum is good enough, i think there was smoething else that cou
 	DAMAGE,
 	IGNORE,
 	DYING,
-	RINGS
+	RINGS,
+	PROJECTILE,
+	DROPPED
 }EntityFlag;
 
 typedef struct Entity_S{
