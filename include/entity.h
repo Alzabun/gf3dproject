@@ -16,11 +16,12 @@ typedef enum {
 	// ENVIRONMENT
 	TERRAIN,
 	// OBSTACLE RELATED (GENERAL)
-	DAMAGE, // for enviromental/obstacles things that will damage the player upon contact
+	DAMAGE, // (spikes) for enviromental/obstacles things that will damage the player upon contact
 	// OBSTACLE RELATED (SPECIFIC)
 	RINGS,
 	DROPPED, // sub-category of RINGS: the rings that come out of a damaged player
 	SPRING,
+	PLATFORM,
 	// ENEMY RELATED
 	ENEMY,
 	PROJECTILE,

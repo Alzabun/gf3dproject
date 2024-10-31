@@ -12,9 +12,9 @@
 
 // Deliverables Status:
 // world obstacles:
-// springs
-// moving platforms
-// spikes
+// springs [x]
+// moving platforms [x] 
+// spikes [x]
 // loops (maybe)
 // rings (do they count?)
 // cannon (if not impossible to make)
@@ -72,12 +72,13 @@ typedef struct {
 	int jumpTime; // goes up by a number each frame or whatever
 	float storedvelocity; // for spindash speed
 	// BOOLEANS
-	int airborne; // 1 = yes, 2 = no
-	int spindash; // 1 = yes, 2 = no
+	int airborne; // 0 = yes, 1 = no
+	int spindash; // 0 = yes, 1 = no
 	int inball; // 1 = yes, 2 = no
 	int rotdir; // 1 = left, 2 = right
 	int health; // scales off rings
 	float invincibility; // either for i-frames or power-ups
+	int onPlatform; // 0 = yes, 1 = no | this is to prevent not being able to jump off a platform
 }playerData;
 
 Entity* player_spawn(GFC_Vector3D position) {
@@ -226,6 +227,10 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		if (data->airborne == 0 && data->spindash == 0) {
 			data->inball = 1;
 			data->jumpTime = 0;
+			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
+				self->position.z += 8; // 8 is a big enough number to disconnect from the platform apparently
+				data->onPlatform = 0;
+			}
 			self->velocity.z = 2;
 			
 			if (data->invincibility <= 0) {
@@ -419,12 +424,8 @@ void player_touch(Entity* self, Entity* other) {
 	if (other->flag == TERRAIN) { 
 		//slog("collided with terrain");
 		self->velocity.z = 0;
-	
-		/*if (data->airborne == 1 && data->inball == 1) { // what was this check even for?
-			data->inball = 0;
-		}*/
-
 		data->airborne = 0;
+		data->onPlatform = 0;
 		if (data->spindash == 0) {
 			self->rotation.y = 0;
 			if (data->invincibility <= 0) {
@@ -462,6 +463,21 @@ void player_touch(Entity* self, Entity* other) {
 		self->velocity.z = 5;
 		//slog("collided with spring");
 		// NOTE: this is assuming it's a grounded spring. orientation will chanage velocity direction but that's not added yet
+	}
+	if (other->flag == PLATFORM) {
+		self->position.z = other->position.z;
+		self->velocity.z = 0;
+		data->onPlatform = 1;
+		data->airborne = 0;
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+			if (data->invincibility <= 0) {
+				self->model = gf3d_model_load("models/dino.model");
+			}
+			else {
+				self->model = gf3d_model_load("models/dino_iframe.model");
+			}
+		}
 	}
 	if (other->flag == IGNORE || other->flag == DROPPED) {
 		//slog("ignored a collision");

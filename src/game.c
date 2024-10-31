@@ -143,6 +143,8 @@ int main(int argc,char *argv[])
     // OBSTACLE SPAWNS
     spikes_spawn(gfc_vector3d(0, -300, -155));
     spring_spawn(gfc_vector3d(0, -350, -160));
+    v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
+    
 
     // ENEMY SPAWNS
     generic_enemy_spawn(gfc_vector3d(0, -100, 0));
