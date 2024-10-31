@@ -46,8 +46,8 @@ void player_camera(Entity* self);
 void player_damage(Entity* self);
 void player_die(Entity* self);
 
-const float MAXSPEED = 3;
-const float JUMPTIME = 15;
+const float MAXSPEED = 5;
+const float JUMPTIME = 10;
 const float MAXSPINDASHSPEED = 10;
 float RECOIL = 2; // when you bounce from doing/taking damage
 const float IFRAMES = 10; // roughly 3 seconds? i need a better way to store time and i know there's a wait function but i didnt find it yet
@@ -128,50 +128,56 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// right is negative and left is positive because ?????????
 
 	// MOVEMENT
-	if (gfc_input_command_held("walkleft")) {
+	if (gfc_input_command_held("walkleft") && data->spindash == 0) {
 
 		// SPEED CAP
-		if (self->velocity.y >= MAXSPEED) {
-			self->velocity.y = MAXSPEED;
+		if (self->velocity.y >= MAXSPEED + data->storedvelocity) {
+			self->velocity.y = MAXSPEED + data->storedvelocity;
 		}
 		else {
-			self->velocity.y += 0.1;
+			self->velocity.y += 0.05;
 		}
 		// ROTATION CAP
 		if (self->rotation.z <= -3.2) { 
 			self->rotation.z = -3.2; 
 		}
 		else {
-			self->rotation.z -= 0.2;
+			self->rotation.z -= 0.4;
 		}
 	}
-	else if (gfc_input_command_held("walkright")) {
+	else if (gfc_input_command_held("walkright") && data->spindash == 0) {
 
 		// SPEED CAP
-		if (self->velocity.y <= -MAXSPEED) {
-			self->velocity.y = -MAXSPEED;
+		if (self->velocity.y <= -MAXSPEED - data->storedvelocity) {
+			self->velocity.y = -MAXSPEED - data->storedvelocity;
 		}
 		else {
-			self->velocity.y -= 0.1;
+			self->velocity.y -= 0.05;
 		}
 		// ROTATION CAP
 		if (self->rotation.z >= 0) {
 			self->rotation.z = 0;
 		}
 		else {
-			self->rotation.z += 0.2;
+			self->rotation.z += 0.4;
 		}
 	}
 	else {
 		// FRICTION
 		if (self->velocity.y > 0) {
 			self->velocity.y -= 0.1;
+			if (data->spindash == 1) {
+				self->rotation.y += (self->velocity.y * 0.1);
+			}
 			if (self->velocity.y < 0) {
 				self->velocity.y = 0;
 			}
 		}
 		else if (self->velocity.y < 0) {
 			self->velocity.y += 0.1;
+			if (data->spindash == 1) {
+				self->rotation.y -= (self->velocity.y * 0.1);
+			}
 			if (self->velocity.y > 0) {
 				self->velocity.y = 0;
 			}
@@ -227,9 +233,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// you can also hold jump to charge it but thats not intended, though i shouldnt waste time trying to fix that since this still works
 	if (gfc_input_command_held("spindash")) {
 		data->spindash = 1;
-		if (data->airborne == 0) {
-			self->velocity.y = 0;
-		}
+		data->inball = 1;
 		
 		if (data->invincibility <= 0) {
 			self->model = gf3d_model_load("models/dino_jump.model");
@@ -239,6 +243,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		}
 
 		if (gfc_input_command_down("jump") && data->airborne == 0) {
+			self->velocity.y = 0;
 			if (data->rotdir == 1) {
 				if (data->storedvelocity <= MAXSPINDASHSPEED) { // LEFT DIR SPINDASH
 					data->storedvelocity += 0.5;
@@ -260,9 +265,6 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		else if (data->storedvelocity < 0){
 			data->inball = 1; // you dont get to do dmg if you're just curled without speed
 			self->rotation.y -= (data->storedvelocity * 0.1); // right
-		}
-		else {
-			self->rotation.y = 0;
 		}
 
 		if (data->storedvelocity >= MAXSPINDASHSPEED && data->rotdir == 1) {
@@ -364,6 +366,9 @@ void player_update(Entity* self) {
 }
 
 void player_camera(Entity* self) {
+	if (!self) {
+		return;
+	}
 	GFC_Vector3D lookTarget, camera, dir = { 0 };
 
 	// CAMERA SYSTEM
@@ -390,27 +395,33 @@ void player_camera(Entity* self) {
 	
 void player_touch(Entity* self, Entity* other) {
 	playerData* data;
+
+	if (!self) {
+		return;
+	}
 	data = self->data;
 
 	if (other->flag == TERRAIN) { 
 		//slog("collided with terrain");
 		self->velocity.z = 0;
-		if (data->airborne == 1 && data->inball == 1) {
+	
+		/*if (data->airborne == 1 && data->inball == 1) { // what was this check even for?
 			data->inball = 0;
-		}
+		}*/
+
 		data->airborne = 0;
 		if (data->spindash == 0) {
+			self->rotation.y = 0;
 			if (data->invincibility <= 0) {
 				self->model = gf3d_model_load("models/dino.model");
 			}
 			else {
 				self->model = gf3d_model_load("models/dino_iframe.model");
 			}
-			self->rotation.y = 0;
 		}
 	}
 	if (other->flag == ENEMY) { // kill the enemy or take damage from the enemy
-		if (data->inball == 1) {
+		if (data->inball == 1 || data->storedvelocity > 0) { // i might have only needed to check for stored velocity for this to work
 			if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
 				self->velocity.z = RECOIL; // reject gravity 
 			}

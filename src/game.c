@@ -140,8 +140,9 @@ int main(int argc,char *argv[])
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
 
     // ENEMY SPAWNS
-    enemy_spawn(gfc_vector3d(0, 50, 0));
-    projectile_enemy_spawn(gfc_vector3d(0, 0, -140));
+    generic_enemy_spawn(gfc_vector3d(0, -100, 0));
+    projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
+    flying_enemy_spawn(gfc_vector3d(0, 200, -140));
 
     // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
     // 
