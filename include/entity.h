@@ -10,16 +10,22 @@
 
 // C does not have a string type by default, but you can use a makeshift one made in gfc/ i forgor / gfc string or something
 
-typedef enum { // enum is good enough, i think there was smoething else that coudlve been done that does this too but i forgor
+typedef enum { 
+	// PLAYER
 	PLAYER,
+	// ENVIRONMENT
 	TERRAIN,
-	ENEMY,
-	DAMAGE,
-	IGNORE,
-	DYING,
+	// OBSTACLE RELATED (GENERAL)
+	DAMAGE, // for enviromental/obstacles things that will damage the player upon contact
+	// OBSTACLE RELATED (SPECIFIC)
 	RINGS,
+	DROPPED, // sub-category of RINGS: the rings that come out of a damaged player
+	SPRING,
+	// ENEMY RELATED
+	ENEMY,
 	PROJECTILE,
-	DROPPED
+	// MISC
+	IGNORE
 }EntityFlag;
 
 typedef struct Entity_S{

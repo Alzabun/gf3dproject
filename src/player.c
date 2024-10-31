@@ -10,6 +10,7 @@
 #include "enemy.h"
 #include "rings.h"
 
+// Deliverables Status:
 // world obstacles:
 // springs
 // moving platforms
@@ -27,14 +28,28 @@
 // custom shield (2x velocity cap increase or magnet shield which collects nearby rings)
 //
 // enemies:
-// generic enemy
-// generic projectile enemy
-// flying projectile/generic enemy
+// generic enemy [x]
+// generic projectile enemy [x]
+// flying projectile/generic enemy [x]
 // worm enemy
 // bomb projectile enemy
 // spiked enemy
-//
-// dont forget to at least make some generic terrain model in blender to act as the background
+
+// Common Deliverables:
+// UI changes
+// entity system [x]
+// basic controls [x]
+// basic collision [x]
+// contained game world [maybe?] [at least make some generic terrain model in blender to act as the background]
+
+// Optional Requirements (for my own satisfaction):
+// rings (health) [x]
+// ring re-collection [half x]
+// music/sounds
+// 3d camera/controls switch toggle
+// menu screen / start screen
+// more...
+
 
 
 
@@ -135,7 +150,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->velocity.y = MAXSPEED + data->storedvelocity;
 		}
 		else {
-			self->velocity.y += 0.05;
+			self->velocity.y += 0.075;
 		}
 		// ROTATION CAP
 		if (self->rotation.z <= -3.2) { 
@@ -152,7 +167,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->velocity.y = -MAXSPEED - data->storedvelocity;
 		}
 		else {
-			self->velocity.y -= 0.05;
+			self->velocity.y -= 0.075;
 		}
 		// ROTATION CAP
 		if (self->rotation.z >= 0) {
@@ -434,16 +449,19 @@ void player_touch(Entity* self, Entity* other) {
 			//slog("collided with enemy (damage)");
 		}
 	}
-	if (other->flag == PROJECTILE) {
+	if (other->flag == PROJECTILE || other->flag == DAMAGE) {
 		player_damage(self); // take damage from projectile
-	}
-	if (other->flag == DAMAGE) { // for things like spikes
-		slog("collided with something dangerous");
+		// slog("collided with something dangerous");
 	}
 	if (other->flag == RINGS) {
 		data->health += 1;
 		//play sound
 		sentence_to_death(other);
+	}
+	if (other->flag == SPRING) {
+		self->velocity.z = 5;
+		//slog("collided with spring");
+		// NOTE: this is assuming it's a grounded spring. orientation will chanage velocity direction but that's not added yet
 	}
 	if (other->flag == IGNORE || other->flag == DROPPED) {
 		//slog("ignored a collision");

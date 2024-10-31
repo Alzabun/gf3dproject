@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/springs/spring.obj",
+        "texture": "models/springs/spring.png"
+    }
+}

@@ -30,6 +30,7 @@
 #include "terraintest.h"
 #include "enemy.h"
 #include "rings.h"
+#include "obstacles.h"
 
 extern int __DEBUG;
 
@@ -138,6 +139,10 @@ int main(int argc,char *argv[])
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+
+    // OBSTACLE SPAWNS
+    spikes_spawn(gfc_vector3d(0, -300, -155));
+    spring_spawn(gfc_vector3d(0, -350, -160));
 
     // ENEMY SPAWNS
     generic_enemy_spawn(gfc_vector3d(0, -100, 0));

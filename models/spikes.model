@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/spikes/spikes.obj",
+        "texture": "models/spikes/spikes.png"
+    }
+}
