@@ -350,7 +350,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		}
 		else if (data->bubbleshield == 1) {
 			if (data->airborne == 1) {
-				self->velocity.z = -3;
+				self->velocity.z = -4;
 				data->bubblebounce = 1;
 			}
 		}
@@ -493,13 +493,11 @@ void player_touch(Entity* self, Entity* other) {
 	data = self->data;
 
 	//BUBBLE POWERUP CHANGES
-	// TO DO:
-	// prevent the player from holding e to fall through the floor
-	// figure out why the bounce doesnt happen sometimes
 	if (data->bubblebounce == 1) {
 		if (other->flag == TERRAIN || other->flag == PLATFORM || other->flag == ITEMBOX) {
 			data->bubblebounce = 0;
-			self->velocity.z = 3;
+			self->velocity.z = 4;
+			self->position.z += 5; // prevents player from falling through floor and from randomly not bouncing (lazy way to fix it? i dont really think so)
 			if (self->position.y <= other->position.y) {
 				self->position.y = other->position.y + 5;
 			}
