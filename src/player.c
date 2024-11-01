@@ -6,6 +6,7 @@
 #include "gf2d_font.h"
 
 #include "player.h"
+#include "obstacles.h"
 #include "terraintest.h"
 #include "enemy.h"
 #include "rings.h"
@@ -15,9 +16,7 @@
 // springs [x]
 // moving platforms [x] 
 // spikes [x]
-// loops (maybe)
-// rings (do they count?)
-// cannon (if not impossible to make)
+// loops [x]
 // item box (can also contain power-ups)
 // 
 // power ups:
@@ -25,7 +24,12 @@
 // electricity shield
 // bubble shield
 // normal shield
-// custom shield (2x velocity cap increase or magnet shield which collects nearby rings)
+// 
+// velocity increase power-up
+// OR
+// magnet shield which collects nearby rings
+// OR
+// invincibility power-up
 //
 // enemies:
 // generic enemy [x]
@@ -40,7 +44,7 @@
 // entity system [x]
 // basic controls [x]
 // basic collision [x]
-// contained game world [maybe?] [at least make some generic terrain model in blender to act as the background]
+// contained game world [at least make some generic terrain model in blender to act as the background, then ill consider it complete]
 
 // Optional Requirements (for my own satisfaction):
 // rings (health) [x]
@@ -60,6 +64,7 @@ void player_touch(Entity* self, Entity* other);
 void player_camera(Entity* self);
 void player_damage(Entity* self);
 void player_die(Entity* self);
+void player_loop(Entity* self, loopData* loop);
 
 const float MAXSPEED = 5;
 const float JUMPTIME = 10;
@@ -72,13 +77,17 @@ typedef struct {
 	int jumpTime; // goes up by a number each frame or whatever
 	float storedvelocity; // for spindash speed
 	// BOOLEANS
-	int airborne; // 0 = yes, 1 = no
-	int spindash; // 0 = yes, 1 = no
-	int inball; // 1 = yes, 2 = no
+	int airborne; // 0 = no, 1 = yes
+	int spindash; // 0 = no, 1 = yes
+	int inball; // 0 = no, 1 = yes
 	int rotdir; // 1 = left, 2 = right
-	int health; // scales off rings
+	int health; // amount of rings
 	float invincibility; // either for i-frames or power-ups
-	int onPlatform; // 0 = yes, 1 = no | this is to prevent not being able to jump off a platform
+	int onPlatform; // 0 = no, 1 = yes | this is to prevent not being able to jump off a platform
+	// LOOP MANAGEMENT
+	int inloop; // 0 = no, 1 = yes
+	int currentpoint; // find amount of points from obstacles.c loop section
+	loopData* thisloop; // automatic waypoints
 }playerData;
 
 Entity* player_spawn(GFC_Vector3D position) {
@@ -322,6 +331,8 @@ void player_update(Entity* self) {
 
 	data->airborne = 1; // assume airborne unless a collision happens
 
+	//slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
+
 	// for movement speed tracking and changing
 	self->position.x += self->velocity.x;
 	self->position.y += self->velocity.y;
@@ -371,6 +382,12 @@ void player_update(Entity* self) {
 		data->rotdir = 1; // facing left
 	}
 
+	// LOOP LIST
+	if (data->inloop == 1) {
+		player_loop(self, data->thisloop);
+	}
+
+	// CAMERA
 	player_camera(self); // this is fine for now
 
 	// UI UPDATES
@@ -385,11 +402,34 @@ void player_update(Entity* self) {
 	// maybe
 }
 
-void player_camera(Entity* self) {
+void player_loop(Entity* self, loopData* loop) { // for loop obstacle
+	playerData* data;
 	if (!self) {
 		return;
 	}
+	data = self->data;
+
+	if (data->currentpoint >= 10) {
+		data->inloop = 0;
+		return;
+	}
+	//slog("current point: %i", data->currentpoint);
+	//slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
+
+	self->position = loop->points[data->currentpoint];
+	data->currentpoint += 1;
+
+}
+
+void player_camera(Entity* self) {
+	playerData* data;
 	GFC_Vector3D lookTarget, camera, dir = { 0 };
+
+	if (!self) {
+		return;
+	}
+	data = self->data;
+	
 
 	// CAMERA SYSTEM
 	// if necessary for the final project or not, i originally want this to be like a modern sonic boost formula stage
@@ -436,6 +476,7 @@ void player_touch(Entity* self, Entity* other) {
 			}
 		}
 	}
+
 	if (other->flag == ENEMY) { // kill the enemy or take damage from the enemy
 		if (data->inball == 1 || data->storedvelocity > 0) { // i might have only needed to check for stored velocity for this to work
 			if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
@@ -450,20 +491,24 @@ void player_touch(Entity* self, Entity* other) {
 			//slog("collided with enemy (damage)");
 		}
 	}
+
 	if (other->flag == PROJECTILE || other->flag == DAMAGE) {
 		player_damage(self); // take damage from projectile
 		// slog("collided with something dangerous");
 	}
+
 	if (other->flag == RINGS) {
 		data->health += 1;
 		//play sound
 		sentence_to_death(other);
 	}
+
 	if (other->flag == SPRING) {
 		self->velocity.z = 5;
 		//slog("collided with spring");
 		// NOTE: this is assuming it's a grounded spring. orientation will chanage velocity direction but that's not added yet
 	}
+
 	if (other->flag == PLATFORM) {
 		self->position.z = other->position.z;
 		self->velocity.z = 0;
@@ -479,6 +524,15 @@ void player_touch(Entity* self, Entity* other) {
 			}
 		}
 	}
+
+	if (other->flag == LOOP) {
+		if (data->inloop == 0) {
+			data->inloop = 1;
+			data->thisloop = (loopData*)other->data; // this is how to get control over the loopdata struct here
+			data->currentpoint = 0;
+		}
+	}
+
 	if (other->flag == IGNORE || other->flag == DROPPED) {
 		//slog("ignored a collision");
 		// collide with rings unless they're the dropped ones from taking damage

@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/loop/loop.obj",
+        "texture":"models/loop/loop.png"
+    }
+}

@@ -22,6 +22,7 @@ typedef enum {
 	DROPPED, // sub-category of RINGS: the rings that come out of a damaged player
 	SPRING,
 	PLATFORM,
+	LOOP,
 	// ENEMY RELATED
 	ENEMY,
 	PROJECTILE,

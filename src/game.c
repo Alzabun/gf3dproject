@@ -144,6 +144,7 @@ int main(int argc,char *argv[])
     spikes_spawn(gfc_vector3d(0, -300, -155));
     spring_spawn(gfc_vector3d(0, -350, -160));
     v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
+    loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20
     
 
     // ENEMY SPAWNS
