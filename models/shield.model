@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/shield/shield.obj",
+        "texture":"models/shield/shield.png"
+    }
+}

@@ -10,6 +10,7 @@
 #include "terraintest.h"
 #include "enemy.h"
 #include "rings.h"
+#include "shield.h"
 
 // Deliverables Status:
 // world obstacles (5/5):
@@ -77,9 +78,13 @@ float RECOIL = 2; // when you bounce from doing/taking damage
 const float IFRAMES = 10; // roughly 3 seconds? i need a better way to store time and i know there's a wait function but i didnt find it yet
 
 typedef struct {
+	// GENERIC
 	GFC_Vector3D position; // self explanatory
+
+	// CONTROLS
 	int jumpTime; // goes up by a number each frame or whatever
 	float storedvelocity; // for spindash speed
+
 	// BOOLEANS
 	int airborne; // 0 = no, 1 = yes
 	int spindash; // 0 = no, 1 = yes
@@ -88,26 +93,24 @@ typedef struct {
 	int health; // amount of rings
 	float invincibility; // either for i-frames or power-ups
 	int onPlatform; // 0 = no, 1 = yes | this is to prevent not being able to jump off a platform
+
 	// LOOP MANAGEMENT
 	int inloop; // 0 = no, 1 = yes
 	int currentpoint; // find amount of points from obstacles.c loop section
 	loopData* thisloop; // automatic waypoints
+
 	// POWERUP MANAGEMENT
 	itemboxData* thispowerup;
+	Entity* shield;
 	int fireshield; // 0 = no, 1 = yes
-
 	int bubbleshield; // 0 = no, 1 = yes
 	int bubblebounce; // 0 = no, 1 = yes
-
 	int electricityshield; // 0 = no, 1 = yes
 	int doublejumped; // 0 = no, 1 = yes
-
 	int normalshield; // 0 = no, 1 = yes
-
 	int invincibilitypowerup; // 0 = no, 1 = yes
-
 	int haspowerup; // 0 = no, 1 = yes
-	// last one goes here
+
 }playerData;
 
 Entity* player_spawn(GFC_Vector3D position) {
@@ -173,6 +176,10 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// right is negative and left is positive because ?????????
 
 	// MOVEMENT
+	// TO DO:
+	// this whole system will probably always be slightly adjusted
+	// my main problem with it is that it feels way too slippery
+	// not really important to change for now since there isn't any real platforming to do, but fix it when you can
 	if (gfc_input_command_held("walkleft") && data->spindash == 0) {
 
 		// SPEED CAP
@@ -411,16 +418,11 @@ void player_update(Entity* self) {
 	self->BoundingBox.z = self->position.z;
 
 	//printf("rotdir: %i\n", data->rotdir);
-	
-	// POWERUP STUFF
-	if (data->haspowerup) {
-		// show shield model here
-		// change shield color depending on powerup using gfc_color
-	}
 
 	// IFRAME TIMER
 	if (data->invincibility > 0) { 
 		data->invincibility -= 0.1;
+		// TO DO:
 		// every model change has a check to see if theres invinciblity to make the player white to indicate iframes are on
 		// this is kind of a boring way of doing it but id have to figure out a blinking or hurt animation later
 		// also this seems to be buggy because the model dosnt change if its in the middle of jumping or something, which will mislead people
@@ -712,7 +714,8 @@ void give_ring(Entity* self) {
 }
 
 // LOOP FUNCTION
-
+// TO DO:
+// read what you put in obstacle.c loop section
 void player_loop(Entity* self, loopData* loop) { // for loop obstacle
 	playerData* data;
 	if (!self) {
@@ -736,8 +739,6 @@ void player_loop(Entity* self, loopData* loop) { // for loop obstacle
 // POWER-UPS
 ///////////////////////////////////
 
-// TO DO: 
-// add shield visual
 void player_powerup(Entity* self, itemboxData* itembox) {
 	playerData* data;
 	if (!self) {
@@ -747,13 +748,21 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 
 	if (itembox->item == 1) {
 		slog("got fire shield");
+		if (data->shield) { // prevent multiple visual shields at once
+			sentence_to_death(data->shield);
+		}
 		data->fireshield = 1;
 		data->haspowerup = 1;
+		data->shield = shield_spawn(self->position, self, itembox->item);
 	}
 	else if (itembox->item == 2) {
 		slog("got bubble shield");
+		if (data->shield) { // prevent multiple visual shields at once
+			sentence_to_death(data->shield);
+		}
 		data->bubbleshield = 1;
 		data->haspowerup = 1;
+		data->shield = shield_spawn(self->position, self, itembox->item);
 
 		data->fireshield = 0;
 		data->electricityshield = 0;
@@ -761,8 +770,12 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 	}
 	else if (itembox->item == 3) {
 		slog("got electricity shield");
+		if (data->shield) { // prevent multiple visual shields at once
+			sentence_to_death(data->shield);
+		}
 		data->electricityshield = 1;
 		data->haspowerup = 1;
+		data->shield = shield_spawn(self->position, self, itembox->item);
 
 		data->bubbleshield = 0;
 		data->fireshield = 0;
@@ -770,8 +783,12 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 	}
 	else if (itembox->item == 4) {
 		slog("got normal shield");
+		if (data->shield) { // prevent multiple visual shields at once
+			sentence_to_death(data->shield);
+		}
 		data->normalshield = 1;
 		data->haspowerup = 1;
+		data->shield = shield_spawn(self->position, self, itembox->item);
 
 		data->bubbleshield = 0;
 		data->fireshield = 0;
@@ -781,8 +798,12 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 		// TO DO:
 		// add cool music change for its duration
 		slog("got invincibility");
+		if (data->shield) { // prevent multiple visual shields at once
+			sentence_to_death(data->shield);
+		}
 		data->invincibilitypowerup = 1;
 		data->invincibility = 60; // long-time (though the timer goes down faster than you would expect)
+		data->shield = shield_spawn(self->position, self, itembox->item);
 
 		data->fireshield = 0;
 		data->bubbleshield = 0;
