@@ -23,6 +23,7 @@ typedef enum {
 	SPRING,
 	PLATFORM,
 	LOOP,
+	ITEMBOX,
 	// ENEMY RELATED
 	ENEMY,
 	PROJECTILE,

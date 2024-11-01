@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/itembox/itembox.obj",
+        "texture":"models/itembox/itembox.png"
+    }
+}

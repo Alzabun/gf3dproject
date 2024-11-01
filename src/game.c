@@ -135,7 +135,7 @@ int main(int argc,char *argv[])
     // these are all hard-coded (for now????? forever????)
   
     // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, 0, -100));
+    player_spawn(gfc_vector3d(0, -780, -100));
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
@@ -146,6 +146,11 @@ int main(int argc,char *argv[])
     v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
     loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20
     
+    // ITEMBOX SPAWNS (OBSTACLE SUBCATEGORY)
+    itembox_spawn(gfc_vector3d(0, -800, -165), 1);
+    itembox_spawn(gfc_vector3d(0, -825, -165), 2);
+    itembox_spawn(gfc_vector3d(0, -850, -165), 3);
+    itembox_spawn(gfc_vector3d(0, -875, -165), 4);
 
     // ENEMY SPAWNS
     generic_enemy_spawn(gfc_vector3d(0, -100, 0));

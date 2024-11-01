@@ -16,4 +16,11 @@ typedef struct {
 
 Entity* loop_spawn(GFC_Vector3D position);
 
+typedef struct {
+	GFC_Vector3D position;
+	int item; // 1-5, each number is associated with what you will get for breaking the box
+}itemboxData;
+
+Entity* itembox_spawn(GFC_Vector3D position, int type);
+
 #endif

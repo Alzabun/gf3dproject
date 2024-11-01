@@ -40,7 +40,7 @@
 // spiked enemy
 
 // Common Deliverables:
-// UI changes
+// UI changes (time can be done with deltatime)
 // entity system [x]
 // basic controls [x]
 // basic collision [x]
@@ -54,9 +54,6 @@
 // menu screen / start screen
 // more...
 
-
-
-
 void player_think(Entity* self);
 void player_update(Entity* self);
 void player_free(Entity* self);
@@ -65,6 +62,7 @@ void player_camera(Entity* self);
 void player_damage(Entity* self);
 void player_die(Entity* self);
 void player_loop(Entity* self, loopData* loop);
+void player_powerup(Entity* self, itemboxData* itembox);
 
 const float MAXSPEED = 5;
 const float JUMPTIME = 10;
@@ -88,6 +86,18 @@ typedef struct {
 	int inloop; // 0 = no, 1 = yes
 	int currentpoint; // find amount of points from obstacles.c loop section
 	loopData* thisloop; // automatic waypoints
+	// POWERUP MANAGEMENT
+	itemboxData* thispowerup;
+	int fireshield; // 0 = no, 1 = yes
+	int electricityshield; // 0 = no, 1 = yes
+
+	int bubbleshield; // 0 = no, 1 = yes
+	int bubblebounce; // 0 = no, 1 = yes
+
+	int normalshield; // 0 = no, 1 = yes
+
+	int haspowerup; // 0 = no, 1 = yes
+	// last one goes here
 }playerData;
 
 Entity* player_spawn(GFC_Vector3D position) {
@@ -226,6 +236,19 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 				self->rotation.z += 0.2;
 			}
 		}
+		// X-POSITION FALLBACK (placeholder until 3rd dimension is utilized more)
+		if (self->position.x > 0) {
+			self->position.x -= 0.1;
+			if (self->position.x < 0) {
+				self->position.x = 0;
+			}
+		}
+		else if (self->position.x < 0) {
+			self->position.x += 0.1;
+			if (self->position.x > 0) {
+				self->position.x = 0;
+			}
+		}
 	}
 
 	// JUMPING
@@ -312,6 +335,27 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		}
 	}
 
+	// POWER-UP MODIFICATIONS
+
+	if (gfc_input_command_down("powerupability")) {
+		if (data->fireshield == 1) {
+			if (data->airborne == 1) {
+				if (data->rotdir == 1 && self->velocity.y <= MAXSPEED) {
+					self->velocity.y = MAXSPEED * 0.75;
+				}
+				else if (data->rotdir == 2 && self->velocity.y >= -MAXSPEED) {
+					self->velocity.y = MAXSPEED * -0.75;
+				}
+			}
+		}
+		else if (data->bubbleshield == 1) {
+			if (data->airborne == 1) {
+				self->velocity.z = -3;
+				data->bubblebounce = 1;
+			}
+		}
+	}
+
 	// DEBUGGING TOOLS
 	if (gfc_input_command_down("giverings")) {
 		data->health += 1;
@@ -345,6 +389,12 @@ void player_update(Entity* self) {
 	self->BoundingBox.z = self->position.z;
 
 	//printf("rotdir: %i\n", data->rotdir);
+	
+	// POWERUP STUFF
+	if (data->haspowerup) {
+		// show shield model here
+		// change shield color depending on powerup using gfc_color
+	}
 
 	// IFRAME TIMER
 	if (data->invincibility > 0) { 
@@ -402,25 +452,6 @@ void player_update(Entity* self) {
 	// maybe
 }
 
-void player_loop(Entity* self, loopData* loop) { // for loop obstacle
-	playerData* data;
-	if (!self) {
-		return;
-	}
-	data = self->data;
-
-	if (data->currentpoint >= 10) {
-		data->inloop = 0;
-		return;
-	}
-	//slog("current point: %i", data->currentpoint);
-	//slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
-
-	self->position = loop->points[data->currentpoint];
-	data->currentpoint += 1;
-
-}
-
 void player_camera(Entity* self) {
 	playerData* data;
 	GFC_Vector3D lookTarget, camera, dir = { 0 };
@@ -460,6 +491,28 @@ void player_touch(Entity* self, Entity* other) {
 		return;
 	}
 	data = self->data;
+
+	//BUBBLE POWERUP CHANGES
+	// TO DO:
+	// prevent the player from holding e to fall through the floor
+	// figure out why the bounce doesnt happen sometimes
+	if (data->bubblebounce == 1) {
+		if (other->flag == TERRAIN || other->flag == PLATFORM || other->flag == ITEMBOX) {
+			data->bubblebounce = 0;
+			self->velocity.z = 3;
+			if (self->position.y <= other->position.y) {
+				self->position.y = other->position.y + 5;
+			}
+			return;
+		}
+		if (other->flag == ENEMY) {
+			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
+			sentence_to_death(other);
+			return;
+		}
+	}
+
+	// TOUCH COLLISIONS
 
 	if (other->flag == TERRAIN) { 
 		//slog("collided with terrain");
@@ -533,6 +586,20 @@ void player_touch(Entity* self, Entity* other) {
 		}
 	}
 
+	if (other->flag == ITEMBOX) {
+		if (data->inball == 1 || data->storedvelocity > 0) {
+			if (data->spindash != 1) {
+				self->velocity.z = RECOIL;
+			}
+
+			data->thispowerup = (itemboxData*)other->data;
+			player_powerup(self, data->thispowerup);
+
+			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
+			sentence_to_death(other);
+		}
+	}
+
 	if (other->flag == IGNORE || other->flag == DROPPED) {
 		//slog("ignored a collision");
 		// collide with rings unless they're the dropped ones from taking damage
@@ -566,14 +633,24 @@ void player_damage(Entity* self) {
 	// take damage code here
 	// also include invincibility frames if there's time
 
-	if (data->health > 0) {
-		rings_dropped(self, self->position, data->health); // scatter rings everywhere
-		data->health = 0; //needs ui element
+	if (data->haspowerup == 0) {
+		if (data->health > 0) {
+			rings_dropped(self, self->position, data->health); // scatter rings everywhere
+			data->health = 0; //needs ui element
+		}
+		else {
+			//player_die(self); // took dmg at 0 health so you lose!
+			// off for now cus this is annoying while play testing
+		}
 	}
 	else {
-		//player_die(self); // took dmg at 0 health so you lose!
-		// off for now cus this is annoying while play testing
+		data->haspowerup = 0;
+		data->fireshield = 0;
+		data->bubbleshield = 0;
+		data->electricityshield = 0;
+		data->normalshield = 0;
 	}
+	
 
 	// make rings explode everywhere too
 }
@@ -594,6 +671,8 @@ void player_die(Entity* self) {
 	self->velocity.z = 0;
 }
 
+// RING FUNCTION
+
 void give_ring(Entity* self) {
 	playerData* data;
 
@@ -604,4 +683,73 @@ void give_ring(Entity* self) {
 
 	//slog("gained ring back from dropped");
 	data->health += 1;
+}
+
+// LOOP FUNCTION
+
+void player_loop(Entity* self, loopData* loop) { // for loop obstacle
+	playerData* data;
+	if (!self) {
+		return;
+	}
+	data = self->data;
+
+	if (data->currentpoint >= 10) {
+		data->inloop = 0;
+		return;
+	}
+	//slog("current point: %i", data->currentpoint);
+	//slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
+
+	self->position = loop->points[data->currentpoint];
+	data->currentpoint += 1;
+
+}
+
+////////////////////////////////////
+// POWER-UPS
+///////////////////////////////////
+
+// TO DO: 
+// add shield visual
+void player_powerup(Entity* self, itemboxData* itembox) {
+	playerData* data;
+	if (!self) {
+		return;
+	}
+	data = self->data;
+
+	if (itembox->item == 1) {
+		//give fire shield
+		data->fireshield = 1;
+		data->haspowerup = 1;
+	}
+	else if (itembox->item == 2) {
+		//give electricity shield
+		data->bubbleshield = 1;
+		data->haspowerup = 1;
+
+		data->fireshield = 0;
+		data->electricityshield = 0;
+		data->normalshield = 0;
+	}
+	else if (itembox->item == 3) {
+		//give bubble shield
+		data->electricityshield = 1;
+		data->haspowerup = 1;
+
+		data->bubbleshield = 0;
+		data->electricityshield = 0;
+		data->normalshield = 0;
+	}
+	else if (itembox->item == 4) {
+		//give normal shield
+		data->normalshield = 1;
+		data->haspowerup = 1;
+	}
+	else if (itembox->item == 5) {
+		//give invincibility power-up
+	}
+	
+	// if one of these power-ups are too hard to implement, just use one of the other ideas
 }
