@@ -12,34 +12,40 @@
 #include "rings.h"
 
 // Deliverables Status:
-// world obstacles:
+// world obstacles (5/5):
 // springs [x]
 // moving platforms [x] 
 // spikes [x]
 // loops [x]
-// item box (can also contain power-ups)
+// item box (can also contain power-ups) [x]
 // 
-// power ups:
-// fire shield
-// electricity shield
-// bubble shield
-// normal shield
+// power ups (5/5):
+// fire shield [x]
+// electricity shield [x]
+// bubble shield [x] 
+// normal shield [x]
 // 
 // velocity increase power-up
 // OR
-// magnet shield which collects nearby rings
+// magnet shield which collects nearby rings [i would like to add this instead but it's fine for now]
 // OR
-// invincibility power-up
+// invincibility power-up [x]
 //
-// enemies:
+// enemies (3/5):
 // generic enemy [x]
 // generic projectile enemy [x]
 // flying projectile/generic enemy [x]
 // worm enemy
 // bomb projectile enemy
 // spiked enemy
+//
+// boss battle (0/1)
+// no idea what to do about this 
+//
+// mini-game (0/1)
+// i really doubt this is happening
 
-// Common Deliverables:
+// Common Deliverables (3.5/5):
 // UI changes (time can be done with deltatime)
 // entity system [x]
 // basic controls [x]
@@ -97,6 +103,8 @@ typedef struct {
 	int doublejumped; // 0 = no, 1 = yes
 
 	int normalshield; // 0 = no, 1 = yes
+
+	int invincibilitypowerup; // 0 = no, 1 = yes
 
 	int haspowerup; // 0 = no, 1 = yes
 	// last one goes here
@@ -770,7 +778,17 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 		data->electricityshield = 0;
 	}
 	else if (itembox->item == 5) {
-		//give invincibility power-up
+		// TO DO:
+		// add cool music change for its duration
+		slog("got invincibility");
+		data->invincibilitypowerup = 1;
+		data->invincibility = 60; // long-time (though the timer goes down faster than you would expect)
+
+		data->fireshield = 0;
+		data->bubbleshield = 0;
+		data->electricityshield = 0;
+		data->normalshield = 0;
+		data->haspowerup = 0;
 	}
 	
 	// if one of these power-ups are too hard to implement, just use one of the other ideas

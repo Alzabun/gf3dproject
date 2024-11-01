@@ -151,6 +151,7 @@ int main(int argc,char *argv[])
     itembox_spawn(gfc_vector3d(0, -825, -165), 2);
     itembox_spawn(gfc_vector3d(0, -850, -165), 3);
     itembox_spawn(gfc_vector3d(0, -875, -165), 4);
+    itembox_spawn(gfc_vector3d(0, -900, -165), 5);
 
     // ENEMY SPAWNS
     generic_enemy_spawn(gfc_vector3d(0, -100, 0));
