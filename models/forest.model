@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/forest/forest.obj",
+        "texture":"models/forest/forest.png"
+    }
+}

@@ -63,3 +63,21 @@ void terrain_free(Entity* self) { // frees up entity
 	free(exist);
 	self->data = NULL;
 }
+
+Entity* test_spawn(GFC_Vector3D position) {
+	Entity* self;
+	TerrainData* exist;
+
+	self = entity_new();
+	if (!self) {
+		return NULL;
+	}
+	//self->model = gf3d_model_load("models/forest.model");
+	self->position = position;
+
+	exist = gfc_allocate_array(sizeof(TerrainData), 1);
+	if (exist) {
+		self->data = exist;
+	}
+	return self;
+}

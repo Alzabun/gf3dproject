@@ -332,7 +332,9 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->rotation.y += (data->storedvelocity * 0.1); // left
 		}
 		else if (data->storedvelocity < 0){
-			data->inball = 1; // you dont get to do dmg if you're just curled without speed
+			if (data->shield) { // prevent multiple visual shields at once
+				sentence_to_death(data->shield);
+			}; // you dont get to do dmg if you're just curled without speed
 			self->rotation.y -= (data->storedvelocity * 0.1); // right
 		}
 
@@ -351,6 +353,9 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			data->storedvelocity = 0;
 		}
 	}
+	
+	//slog("stored velocity: %.2f", data->storedvelocity);
+	slog("in ball: %i", data->inball);
 
 	// POWER-UP MODIFICATIONS
 
@@ -359,10 +364,10 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		if (data->fireshield == 1) {
 			if (data->airborne == 1) {
 				if (data->rotdir == 1 && self->velocity.y <= MAXSPEED) {
-					self->velocity.y = MAXSPEED * 0.75;
+					self->velocity.y += MAXSPEED * 0.75;
 				}
 				else if (data->rotdir == 2 && self->velocity.y >= -MAXSPEED) {
-					self->velocity.y = MAXSPEED * -0.75;
+					self->velocity.y += MAXSPEED * -0.75;
 				}
 			}
 		}
@@ -449,11 +454,17 @@ void player_update(Entity* self) {
 		// im pretty sure i can use the bounding box sides to fix this tho, but that means changing a lot of how this works right now (me from the future: it shouldnt)
 	}
 
+	// ROTATION DIRECTION DETECTION
 	if (self->rotation.z >= -1.5) { // idk if i had to put an extra rotation detection here (probably not)
 		data->rotdir = 2; // facing right
 	}
 	else {
 		data->rotdir = 1; // facing left
+	}
+
+	// SHIELD REMOVAL
+	if (data->shield && data->haspowerup == 0) { // prevent multiple visual shields at once
+		sentence_to_death(data->shield);
 	}
 
 	// LOOP LIST
@@ -543,10 +554,12 @@ void player_touch(Entity* self, Entity* other) {
 	// TOUCH COLLISIONS
 
 	if (other->flag == TERRAIN) { 
-		//slog("collided with terrain");
+		slog("collided with terrain");
 		self->velocity.z = 0;
 		data->airborne = 0;
 		data->onPlatform = 0;
+		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
+		
 		if (data->spindash == 0) {
 			self->rotation.y = 0;
 			if (data->invincibility <= 0) {
@@ -615,7 +628,8 @@ void player_touch(Entity* self, Entity* other) {
 	}
 
 	if (other->flag == ITEMBOX) {
-		if (data->inball == 1 || data->storedvelocity > 0) {
+		slog("touched itembox");
+		if (data->inball == 1 || data->storedvelocity > 0) { // why isnt this working????
 			if (data->spindash != 1) {
 				self->velocity.z = RECOIL;
 			}
@@ -754,6 +768,10 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 		data->fireshield = 1;
 		data->haspowerup = 1;
 		data->shield = shield_spawn(self->position, self, itembox->item);
+
+		data->bubbleshield = 0;
+		data->electricityshield = 0;
+		data->normalshield = 0;
 	}
 	else if (itembox->item == 2) {
 		slog("got bubble shield");

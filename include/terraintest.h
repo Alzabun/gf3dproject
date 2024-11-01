@@ -5,4 +5,6 @@
 
 Entity* terrain_spawn(GFC_Vector3D position);
 
+Entity* test_spawn(GFC_Vector3D position);
+
 #endif

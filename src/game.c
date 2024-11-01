@@ -139,6 +139,7 @@ int main(int argc,char *argv[])
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+    //test_spawn(gfc_vector3d(-1000, 0, -750));
 
     // OBSTACLE SPAWNS
     spikes_spawn(gfc_vector3d(0, -300, -155));
