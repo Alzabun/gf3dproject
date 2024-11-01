@@ -89,10 +89,12 @@ typedef struct {
 	// POWERUP MANAGEMENT
 	itemboxData* thispowerup;
 	int fireshield; // 0 = no, 1 = yes
-	int electricityshield; // 0 = no, 1 = yes
 
 	int bubbleshield; // 0 = no, 1 = yes
 	int bubblebounce; // 0 = no, 1 = yes
+
+	int electricityshield; // 0 = no, 1 = yes
+	int doublejumped; // 0 = no, 1 = yes
 
 	int normalshield; // 0 = no, 1 = yes
 
@@ -338,6 +340,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// POWER-UP MODIFICATIONS
 
 	if (gfc_input_command_down("powerupability")) {
+		// FIRE SHIELD
 		if (data->fireshield == 1) {
 			if (data->airborne == 1) {
 				if (data->rotdir == 1 && self->velocity.y <= MAXSPEED) {
@@ -348,20 +351,31 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 				}
 			}
 		}
+		// BUBBLE SHIELD
 		else if (data->bubbleshield == 1) {
 			if (data->airborne == 1) {
 				self->velocity.z = -4;
 				data->bubblebounce = 1;
 			}
 		}
+		// ELECTRICITY SHIELD
+		// TO DO: flash the screen white upon use
+		// attract rings close to it. not necessary to implement, but it would be cool i think
+		else if (data->electricityshield == 1 && data->doublejumped == 0) {
+			if (data->airborne == 1) {
+				self->velocity.z = 3;
+				data->doublejumped = 1;
+			}
+		}
+
 	}
 
 	// DEBUGGING TOOLS
 	if (gfc_input_command_down("giverings")) {
 		data->health += 1;
 	}
-	if (gfc_input_command_down("spawnprojectilenemy")) { // no work what the heck!
-		projectile_enemy_spawn(self->position);
+	if (gfc_input_command_down("spawngenericenemy")) { // idk why this isnt working
+		generic_enemy_spawn(self->position);
 		data->invincibility = 3; // time to get out of the way
 	}
 }
@@ -507,6 +521,12 @@ void player_touch(Entity* self, Entity* other) {
 			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
 			sentence_to_death(other);
 			return;
+		}
+	}
+	// ELECTRICITY POWERUP CHANGES
+	if (data->electricityshield == 1) {
+		if (other->flag == TERRAIN || other->flag == SPRING || other->flag == PLATFORM || other->flag == ITEMBOX) {
+			data->doublejumped = 0;
 		}
 	}
 
@@ -718,12 +738,12 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 	data = self->data;
 
 	if (itembox->item == 1) {
-		//give fire shield
+		slog("got fire shield");
 		data->fireshield = 1;
 		data->haspowerup = 1;
 	}
 	else if (itembox->item == 2) {
-		//give electricity shield
+		slog("got bubble shield");
 		data->bubbleshield = 1;
 		data->haspowerup = 1;
 
@@ -732,18 +752,22 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 		data->normalshield = 0;
 	}
 	else if (itembox->item == 3) {
-		//give bubble shield
+		slog("got electricity shield");
 		data->electricityshield = 1;
 		data->haspowerup = 1;
 
 		data->bubbleshield = 0;
-		data->electricityshield = 0;
+		data->fireshield = 0;
 		data->normalshield = 0;
 	}
 	else if (itembox->item == 4) {
-		//give normal shield
+		slog("got normal shield");
 		data->normalshield = 1;
 		data->haspowerup = 1;
+
+		data->bubbleshield = 0;
+		data->fireshield = 0;
+		data->electricityshield = 0;
 	}
 	else if (itembox->item == 5) {
 		//give invincibility power-up
