@@ -174,9 +174,10 @@ int main(int argc,char *argv[])
     rings_spawn(gfc_vector3d(0, 50, -135), 0);
     //
 
-    // time (not used for anything get but good to have)
+    /*// time (not used for anything get but good to have)
     float deltatime = 0;
-    game_frame_delay(&deltatime);
+    game_frame_delay(&deltatime);*/
+    // never mind
     
     
     //windows

@@ -97,6 +97,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 
 		data->health = 0; // no rings by default
 		data->invincibility = 0; // no i-frames by default
+		data->deltatime = 0; // upon game begin
 
 		self->data = data;
 	}
@@ -430,6 +431,10 @@ void player_update(Entity* self) {
 	player_camera(self); // this is fine for now
 
 	// UI UPDATES
+	data->speed_y = self->velocity.y;
+	data->speed_z = self->velocity.z;
+	data->deltatime += 0.025; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
+	//data->speed_x = self->velocity.x;
 	prepare_UI(data);
 
 	// RING COUNTER

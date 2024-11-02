@@ -12,6 +12,12 @@ typedef struct {
 	// GENERIC
 	GFC_Vector3D position; // self explanatory
 
+	// UI VARIABLES
+	float speed_y; 
+	float speed_z; 
+	//float speed_x; not really important yet
+	float deltatime; // player is god of time confirmed????
+
 	// CONTROLS
 	int jumpTime; // goes up by a number each frame or whatever
 	float storedvelocity; // for spindash speed
