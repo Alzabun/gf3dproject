@@ -693,8 +693,8 @@ void player_loop(Entity* self, loopData* loop) { // for loop obstacle
 		return;
 	}
 
-	slog("current point: %i", data->currentpoint);
-	slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
+	//slog("current point: %i", data->currentpoint);
+	//slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
 
 	
 	if (data->rotdir == 1) {

@@ -136,7 +136,7 @@ int main(int argc,char *argv[])
     // these are all hard-coded (for now????? forever????)
   
     // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, -780, -100));
+    player_spawn(gfc_vector3d(0, 0, -150));
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
@@ -159,11 +159,9 @@ int main(int argc,char *argv[])
     generic_enemy_spawn(gfc_vector3d(0, -100, 0));
     projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
     flying_enemy_spawn(gfc_vector3d(0, 200, -140));
+    spike_enemy_spawn(gfc_vector3d(0, 350, -140));
 
     // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
-    // 
-    // SECTION: midterm deliverable positions
-    //
     // (first 3: grounded)
     rings_spawn(gfc_vector3d(0, -50, -155), 0);
     rings_spawn(gfc_vector3d(0, -40, -155), 0);
