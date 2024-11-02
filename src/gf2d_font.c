@@ -330,17 +330,20 @@ void gf2d_font_draw_line(char *text,Font *font,GFC_Color color, GFC_Vector2D pos
         slog("cannot draw text, none provided");
         return;
     }
+    //slog("hello i am now going to crash the game after text");
     if (!font)
     {
         slog("cannot draw text, no font provided");
         return;
     }
+    //slog("hello i am now going to crash the game after font");
     if (!font->font)
     {
         slog("cannot draw text, bad font provided");
         return;
     }
-    
+    //slog("hello i am now going to crash the game after the correct font");
+
     image = gf2d_font_image_get(text,color,font);
     
     if (image != NULL)

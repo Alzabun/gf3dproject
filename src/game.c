@@ -31,6 +31,7 @@
 #include "enemy.h"
 #include "rings.h"
 #include "obstacles.h"
+#include "UI.h"
 
 extern int __DEBUG;
 
@@ -172,41 +173,43 @@ int main(int argc,char *argv[])
     rings_spawn(gfc_vector3d(0, 40, -135), 0);
     rings_spawn(gfc_vector3d(0, 50, -135), 0);
     //
+
+    // time (not used for anything get but good to have)
+    float deltatime = 0;
+    game_frame_delay(&deltatime);
     
     
     //windows
 
     // main game loop    
-        while(!_done) // ME: self explanatory - updates the primary functions constantly as long as the game is open
-        {
-            gfc_input_update();
-            gf2d_mouse_update();
-            gf2d_font_update();
-            // new stuff
-            entity_think_all();
-            entity_update_all();
+    // ME: self explanatory - updates the primary functions constantly as long as the game is open
+    while(!_done) {
 
-            //camera updaes
-            gf3d_camera_controls_update();
-            gf3d_camera_update_view();
-            gf3d_camera_get_view_mat4(gf3d_vgraphics_get_view_matrix());
+        gfc_input_update();
+        gf2d_mouse_update();
+        gf2d_font_update();
+        // new stuff
+        entity_think_all();
+        entity_update_all();
 
-            gf3d_vgraphics_render_start();
+        //camera updaes
+        gf3d_camera_controls_update();
+        gf3d_camera_update_view();
+        gf3d_camera_get_view_mat4(gf3d_vgraphics_get_view_matrix());
 
-            //3D draws
+        gf3d_vgraphics_render_start();
+
+        //3D draws
         
-            gf3d_model_draw_sky(sky,skyMat,GFC_COLOR_WHITE);
-            /*gf3d_model_draw(
-                dino, // dinosaur model location, if y  ou delete it it wont appear in the game UNLESS YOU HVAE ANOTHER WAY OF SAPWNING IT
-                dinoMat,
-                GFC_COLOR_WHITE,
-                NULL,
-                0);*/
-        
-            entity_draw_all(); // because this is already done in entity.c
-            //2D draws
+        gf3d_model_draw_sky(sky,skyMat,GFC_COLOR_WHITE);
+        entity_draw_all(); // entity.c stuff
+
+        //2D draws
         //gf2d_mouse_draw();
         //gf2d_font_draw_line_tag("alt+f4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
+        // DRAW UI
+        draw_UI();
+
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();

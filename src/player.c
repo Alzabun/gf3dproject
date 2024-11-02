@@ -6,11 +6,7 @@
 #include "gf2d_font.h"
 
 #include "player.h"
-#include "obstacles.h"
-#include "terraintest.h"
-#include "enemy.h"
-#include "rings.h"
-#include "shield.h"
+#include "UI.h"
 
 // Deliverables Status:
 // world obstacles (5/5):
@@ -61,57 +57,14 @@
 // menu screen / start screen
 // more...
 
-void player_think(Entity* self);
-void player_update(Entity* self);
-void player_free(Entity* self);
-void player_touch(Entity* self, Entity* other);
-void player_camera(Entity* self);
-void player_damage(Entity* self);
-void player_die(Entity* self);
-void player_loop(Entity* self, loopData* loop);
-void player_powerup(Entity* self, itemboxData* itembox);
 
 const float MAXSPEED = 5;
 const float JUMPTIME = 10;
 const float MAXSPINDASHSPEED = 10;
 float RECOIL = 2; // when you bounce from doing/taking damage
-const float IFRAMES = 10; // roughly 3 seconds? i need a better way to store time and i know there's a wait function but i didnt find it yet
+const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX LATER]
 
-typedef struct {
-	// GENERIC
-	GFC_Vector3D position; // self explanatory
-
-	// CONTROLS
-	int jumpTime; // goes up by a number each frame or whatever
-	float storedvelocity; // for spindash speed
-
-	// BOOLEANS
-	int airborne; // 0 = no, 1 = yes
-	int spindash; // 0 = no, 1 = yes
-	int inball; // 0 = no, 1 = yes
-	int rotdir; // 1 = left, 2 = right
-	int health; // amount of rings
-	float invincibility; // either for i-frames or power-ups
-	int onPlatform; // 0 = no, 1 = yes | this is to prevent not being able to jump off a platform
-
-	// LOOP MANAGEMENT
-	int inloop; // 0 = no, 1 = yes
-	int currentpoint; // find amount of points from obstacles.c loop section
-	loopData* thisloop; // automatic waypoints
-
-	// POWERUP MANAGEMENT
-	itemboxData* thispowerup;
-	Entity* shield;
-	int fireshield; // 0 = no, 1 = yes
-	int bubbleshield; // 0 = no, 1 = yes
-	int bubblebounce; // 0 = no, 1 = yes
-	int electricityshield; // 0 = no, 1 = yes
-	int doublejumped; // 0 = no, 1 = yes
-	int normalshield; // 0 = no, 1 = yes
-	int invincibilitypowerup; // 0 = no, 1 = yes
-	int haspowerup; // 0 = no, 1 = yes
-
-}playerData;
+// ***** MOVED STRUCT TO PLAYER.H ******
 
 Entity* player_spawn(GFC_Vector3D position) {
 	Entity* self;
@@ -355,7 +308,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 	
 	//slog("stored velocity: %.2f", data->storedvelocity);
-	slog("in ball: %i", data->inball);
+	//slog("in ball: %i", data->inball);
 
 	// POWER-UP MODIFICATIONS
 
@@ -363,6 +316,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		// FIRE SHIELD
 		if (data->fireshield == 1) {
 			if (data->airborne == 1) {
+				data->inball = 1;
 				if (data->rotdir == 1 && self->velocity.y <= MAXSPEED) {
 					self->velocity.y += MAXSPEED * 0.75;
 				}
@@ -476,9 +430,13 @@ void player_update(Entity* self) {
 	player_camera(self); // this is fine for now
 
 	// UI UPDATES
+	prepare_UI(data);
 
 	// RING COUNTER
-	gf2d_font_draw_line_tag("RINGS: %i", FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
+	//gf2d_font_draw_line_tag("RINGS: %i", FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
+	//gf2d_font_draw_line(("RINGS: %i", data->health), FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
+	//gf2d_font_draw_line("RINGS", FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
+	//gf2d_font_draw_line_tag("RINGS", FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(10, 10)); 
 
 	// SCORE COUNTER
 	// add score system
@@ -554,7 +512,7 @@ void player_touch(Entity* self, Entity* other) {
 	// TOUCH COLLISIONS
 
 	if (other->flag == TERRAIN) { 
-		slog("collided with terrain");
+		//slog("collided with terrain");
 		self->velocity.z = 0;
 		data->airborne = 0;
 		data->onPlatform = 0;
