@@ -140,13 +140,13 @@ int main(int argc,char *argv[])
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
-    //test_spawn(gfc_vector3d(-1000, 0, -750));
+    //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
 
     // OBSTACLE SPAWNS
     spikes_spawn(gfc_vector3d(0, -300, -155));
     spring_spawn(gfc_vector3d(0, -350, -160));
     v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
-    loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20
+    loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20 except collisions break when you do that for some reason
     
     // ITEMBOX SPAWNS (OBSTACLE SUBCATEGORY)
     itembox_spawn(gfc_vector3d(0, -800, -165), 1);

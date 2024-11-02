@@ -42,12 +42,12 @@
 // mini-game (0/1)
 // i really doubt this is happening
 
-// Common Deliverables (3.5/5):
-// UI changes (time can be done with deltatime)
+// Common Deliverables (5/5):
+// UI changes [x]
 // entity system [x]
 // basic controls [x]
 // basic collision [x]
-// contained game world [at least make some generic terrain model in blender to act as the background, then ill consider it complete]
+// contained game world [x] [background no work]
 
 // Optional Requirements (for my own satisfaction):
 // rings (health) [x]
@@ -355,7 +355,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 }
 void player_update(Entity* self) {
-	playerData* data; 
+	playerData* data;
 
 	if (!self) {
 		return;
@@ -380,7 +380,7 @@ void player_update(Entity* self) {
 	//printf("rotdir: %i\n", data->rotdir);
 
 	// IFRAME TIMER
-	if (data->invincibility > 0) { 
+	if (data->invincibility > 0) {
 		data->invincibility -= 0.1;
 		// TO DO:
 		// every model change has a check to see if theres invinciblity to make the player white to indicate iframes are on
@@ -397,7 +397,7 @@ void player_update(Entity* self) {
 		if (data->spindash == 0) { // prevent animation when spindashing unless its from the spindash itself
 			self->rotation.y += 0.1;
 		}
-		
+
 		// respawn player on top of the map if they fall into the void
 		if (self->position.z <= -250) {
 			self->position.z = 200;
@@ -436,18 +436,6 @@ void player_update(Entity* self) {
 	data->deltatime += 0.025; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
 	//data->speed_x = self->velocity.x;
 	prepare_UI(data);
-
-	// RING COUNTER
-	//gf2d_font_draw_line_tag("RINGS: %i", FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
-	//gf2d_font_draw_line(("RINGS: %i", data->health), FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
-	//gf2d_font_draw_line("RINGS", FT_Normal, GFC_COLOR_YELLOW, gfc_vector2d(10, 10));
-	//gf2d_font_draw_line_tag("RINGS", FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(10, 10)); 
-
-	// SCORE COUNTER
-	// add score system
-	
-	// TIME COUNTER
-	// maybe
 }
 
 void player_camera(Entity* self) {
@@ -704,12 +692,18 @@ void player_loop(Entity* self, loopData* loop) { // for loop obstacle
 		data->inloop = 0;
 		return;
 	}
-	//slog("current point: %i", data->currentpoint);
-	//slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
 
-	self->position = loop->points[data->currentpoint];
+	slog("current point: %i", data->currentpoint);
+	slog("x, y, z positions: %.2f, %.2f, %2.f", self->position.x, self->position.y, self->position.z);
+
+	
+	if (data->rotdir == 1) {
+		self->position = loop->points_backward[data->currentpoint];
+	}
+	else if (data->rotdir == 2) {
+		self->position = loop->points_forward[data->currentpoint];
+	}
 	data->currentpoint += 1;
-
 }
 
 ////////////////////////////////////

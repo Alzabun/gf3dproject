@@ -11,7 +11,8 @@ Entity* v_moving_platform_spawn(GFC_Vector3D position);
 
 typedef struct {
 	GFC_Vector3D position;
-	GFC_Vector3D points[10];
+	GFC_Vector3D points_forward[10];
+	GFC_Vector3D points_backward[10];
 }loopData;
 
 Entity* loop_spawn(GFC_Vector3D position);

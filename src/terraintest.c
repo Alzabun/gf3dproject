@@ -72,7 +72,7 @@ Entity* test_spawn(GFC_Vector3D position) {
 	if (!self) {
 		return NULL;
 	}
-	//self->model = gf3d_model_load("models/forest.model");
+	self->model = gf3d_model_load("models/forest.model");
 	self->position = position;
 
 	exist = gfc_allocate_array(sizeof(TerrainData), 1);
