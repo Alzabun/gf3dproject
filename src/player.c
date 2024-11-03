@@ -450,8 +450,8 @@ void player_update(Entity* self) {
 	player_camera(self); // this is fine for now
 
 	// UI UPDATES
-	data->speed_y = self->velocity.y;
-	data->speed_z = self->velocity.z;
+	data->speed_y = fabs(self->velocity.y);
+	data->speed_z = fabs(self->velocity.z);
 	data->deltatime += 0.025; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
 	//data->speed_x = self->velocity.x;
 	prepare_UI(data);
@@ -625,11 +625,15 @@ void player_touch(Entity* self, Entity* other) {
 	// BOSS LOGIC
 	if (other->flag == BOSS_PENDING) {
 		// prepare thy boss
-		slog("activated boss");
 		other->flag = BOSS_START;
 		other->BoundingBox.w = 10;
 		other->BoundingBox.d = 20;
 		other->BoundingBox.h = 50;
+		slog("activated bonding box change");
+	}
+
+	if (other->flag == BOSS){
+		player_damage(self);
 	}
 }
 
