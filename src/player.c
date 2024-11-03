@@ -4,6 +4,7 @@
 #include "gfc_vector.h"
 #include "gfc_input.h"
 #include "gf2d_font.h"
+#include "gfc_audio.h"
 
 #include "player.h"
 #include "UI.h"
@@ -64,6 +65,12 @@ float RECOIL = 2; // when you bounce from doing/taking damage
 const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX LATER]
 
 // ***** MOVED STRUCT TO PLAYER.H ******
+
+// SOUND EFFECTS
+//GFC_Sound* jump = gfc_sound_load("sounds/jump", 1 ,0); // not how it works
+
+//Mix_FreeChunk(jump); // use this a lot
+
 
 Entity* player_spawn(GFC_Vector3D position) {
 	Entity* self;
@@ -171,7 +178,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	else {
 		// FRICTION
 		if (self->velocity.y > 0) {
-			self->velocity.y -= 0.1;
+			self->velocity.y -= 0.15;
 			if (data->spindash == 1) {
 				self->rotation.y += (self->velocity.y * 0.1);
 			}
@@ -180,7 +187,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			}
 		}
 		else if (self->velocity.y < 0) {
-			self->velocity.y += 0.1;
+			self->velocity.y += 0.15;
 			if (data->spindash == 1) {
 				self->rotation.y -= (self->velocity.y * 0.1);
 			}
@@ -205,19 +212,6 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			}
 			else {
 				self->rotation.z += 0.2;
-			}
-		}
-		// X-POSITION FALLBACK (placeholder until 3rd dimension is utilized more)
-		if (self->position.x > 0) {
-			self->position.x -= 0.1;
-			if (self->position.x < 0) {
-				self->position.x = 0;
-			}
-		}
-		else if (self->position.x < 0) {
-			self->position.x += 0.1;
-			if (self->position.x > 0) {
-				self->position.x = 0;
 			}
 		}
 	}
@@ -379,7 +373,7 @@ void player_update(Entity* self) {
 
 	//printf("rotdir: %i\n", data->rotdir);
 
-	if (data->lives <= 0) {
+	if (data->lives < 0) {
 		sentence_to_death(self); // GAME OVER
 	}
 
@@ -429,6 +423,20 @@ void player_update(Entity* self) {
 	// LOOP LIST
 	if (data->inloop == 1) {
 		player_loop(self, data->thisloop);
+	}
+
+	// X-POSITION FALLBACK (placeholder until 3rd dimension is utilized more)
+	if (self->position.x > 0) {
+		self->position.x -= 0.1;
+		if (self->position.x < 0) {
+			self->position.x = 0;
+		}
+	}
+	else if (self->position.x < 0) {
+		self->position.x += 0.1;
+		if (self->position.x > 0) {
+			self->position.x = 0;
+		}
 	}
 
 	// CAMERA
@@ -583,7 +591,7 @@ void player_touch(Entity* self, Entity* other) {
 	}
 
 	if (other->flag == ITEMBOX) {
-		slog("touched itembox");
+		//slog("touched itembox");
 		if (data->inball == 1 || data->storedvelocity > 0) { // why isnt this working????
 			if (data->spindash != 1) {
 				self->velocity.z = RECOIL;

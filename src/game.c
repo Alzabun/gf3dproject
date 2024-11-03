@@ -64,11 +64,9 @@ void exitGame()
 
 int main(int argc,char *argv[]) 
 {
-    //entity
-    Entity ent; // ME: idk what this was supposed to be for
     //local variables
-    Model *sky, *collisiontest;
-    GFC_Matrix4 skyMat, collisiontestMat;
+    Model* sky;
+    GFC_Matrix4 skyMat;
     //initializtion    
     /* ME:
     this is what logs crashes to see what went wrong or something
@@ -80,9 +78,12 @@ int main(int argc,char *argv[])
     parse_arguments(argc,argv);
     init_logger("gf3d.log",0); 
     slog("gf3d begin");
+
     //gfc init
     gfc_input_init("config/input.cfg"); // check input.cfg - it has premade controls to play the game and do game stuff (they can be changed/deleted)
-    //gfc_config_def_init(); idk what this was for
+    // music
+    gfc_audio_init(100, 10, 0, 10, 1, 0); // hmm
+    gfc_config_def_init(); // this was off before, bt im leaving it on in case i go crazy if i try to use this and wonder why it doesnt work
     gfc_action_init(1024);
     //gf3d init
     gf3d_vgraphics_init("config/setup.cfg"); // check setup.cfg - you can enable/disable stuff like resolution, fps, developer debug features, and the game name
@@ -91,6 +92,8 @@ int main(int argc,char *argv[])
     gf2d_actor_init(1000); // ME: this and draw_manager will be how much entities can be allowed at once, but draw_manager_init is for 2D only
     gf3d_draw_init();//3D
     gf2d_draw_manager_init(1000);//2D
+
+
 
     entity_system_init(1000);
     
@@ -102,28 +105,18 @@ int main(int argc,char *argv[])
     gf2d_mouse_load("actors/mouse.actor");
     sky = gf3d_model_load("models/sky.model"); // the skybox is a model (a big cylinder)
     gfc_matrix4_identity(skyMat);
-    //dino = gf3d_model_load("models/dino.model"); // you can use blender to make your own models (simple ones at least) 
-    //gfc_matrix4_identity(dinoMat);
-    collisiontest = gf3d_model_load("models/collisiontest.model");
-    gfc_matrix4_identity(collisiontestMat);
+
+    // MUSIC
+    // MP3S DONT WORK FOR SOME REASON SO USE WAV INSTEAD (unless its because of the mp3 convertor website im using)
+    Mix_Music* music = gfc_sound_load_music("music/windyvalley.wav");
+    Mix_PlayMusic(music, -1);
+    //gfc_sound_load
+    //gfc_sound_play(music, 1, 1, -1, -1);
+    
 
     //camera
-
-    // ME: entity code
-    /*/ i have no idea what was supposed to go here
-    if (ent._inuse) {
-        Entity* self;
-        self = entity_new();
-
-        self->model = gf3d_model_load("models/dino.model");
-        self->think = dino_think;
-        //self->position = ????? is this even necessary 
-        // ent = dinosaur model path (self->model = gf3d_model_load("models/dino.model");)
-        // ent think = something (you can make it roatete or something)
-        // dino.h and dino.c are where this function can be placed in instead and things relating to this
-    }*/
-
     // ME: this will most likely be changed dramatically as the game develops, since it's just a freecam for now (as it is when the project is first compiled)
+    // ME FROM THE FUTURE: turns out i didnt need to (for now?)
     gf3d_camera_set_scale(gfc_vector3d(1,1,1));
     gf3d_camera_set_position(gfc_vector3d(15,-15,10));
     gf3d_camera_look_at(gfc_vector3d(0,0,0),NULL);
@@ -136,7 +129,7 @@ int main(int argc,char *argv[])
     // these are all hard-coded (for now????? forever????)
   
     // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, 0, -150));
+    player_spawn(gfc_vector3d(0, 500, -150));
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
