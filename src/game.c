@@ -160,6 +160,7 @@ int main(int argc,char *argv[])
     projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
     flying_enemy_spawn(gfc_vector3d(0, 200, -140));
     spike_enemy_spawn(gfc_vector3d(0, 350, -140));
+    bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
 
     // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
     // (first 3: grounded)

@@ -28,13 +28,12 @@
 // OR
 // invincibility power-up [x]
 //
-// enemies (3/5):
+// enemies (4/5):
 // generic enemy [x]
 // generic projectile enemy [x]
 // flying projectile/generic enemy [x]
-// worm enemy
 // bomb projectile enemy
-// spiked enemy
+// spiked enemy [x]
 //
 // boss battle (0/1)
 // no idea what to do about this 

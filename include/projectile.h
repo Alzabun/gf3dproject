@@ -7,4 +7,6 @@
 // preserve direction depending on where the entity that's shooting is facing
 Entity* projectile_spawn(GFC_Vector3D position, int direction);
 
+Entity* bomb_spawn(GFC_Vector3D position);
+
 #endif

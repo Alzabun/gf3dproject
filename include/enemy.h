@@ -11,4 +11,6 @@ Entity* flying_enemy_spawn(GFC_Vector3D position);
 
 Entity* spike_enemy_spawn(GFC_Vector3D position);
 
+Entity* bomb_enemy_spawn(GFC_Vector3D position);
+
 #endif
