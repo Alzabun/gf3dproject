@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/boss/boss.obj",
+        "texture":"models/boss/boss.png"
+    }
+}

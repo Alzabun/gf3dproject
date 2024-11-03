@@ -32,6 +32,7 @@
 #include "rings.h"
 #include "obstacles.h"
 #include "UI.h"
+#include "boss.h"
 
 extern int __DEBUG;
 
@@ -106,10 +107,7 @@ int main(int argc,char *argv[])
     sky = gf3d_model_load("models/sky.model"); // the skybox is a model (a big cylinder)
     gfc_matrix4_identity(skyMat);
 
-    // MUSIC
-    // MP3S DONT WORK FOR SOME REASON SO USE WAV INSTEAD (unless its because of the mp3 convertor website im using)
-    Mix_Music* music = gfc_sound_load_music("music/windyvalley.wav");
-    Mix_PlayMusic(music, -1);
+    // i put the music in player.c for easier management
     //gfc_sound_load
     //gfc_sound_play(music, 1, 1, -1, -1);
     
@@ -129,7 +127,7 @@ int main(int argc,char *argv[])
     // these are all hard-coded (for now????? forever????)
   
     // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, 500, -150));
+    player_spawn(gfc_vector3d(0, -920, -150));
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
@@ -154,6 +152,8 @@ int main(int argc,char *argv[])
     flying_enemy_spawn(gfc_vector3d(0, 200, -140));
     spike_enemy_spawn(gfc_vector3d(0, 350, -140));
     bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
+
+    boss_spawn(gfc_vector3d(0, -1250, -155));
 
     // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
     // (first 3: grounded)

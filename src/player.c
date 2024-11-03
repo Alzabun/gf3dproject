@@ -8,6 +8,7 @@
 
 #include "player.h"
 #include "UI.h"
+#include "boss.h"
 
 // Deliverables Status:
 // world obstacles (5/5):
@@ -37,10 +38,12 @@
 // spiked enemy [x]
 //
 // boss battle (0/1)
-// no idea what to do about this 
+// big mech boss (big square)
+// 2 entities attached to each other - 1 entity damages, other is a weak point
 //
 // mini-game (0/1)
-// i really doubt this is happening
+// yeah this isnt happening as much as i want to make it
+// if i were to make it i predict it'd take 1-2 days (or 1 day of spending the whole day on this like how i have been but the whole week instead)
 
 // Common Deliverables (5/5):
 // UI changes [x]
@@ -52,11 +55,10 @@
 // Optional Requirements (for my own satisfaction):
 // rings (health) [x]
 // ring re-collection [half x]
-// music/sounds
+// music/sounds [0.5/1]
 // 3d camera/controls switch toggle
 // menu screen / start screen
 // more...
-
 
 const float MAXSPEED = 5;
 const float JUMPTIME = 10;
@@ -67,10 +69,9 @@ const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX 
 // ***** MOVED STRUCT TO PLAYER.H ******
 
 // SOUND EFFECTS
+// TO DO: actually figure out how this works, my brain is fried so i cant right now
 //GFC_Sound* jump = gfc_sound_load("sounds/jump", 1 ,0); // not how it works
-
 //Mix_FreeChunk(jump); // use this a lot
-
 
 Entity* player_spawn(GFC_Vector3D position) {
 	Entity* self;
@@ -98,6 +99,9 @@ Entity* player_spawn(GFC_Vector3D position) {
 
 	self->flag = PLAYER;
 
+	// MUSIC
+	// MP3S DONT WORK FOR SOME REASON SO USE WAV INSTEAD (unless its because of the mp3 convertor website im using)
+
 	data = gfc_allocate_array(sizeof(playerData), 1);
 	if (data) {
 
@@ -105,6 +109,9 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->invincibility = 0; // no i-frames by default
 		data->deltatime = 0; // upon game begin
 		data->lives = 3; //typical
+
+		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
+		Mix_PlayMusic(data->normal_music, -1);
 
 		self->data = data;
 	}
@@ -448,6 +455,9 @@ void player_update(Entity* self) {
 	data->deltatime += 0.025; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
 	//data->speed_x = self->velocity.x;
 	prepare_UI(data);
+
+	// UPDATES FOR BOSS DATA
+	getPlayer(data);
 }
 
 void player_camera(Entity* self) {
@@ -610,6 +620,16 @@ void player_touch(Entity* self, Entity* other) {
 		// collide with rings unless they're the dropped ones from taking damage
 		// to prevent instantly picking them back up
 		// rings.c handles the DROPPED flag collision
+	}
+
+	// BOSS LOGIC
+	if (other->flag == BOSS_PENDING) {
+		// prepare thy boss
+		slog("activated boss");
+		other->flag = BOSS_START;
+		other->BoundingBox.w = 10;
+		other->BoundingBox.d = 20;
+		other->BoundingBox.h = 50;
 	}
 }
 
@@ -798,6 +818,4 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 		data->normalshield = 0;
 		data->haspowerup = 0;
 	}
-	
-	// if one of these power-ups are too hard to implement, just use one of the other ideas
 }

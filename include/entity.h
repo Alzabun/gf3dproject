@@ -10,7 +10,7 @@
 
 // C does not have a string type by default, but you can use a makeshift one made in gfc/ i forgor / gfc string or something
 
-typedef enum { 
+typedef enum {
 	// PLAYER
 	PLAYER,
 	// ENVIRONMENT
@@ -27,6 +27,10 @@ typedef enum {
 	// ENEMY RELATED
 	ENEMY,
 	PROJECTILE,
+	// BOSS BATTLE
+	BOSS,
+	BOSS_PENDING,
+	BOSS_START,
 	// MISC
 	IGNORE
 }EntityFlag;

@@ -8,6 +8,8 @@
 #include "rings.h"
 #include "shield.h"
 
+#include "gfc_audio.h"
+
 typedef struct {
 	// GENERIC
 	GFC_Vector3D position; // self explanatory
@@ -50,6 +52,10 @@ typedef struct {
 	int normalshield; // 0 = no, 1 = yes
 	int invincibilitypowerup; // 0 = no, 1 = yes
 	int haspowerup; // 0 = no, 1 = yes
+
+	// MUSIC
+	Mix_Music* normal_music;
+	Mix_Music* boss_music;
 
 }playerData;
 
