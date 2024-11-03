@@ -28,11 +28,11 @@
 // OR
 // invincibility power-up [x]
 //
-// enemies (4/5):
+// enemies (5/5):
 // generic enemy [x]
 // generic projectile enemy [x]
 // flying projectile/generic enemy [x]
-// bomb projectile enemy
+// bomb projectile enemy [x]
 // spiked enemy [x]
 //
 // boss battle (0/1)
@@ -97,6 +97,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->health = 0; // no rings by default
 		data->invincibility = 0; // no i-frames by default
 		data->deltatime = 0; // upon game begin
+		data->lives = 3; //typical
 
 		self->data = data;
 	}
@@ -378,6 +379,10 @@ void player_update(Entity* self) {
 
 	//printf("rotdir: %i\n", data->rotdir);
 
+	if (data->lives <= 0) {
+		sentence_to_death(self); // GAME OVER
+	}
+
 	// IFRAME TIMER
 	if (data->invincibility > 0) {
 		data->invincibility -= 0.1;
@@ -631,8 +636,7 @@ void player_damage(Entity* self) {
 			data->health = 0; //needs ui element
 		}
 		else {
-			//player_die(self); // took dmg at 0 health so you lose!
-			// off for now cus this is annoying while play testing
+			player_die(self); // took dmg at 0 health so you lose!
 		}
 	}
 	else {
@@ -655,8 +659,9 @@ void player_die(Entity* self) {
 	}
 	data = self->data;
 
-	// theres no lives system or game over screen or anything like that yet, so just 'respawn' the player for now
+	// theres game over screen or anything like that yet, so just 'respawn' the player for now
 	data->health = 0;
+	data->lives -= 1;
 	self->position.z = 200;
 	self->position.x = 0;
 	self->position.y = 0;

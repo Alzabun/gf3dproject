@@ -18,6 +18,9 @@ typedef struct {
 	//float speed_x; not really important yet
 	float deltatime; // player is god of time confirmed????
 
+	// GAME
+	int lives;
+
 	// CONTROLS
 	int jumpTime; // goes up by a number each frame or whatever
 	float storedvelocity; // for spindash speed
