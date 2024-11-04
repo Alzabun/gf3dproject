@@ -9,6 +9,7 @@
 #include "shield.h"
 
 #include "gfc_audio.h"
+#include "entitykiller.h"
 
 typedef struct {
 	// GENERIC

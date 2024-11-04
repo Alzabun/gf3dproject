@@ -28,6 +28,7 @@ C:\Users\Sampl\gf3dproject\gfc\src\miniz.c;C:\Users\Sampl\gf3dproject\win\win\x6
 C:\Users\Sampl\gf3dproject\src\boss.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\boss.obj
 C:\Users\Sampl\gf3dproject\src\enemy.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\enemy.obj
 C:\Users\Sampl\gf3dproject\src\entity.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\entity.obj
+C:\Users\Sampl\gf3dproject\src\entitykiller.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\entitykiller.obj
 C:\Users\Sampl\gf3dproject\src\obstacles.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\obstacles.obj
 C:\Users\Sampl\gf3dproject\src\player.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\player.obj
 C:\Users\Sampl\gf3dproject\src\game.c;C:\Users\Sampl\gf3dproject\win\win\x64\Release\game.obj

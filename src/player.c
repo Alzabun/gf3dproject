@@ -294,7 +294,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		else if (data->storedvelocity < 0){
 			if (data->shield) { // prevent multiple visual shields at once
 				sentence_to_death(data->shield);
-			}; // you dont get to do dmg if you're just curled without speed
+			} // you dont get to do dmg if you're just curled without speed
 			self->rotation.y -= (data->storedvelocity * 0.1); // right
 		}
 

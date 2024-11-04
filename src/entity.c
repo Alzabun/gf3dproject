@@ -140,6 +140,7 @@ Entity* entity_new() {
 		}
 		memset(&entity_manager.entityList[i], 0, sizeof(Entity)); //clear it out just incase theres memory being used still for some reason
 		entity_manager.entityList[i]._inuse = 1;
+		//slog("marked enemy inuse");
 		entity_manager.entityList[i].scale = gfc_vector3d(1, 1, 1);
 		// any default values should be set
 		return &entity_manager.entityList[i];
@@ -261,14 +262,4 @@ void entity_show_box(Entity* self, GFC_Color color) {
 
 	//printf("box position: x=%.2f, y=%.2f, z=%.2f\n", self->position.x, self->position.y, self->position.z);
 	gf3d_draw_cube_solid(box, position, rotation, scale, color);
-}
-
-// * deletion stuff *
-
-void sentence_to_death(Entity* self) { // freeing in the middle of a function crashes the game, so use this to kill an entity
-	for (int i = 0; i < entity_manager.entityMax; i++) {
-		if (entity_manager.entityList[i]._inuse) {
-			entity_free(self);
-		}
-	}
 }

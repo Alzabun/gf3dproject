@@ -114,7 +114,5 @@ void collision_check();
 
 // * bounding box debugging *
 void entity_show_box(Entity* self, GFC_Color color);
-#endif __ENTITY_H__ // should this be here???
 
-// * deleting stuff *
-void sentence_to_death(Entity* self);
+#endif
