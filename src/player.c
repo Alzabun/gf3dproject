@@ -10,6 +10,18 @@
 #include "UI.h"
 #include "boss.h"
 
+// FINAL PROGRESSION [CURRENT]
+// music/sounds [0.5/1]
+// add minigame anyway
+// TBA...
+// 
+// maybe optional (unknown what the actual requirements are yet):
+// 3d camera/controls switch toggle
+// menu screen / start screen
+// 
+// ---------------------------------
+// 
+// MIDTERM PROGRESSION [ENDED]
 // Deliverables Status:
 // world obstacles (5/5):
 // springs [x]
@@ -52,12 +64,13 @@
 // contained game world [x] [background no work]
 
 // Optional Requirements (for my own satisfaction):
-// rings (health) [x]
+// rings (health) [x] 
 // ring re-collection [half x]
-// music/sounds [0.5/1]
+// music/sounds [0.5/1] -> this was actually a final deliverable apparently
 // 3d camera/controls switch toggle
 // menu screen / start screen
 // more...
+
 
 const float MAXSPEED = 5;
 const float JUMPTIME = 10;
