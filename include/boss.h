@@ -5,6 +5,6 @@
 #include "player.h"
 
 Entity* boss_spawn(GFC_Vector3D position);
-void getPlayer(playerData* player);
+//void getPlayer(playerData* player);
 
 #endif

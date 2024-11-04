@@ -37,10 +37,9 @@
 // bomb projectile enemy [x]
 // spiked enemy [x]
 //
-// boss battle (0/1)
-// big mech boss (big square)
-// 2 entities attached to each other - 1 entity damages, other is a weak point
-//
+// boss battle (1/1)
+// Yes!
+// 
 // mini-game (0/1)
 // yeah this isnt happening as much as i want to make it
 // if i were to make it i predict it'd take 1-2 days (or 1 day of spending the whole day on this like how i have been but the whole week instead)
@@ -112,6 +111,12 @@ Entity* player_spawn(GFC_Vector3D position) {
 
 		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
 		Mix_PlayMusic(data->normal_music, -1);
+
+		data->boss_music = gfc_sound_load_music("music/bigarms.wav");
+		data->wintheme = gfc_sound_load_music("music/win.wav");
+
+		data->killedboss = 0;
+
 
 		self->data = data;
 	}
@@ -457,7 +462,7 @@ void player_update(Entity* self) {
 	prepare_UI(data);
 
 	// UPDATES FOR BOSS DATA
-	getPlayer(data);
+	//getPlayer(data);
 }
 
 void player_camera(Entity* self) {
@@ -629,11 +634,39 @@ void player_touch(Entity* self, Entity* other) {
 		other->BoundingBox.w = 10;
 		other->BoundingBox.d = 20;
 		other->BoundingBox.h = 50;
-		slog("activated bonding box change");
+
+		Mix_HaltMusic();
+		Mix_PlayMusic(data->boss_music, -1);
+
+		//slog("activated bounding box change");
 	}
 
 	if (other->flag == BOSS){
-		player_damage(self);
+		if (data->inball == 1 || data->storedvelocity > 0) { // i might have only needed to check for stored velocity for this to work
+			if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
+				if (data->rotdir == 1) {
+					self->velocity.y = -2;
+					self->velocity.z = 1;
+				}
+				else if (data->rotdir == 2) {
+					self->velocity.y = -2;
+					self->velocity.z = 1;
+				}
+			}
+			if (other->bosshealth > 0) {
+				other->bosshealth -= 1;
+			}
+			else {
+				sentence_to_death(other);
+				Mix_HaltMusic();
+				data->killedboss = 1;
+				Mix_PlayMusic(data->wintheme, 0);
+			}
+			
+		}
+		else { // take damage
+			player_damage(self);
+		}
 	}
 }
 
@@ -691,7 +724,9 @@ void player_die(Entity* self) {
 	}
 	data = self->data;
 
-	// theres game over screen or anything like that yet, so just 'respawn' the player for now
+	// theres no built in way of restarting a level or the game itself so just 'respawn' the player
+	Mix_HaltMusic();
+	Mix_PlayMusic(data->normal_music, -1);
 	data->health = 0;
 	data->lives -= 1;
 	self->position.z = 200;

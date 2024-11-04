@@ -2,6 +2,6 @@
     "model":
     {
         "obj":"models/boss/boss.obj",
-        "texture":"models/boss/boss.png"
+        "texture":"models/boss/red.png"
     }
 }

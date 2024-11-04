@@ -127,7 +127,7 @@ int main(int argc,char *argv[])
     // these are all hard-coded (for now????? forever????)
   
     // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, -920, -150));
+    player_spawn(gfc_vector3d(0, 500, -150));
 
     // TERRAIN SPAWN
     terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of

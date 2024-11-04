@@ -56,6 +56,10 @@ typedef struct {
 	// MUSIC
 	Mix_Music* normal_music;
 	Mix_Music* boss_music;
+	Mix_Music* wintheme;
+
+	// boss check for ui
+	int killedboss;
 
 }playerData;
 
