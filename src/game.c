@@ -96,7 +96,7 @@ int main(int argc,char *argv[])
 
 
 
-    entity_system_init(1000);
+    entity_system_init(10000); // was 1000, and this is way too much but its a band-aid solution
     
     //game init
     srand(SDL_GetTicks()); // random tick thing

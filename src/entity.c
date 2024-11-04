@@ -7,18 +7,6 @@
 #include "gfc_color.h"
 #include "gf3d_draw.h"
 
-//entity stuff should be building on top of gf3d_mesh.c stuff
-// make sure to constantly compile to check for errors
-// also, some things may be missing or if statements may be ordered incorrectly
-// this is how to make a resource manager, and this is copied but may or may not be modified based on whatever the game needs
-// if its missing, you should be able to fix it or add on to it... probably
-
-// for another example of what render systems will look like, you can look at mesh, sound, and something else i forgot
-
-// i had no time to copy it but from game.c, you can make a dino.h and dino.c as a file for a specific entity to do stuff
-
-// fix entity.c 
-// the game is black becuae of entity.c
 typedef struct {
 
 	Entity* entityList;

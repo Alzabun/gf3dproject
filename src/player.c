@@ -410,9 +410,9 @@ void player_update(Entity* self) {
 
 		// respawn player on top of the map if they fall into the void
 		if (self->position.z <= -250) {
-			self->position.z = 200;
+			self->position.z = 0;
 			self->position.x = 0;
-			self->position.y = 0;
+			self->position.y = 500;
 			self->velocity.z = 0;
 		}
 		// this is obviously going to cause problems when t	here has to be collisions with walls and probably enemies
