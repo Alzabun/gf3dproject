@@ -3,10 +3,11 @@
 		
 #include "entity.h"
 #include "obstacles.h"
-#include "terraintest.h"
+#include "terrain.h"
 #include "enemy.h"
 #include "rings.h"
 #include "shield.h"
+#include "mainmenu.h"
 
 #include "gfc_audio.h"
 #include "entitykiller.h"
@@ -20,6 +21,9 @@ typedef struct {
 	float speed_z; 
 	//float speed_x; not really important yet
 	float deltatime; // player is god of time confirmed????
+	float position_x;
+	float position_y;
+	float position_z;
 
 	// GAME
 	int lives;
@@ -70,6 +74,11 @@ typedef struct {
 	// boss check for ui
 	int killedboss;
 
+	//debug
+	int debugmode; // 0 = no, 1 = yes
+	int indebug; // 0 = no, 1 = yes
+	float debugspeedup; // if no: 1x speed, if yes: multiplier
+
 }playerData;
 
 void player_think(Entity* self);
@@ -81,6 +90,8 @@ void player_damage(Entity* self);
 void player_die(Entity* self);
 void player_loop(Entity* self, loopData* loop);
 void player_powerup(Entity* self, itemboxData* itembox);
+
+void debug_think(Entity* self);
 
 Entity* player_spawn(GFC_Vector3D position);
 

@@ -1,5 +1,5 @@
-#ifndef __TERRAINTEST_H__
-#define __TERRAINTEST_H__
+#ifndef __TERRAIN_H__
+#define __TERRAIN_H__
 
 #include "entity.h"
 

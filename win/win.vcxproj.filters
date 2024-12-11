@@ -180,9 +180,6 @@
     <ClCompile Include="..\src\player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\terraintest.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\enemy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -214,6 +211,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\terrain_hazards.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\terrain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -389,9 +389,6 @@
     <ClInclude Include="..\include\lighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\terraintest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -422,5 +419,13 @@
     <ClInclude Include="..\include\terrain_hazards.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\def\levels\act1.def">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

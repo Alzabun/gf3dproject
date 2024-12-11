@@ -27,7 +27,7 @@
 
 #include "entity.h"
 #include "player.h"
-#include "terraintest.h"
+#include "terrain.h"
 #include "enemy.h"
 #include "rings.h"
 #include "obstacles.h"
@@ -278,6 +278,10 @@ void load_game() {
         slog("GAME STARTED");
     }
     else if (currentState == DEBUG) {
+
+        player_spawn(gfc_vector3d(0, 0, 0));
+        terrain_spawn(gfc_vector3d(0, 0, -100));
+
         gameStarted = 1;
         slog("GAME STARTED");
     }

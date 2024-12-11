@@ -1,6 +1,6 @@
 #include "simple_logger.h" // always log stuff
 
-#include "terraintest.h"
+#include "terrain.h"
 
 #include "gf3d_camera.h"
 #include "gfc_vector.h"

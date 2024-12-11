@@ -84,6 +84,7 @@ float RECOIL = 2; // when you bounce from doing/taking damage
 const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX LATER]
 const float OXYGEN = 30; // 30 seconds? from using the deltatime i have here
 const float DELTATIME = 0.025; // ok
+const float DEBUGSPEEDMULT = 5; // 5x
 
 // ***** MOVED STRUCT TO PLAYER.H ******
 
@@ -95,6 +96,7 @@ const float DELTATIME = 0.025; // ok
 Entity* player_spawn(GFC_Vector3D position) {
 	Entity* self;
 	playerData* data;
+	menuState currentState = get_menu();
 
 	self = entity_new();
 	if (!self) {
@@ -141,6 +143,11 @@ Entity* player_spawn(GFC_Vector3D position) {
 
 		data->oxygen = OXYGEN;
 
+		if (currentState == DEBUG) {
+			data->debugmode = 1;
+			data->indebug = 1;
+		}
+
 		self->data = data;
 	}
 	return self;
@@ -168,6 +175,18 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		return;
 	}
 	data = self->data;
+
+	if (gfc_input_key_pressed("g") && data->debugmode == 1) {
+		data->indebug ^= 1;
+		self->velocity.x = 0;
+		self->velocity.y = 0;
+		self->velocity.z = 0;
+	}
+
+	if (data->indebug == 1) {
+		debug_think(self); // go to bottom of this file
+		return;
+	}
 	
 	// right is negative and left is positive because ?????????
 
@@ -444,8 +463,7 @@ void player_update(Entity* self) {
 	}
 
 	// GRAVITY
-	// DONT MOVE THIS, IT DOESNT WORK OTHERWISE
-	if (data->airborne == 1) {
+	if (data->airborne == 1 && data->indebug == 0) {
 		//account for enviromment conditions
 		if (data->inWater) {
 			self->velocity.z -= 0.05; // lower gravity for a slowness illusion
@@ -471,7 +489,7 @@ void player_update(Entity* self) {
 	}
 
 	// OXYGEN (WATER)
-	if (data->inWater) {
+	if (data->inWater && data->indebug == 0) {
 		data->oxygen -= DELTATIME;
 		if (data->oxygen <= 10) {
 			// insert drowning music here (make sure it only plays once)
@@ -495,23 +513,26 @@ void player_update(Entity* self) {
 	}
 
 	// LOOP LIST
-	if (data->inloop == 1) {
+	if (data->inloop == 1 && data->indebug == 0) {
 		player_loop(self, data->thisloop);
 	}
 
 	// X-POSITION FALLBACK (placeholder until 3rd dimension is utilized more)
-	if (self->position.x > 0) {
-		self->position.x -= 0.1;
-		if (self->position.x < 0) {
-			self->position.x = 0;
-		}
-	}
-	else if (self->position.x < 0) {
-		self->position.x += 0.1;
+	if (data->debugmode == 0) {
 		if (self->position.x > 0) {
-			self->position.x = 0;
+			self->position.x -= 0.1;
+			if (self->position.x < 0) {
+				self->position.x = 0;
+			}
+		}
+		else if (self->position.x < 0) {
+			self->position.x += 0.1;
+			if (self->position.x > 0) {
+				self->position.x = 0;
+			}
 		}
 	}
+	
 
 	// CAMERA
 	player_camera(self); // this is fine for now
@@ -521,6 +542,11 @@ void player_update(Entity* self) {
 	data->speed_z = fabs(self->velocity.z);
 	data->deltatime += DELTATIME; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
 	//data->speed_x = self->velocity.x;
+	if (data->debugmode == 1) {
+		data->position_x = self->position.x;
+		data->position_y = self->position.y;
+		data->position_z = self->position.z;
+	}
 	prepare_UI(data);
 
 	// UPDATES FOR BOSS DATA
@@ -566,6 +592,10 @@ void player_touch(Entity* self, Entity* other) {
 		return;
 	}
 	data = self->data;
+
+	if (data->indebug == 1) {
+		return; // no collisions while you are a magical flying entity
+	}
 
 	//BUBBLE POWERUP CHANGES
 	if (data->bubblebounce == 1) {
@@ -962,4 +992,52 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 		data->normalshield = 0;
 		data->haspowerup = 0;
 	}
+}
+
+// TOOL CHAIN FUNCTIONALITY
+// TO DO: either add arrow keys or hold down shift/ctrl to make it move slower/faster
+// move faster if held down for longer time (maybe)
+void debug_think(Entity* self) {
+	playerData* data;
+
+	if (!self || !self->data) {
+		return;
+	}
+	data = self->data;
+
+	// MOVEMENT
+	if (gfc_input_command_held("walkleft")) {
+		self->position.y += 1 * data->debugspeedup;
+	}
+	if (gfc_input_command_held("walkright")) {
+		self->position.y -= 1 * data->debugspeedup;
+	}
+	if (gfc_input_key_held("w")) {
+		self->position.z += 1 * data->debugspeedup;
+	}
+	if (gfc_input_key_held("s")) {
+		self->position.z -= 1 * data->debugspeedup;
+	}
+	if (gfc_input_key_held("z")) {
+		self->position.x += 1 * data->debugspeedup;
+	}
+	if (gfc_input_key_held("x")) {
+		self->position.x -= 1 * data->debugspeedup;
+	}
+	// CONTROLS
+	// debug mode toggle in player think
+	if (gfc_input_key_pressed("j")) { // recenter (change to have multiple keybinds for each position or something)
+		self->position.x = 0;
+		self->position.y = 0;
+		self->position.z = 0;
+	}
+	if (gfc_input_key_held("LSHIFT")) { // shift
+		slog("debug speed activated");
+		data->debugspeedup = DEBUGSPEEDMULT;
+	}
+	else {
+		data->debugspeedup = 1; // 1x
+	}
+
+
 }
