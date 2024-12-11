@@ -84,7 +84,6 @@ float RECOIL = 2; // when you bounce from doing/taking damage
 const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX LATER]
 const float OXYGEN = 30; // 30 seconds? from using the deltatime i have here
 const float DELTATIME = 0.025; // ok
-const float DEBUGSPEEDMULT = 5; // 5x
 
 // ***** MOVED STRUCT TO PLAYER.H ******
 
@@ -178,9 +177,14 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 
 	if (gfc_input_key_pressed("g") && data->debugmode == 1) {
 		data->indebug ^= 1;
+		data->entitycycle = 0;
 		self->velocity.x = 0;
 		self->velocity.y = 0;
 		self->velocity.z = 0;
+		self->rotation.x = 0;
+		self->rotation.y = 0;
+		self->rotation.z = 0;
+		
 	}
 
 	if (data->indebug == 1) {
@@ -413,15 +417,6 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		}
 
 	}
-
-	// DEBUGGING TOOLS
-	if (gfc_input_command_down("giverings")) {
-		data->health += 1;
-	}
-	if (gfc_input_command_down("spawngenericenemy")) { // idk why this isnt working
-		generic_enemy_spawn(self->position);
-		data->invincibility = 3; // time to get out of the way
-	}
 }
 void player_update(Entity* self) {
 	playerData* data;
@@ -464,6 +459,7 @@ void player_update(Entity* self) {
 
 	// GRAVITY
 	if (data->airborne == 1 && data->indebug == 0) {
+		self->model = gf3d_model_load("models/dino_jump.model");
 		//account for enviromment conditions
 		if (data->inWater) {
 			self->velocity.z -= 0.05; // lower gravity for a slowness illusion
@@ -995,8 +991,8 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 }
 
 // TOOL CHAIN FUNCTIONALITY
-// TO DO: either add arrow keys or hold down shift/ctrl to make it move slower/faster
-// move faster if held down for longer time (maybe)
+// TO DO: optimize the entity list picker so its not just a bunch of if/else statements (if possible)
+
 void debug_think(Entity* self) {
 	playerData* data;
 
@@ -1004,6 +1000,8 @@ void debug_think(Entity* self) {
 		return;
 	}
 	data = self->data;
+
+	choose_entity(self);
 
 	// MOVEMENT
 	if (gfc_input_command_held("walkleft")) {
@@ -1024,6 +1022,17 @@ void debug_think(Entity* self) {
 	if (gfc_input_key_held("x")) {
 		self->position.x -= 1 * data->debugspeedup;
 	}
+	if (gfc_input_key_held("LSHIFT")) { // move faster
+		slog("debug speed activated");
+		data->debugspeedup = 5;
+	}
+	else if (gfc_input_key_held("LCTRL")) { // move slower
+		slog("debug slow activated");
+		data->debugspeedup = 0.1;
+	}
+	else {
+		data->debugspeedup = 1; // 1x
+	}
 	// CONTROLS
 	// debug mode toggle in player think
 	if (gfc_input_key_pressed("j")) { // recenter (change to have multiple keybinds for each position or something)
@@ -1031,13 +1040,108 @@ void debug_think(Entity* self) {
 		self->position.y = 0;
 		self->position.z = 0;
 	}
-	if (gfc_input_key_held("LSHIFT")) { // shift
-		slog("debug speed activated");
-		data->debugspeedup = DEBUGSPEEDMULT;
+	if (gfc_input_key_pressed("LEFT")) {
+		// cycle left through objects
+		data->entitycycle -= 1;
 	}
-	else {
-		data->debugspeedup = 1; // 1x
+	if (gfc_input_key_pressed("RIGHT")) {
+		// cycle right through objects
+		data->entitycycle += 1;
+	}
+	if (gfc_input_key_pressed("p")) { // save to a file for each position
+		if (data->entitycycle == 0) { 
+			spring_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		}
+		else if (data->entitycycle == 1) {
+			spikes_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		}
+		else if (data->entitycycle == 2) {
+			bomb_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		}
+		else if (data->entitycycle == 3) {
+			v_moving_platform_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		}
+		else if (data->entitycycle == 4) {
+			loop_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		}
+		else if (data->entitycycle == 5) {
+			itembox_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z), 1);
+		}
+		else if (data->entitycycle == 6) {
+			terrain_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		}
+	}
+	if (gfc_input_command_down("giverings")) { // "h"
+		data->health += 1;
 	}
 
 
 }
+
+void choose_entity(Entity* self) {
+	// you can add a if condition for only certain objects to be available depending on what level is activated (actually no)
+	// there must definietly be a way to make this better
+	playerData* data;
+	if (!self || !self->data) {
+		return;
+	}
+	data = self->data;
+
+	if (data->entitycycle == 0) {
+		self->model = gf3d_model_load("models/springs.model");
+	}
+	else if (data->entitycycle == 1) {
+		self->model = gf3d_model_load("models/spikes.model");
+	}
+	else if (data->entitycycle == 2) {
+		self->model = gf3d_model_load("models/shield.model"); // bomb
+	}
+	else if (data->entitycycle == 3) {
+		self->model = gf3d_model_load("models/platform.model");
+	}
+	else if (data->entitycycle == 4) {
+		self->model = gf3d_model_load("models/loop.model");
+	}
+	else if (data->entitycycle == 5) {
+		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+	}
+	else if (data->entitycycle == 6) {
+		self->model = gf3d_model_load("models/collisiontest.model");
+	}
+	else if (data->entitycycle == 7) {
+		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 8) {
+		self->model = gf3d_model_load("models/boss.model");
+	}
+	else if (data->entitycycle == 9) {
+		self->model = gf3d_model_load("models/springs.model");
+	}
+}
+
+/*
+typedef struct {
+
+	Entity* entityList;
+	Uint32 entityMax;
+
+}EntityManager;
+
+void choose_entity(Entity* self) {
+	static EntityManager entity_manager = { 0 };
+	playerData* data;
+
+	if (!self || !self->data) {
+		return;
+	}
+	data = self->data;
+
+	int i = data->entitycycle;
+	for (i = 0; i < entity_manager.entityMax; i++) {
+		if (!entity_manager.entityList[i]._inuse) {
+			continue; // skip ones not set
+		}
+		data->entitycycle = &entity_manager.entityList[i];
+	}
+}
+*/

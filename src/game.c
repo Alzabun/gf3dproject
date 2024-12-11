@@ -280,7 +280,7 @@ void load_game() {
     else if (currentState == DEBUG) {
 
         player_spawn(gfc_vector3d(0, 0, 0));
-        terrain_spawn(gfc_vector3d(0, 0, -100));
+        //terrain_spawn(gfc_vector3d(0, 0, -100));
 
         gameStarted = 1;
         slog("GAME STARTED");

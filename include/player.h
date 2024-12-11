@@ -8,6 +8,7 @@
 #include "rings.h"
 #include "shield.h"
 #include "mainmenu.h"
+#include "projectile.h"
 
 #include "gfc_audio.h"
 #include "entitykiller.h"
@@ -79,6 +80,9 @@ typedef struct {
 	int indebug; // 0 = no, 1 = yes
 	float debugspeedup; // if no: 1x speed, if yes: multiplier
 
+	int entitycycle; 
+	int entitylist;
+
 }playerData;
 
 void player_think(Entity* self);
@@ -92,6 +96,7 @@ void player_loop(Entity* self, loopData* loop);
 void player_powerup(Entity* self, itemboxData* itembox);
 
 void debug_think(Entity* self);
+void choose_entity(Entity* self);
 
 Entity* player_spawn(GFC_Vector3D position);
 
