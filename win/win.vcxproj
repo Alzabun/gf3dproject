@@ -172,6 +172,7 @@
     <ClCompile Include="..\src\enemy.c" />
     <ClCompile Include="..\src\entity.c" />
     <ClCompile Include="..\src\entitykiller.c" />
+    <ClCompile Include="..\src\mainmenu.c" />
     <ClCompile Include="..\src\obstacles.c" />
     <ClCompile Include="..\src\player.c" />
     <ClCompile Include="..\src\game.c" />
@@ -205,6 +206,7 @@
     <ClCompile Include="..\src\rings.c" />
     <ClCompile Include="..\src\shield.c" />
     <ClCompile Include="..\src\terraintest.c" />
+    <ClCompile Include="..\src\terrain_hazards.c" />
     <ClCompile Include="..\src\UI.c" />
   </ItemGroup>
   <ItemGroup>
@@ -274,6 +276,7 @@
     <ClInclude Include="..\include\rings.h" />
     <ClInclude Include="..\include\shield.h" />
     <ClInclude Include="..\include\terraintest.h" />
+    <ClInclude Include="..\include\terrain_hazards.h" />
     <ClInclude Include="..\include\UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

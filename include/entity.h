@@ -15,6 +15,10 @@ typedef enum {
 	PLAYER,
 	// ENVIRONMENT
 	TERRAIN,
+	SAND,
+	WATER,
+	OIL,
+	ICE,
 	// OBSTACLE RELATED (GENERAL)
 	DAMAGE, // (spikes) for enviromental/obstacles things that will damage the player upon contact
 	// OBSTACLE RELATED (SPECIFIC)
@@ -24,6 +28,7 @@ typedef enum {
 	PLATFORM,
 	LOOP,
 	ITEMBOX,
+	BUBBLE,
 	// ENEMY RELATED
 	ENEMY,
 	PROJECTILE,

@@ -33,6 +33,7 @@
 #include "obstacles.h"
 #include "UI.h"
 #include "boss.h"
+#include "mainmenu.h"
 
 extern int __DEBUG;
 
@@ -40,8 +41,11 @@ static int _done = 0;
 static Uint32 frame_delay = 33;
 static float fps = 0;
 
+int gameStarted = 0;
+
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
+void load_game();
 
 void exitGame()
 {
@@ -68,6 +72,7 @@ int main(int argc,char *argv[])
     //local variables
     Model* sky;
     GFC_Matrix4 skyMat;
+
     //initializtion    
     /* ME:
     this is what logs crashes to see what went wrong or something
@@ -94,7 +99,8 @@ int main(int argc,char *argv[])
     gf3d_draw_init();//3D
     gf2d_draw_manager_init(1000);//2D
 
-
+    // menu init
+    prepare_menu_UI();
 
     entity_system_init(10000); // was 1000, and this is way too much but its a band-aid solution
     
@@ -122,50 +128,6 @@ int main(int argc,char *argv[])
     gf3d_camera_set_rotate_step(0.05);
     
    // gf3d_camera_enable_free_look(1);
-    // ENTITY SPAWNING
-    // z value -140 - -180 is close enough to ground (collisiontest) and within the player's reach
-    // these are all hard-coded (for now????? forever????)
-  
-    // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, 500, -150));
-
-    // TERRAIN SPAWN
-    terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
-    //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
-
-    // OBSTACLE SPAWNS
-    spikes_spawn(gfc_vector3d(0, -300, -155));
-    spring_spawn(gfc_vector3d(0, -350, -160));
-    v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
-    loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20 except collisions break when you do that for some reason
-    
-    // ITEMBOX SPAWNS (OBSTACLE SUBCATEGORY)
-    itembox_spawn(gfc_vector3d(0, -800, -165), 1);
-    itembox_spawn(gfc_vector3d(0, -825, -165), 2);
-    itembox_spawn(gfc_vector3d(0, -850, -165), 3);
-    itembox_spawn(gfc_vector3d(0, -875, -165), 4);
-    itembox_spawn(gfc_vector3d(0, -900, -165), 5);
-
-    // ENEMY SPAWNS
-    generic_enemy_spawn(gfc_vector3d(0, -100, 0));
-    projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
-    flying_enemy_spawn(gfc_vector3d(0, 200, -140));
-    spike_enemy_spawn(gfc_vector3d(0, 350, -140));
-    bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
-
-    boss_spawn(gfc_vector3d(0, -1250, -155));
-
-    // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
-    // (first 3: grounded)
-    rings_spawn(gfc_vector3d(0, -50, -155), 0);
-    rings_spawn(gfc_vector3d(0, -40, -155), 0);
-    rings_spawn(gfc_vector3d(0, -30, -155), 0);
-    // (second 3: aerial)
-    rings_spawn(gfc_vector3d(0, 30, -135), 0);
-    rings_spawn(gfc_vector3d(0, 40, -135), 0);
-    rings_spawn(gfc_vector3d(0, 50, -135), 0);
-    //
-
     /*// time (not used for anything get but good to have)
     float deltatime = 0;
     game_frame_delay(&deltatime);*/
@@ -198,11 +160,17 @@ int main(int argc,char *argv[])
         entity_draw_all(); // entity.c stuff
 
         //2D draws
-        //gf2d_mouse_draw();
+        //gf2d_mouse_draw(); // have this show only if navigating menu (or jst make menu be keybind based i gues)
         //gf2d_font_draw_line_tag("alt+f4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
         // DRAW UI
+
         draw_UI();
 
+        if (gameStarted == 0) {
+            draw_menu(); // show if game didnt start yet
+            load_game();
+        }
+        
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();
@@ -243,5 +211,75 @@ void game_frame_delay()
     }
     fps = 1000.0/MAX(SDL_GetTicks() - then,0.001);
 //     slog("fps: %f",fps);
+}
+
+void load_game() {
+    menuState currentState = get_menu();
+
+    if (currentState == NORMAL) {
+    // LOADING SCREEN STUFF GOES HERE
+
+    // maybe make music play for the first time the game is started until the menu ends or the music ends
+    // 
+    // ENTITY SPAWNING
+    // z value -140 - -180 is close enough to ground (collisiontest) and within the player's reach
+    // these are all hard-coded (make data-coded for final)
+
+    // everything below here needs to be moved into a def file somehow
+    // make sure everything is data coded not hard coded
+    // i think i made notes on google doc how it should look
+    // also check the master branch?
+    // 
+    // PLAYER SPAWN
+        player_spawn(gfc_vector3d(0, 500, -150));
+
+        // TERRAIN SPAWN
+        terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+        //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
+
+        // OBSTACLE SPAWNS
+        spikes_spawn(gfc_vector3d(0, -300, -155));
+        spring_spawn(gfc_vector3d(0, -350, -160));
+        v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
+        loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20 except collisions break when you do that for some reason
+
+        // ITEMBOX SPAWNS (OBSTACLE SUBCATEGORY)
+        itembox_spawn(gfc_vector3d(0, -800, -165), 1);
+        itembox_spawn(gfc_vector3d(0, -825, -165), 2);
+        itembox_spawn(gfc_vector3d(0, -850, -165), 3);
+        itembox_spawn(gfc_vector3d(0, -875, -165), 4);
+        itembox_spawn(gfc_vector3d(0, -900, -165), 5);
+
+        // ENEMY SPAWNS
+        generic_enemy_spawn(gfc_vector3d(0, -100, 0));
+        projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
+        flying_enemy_spawn(gfc_vector3d(0, 200, -140));
+        spike_enemy_spawn(gfc_vector3d(0, 350, -140));
+        bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
+
+        boss_spawn(gfc_vector3d(0, -1250, -155));
+
+        // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
+        // (first 3: grounded)
+        rings_spawn(gfc_vector3d(0, -50, -155), 0);
+        rings_spawn(gfc_vector3d(0, -40, -155), 0);
+        rings_spawn(gfc_vector3d(0, -30, -155), 0);
+        // (second 3: aerial)
+        rings_spawn(gfc_vector3d(0, 30, -135), 0);
+        rings_spawn(gfc_vector3d(0, 40, -135), 0);
+        rings_spawn(gfc_vector3d(0, 50, -135), 0);
+        //
+
+        gameStarted = 1;
+        slog("GAME STARTED");
+    }
+    else if (currentState == OBJECTIVE) {
+        gameStarted = 1;
+        slog("GAME STARTED");
+    }
+    else if (currentState == DEBUG) {
+        gameStarted = 1;
+        slog("GAME STARTED");
+    }
 }
 /*eol@eof*/

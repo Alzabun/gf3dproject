@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/sonic/sonic.obj",
+        "texture":"models/sonic/sonic.png"
+    }
+}

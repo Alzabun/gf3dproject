@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/lowpolysonic/lowpolysonic.obj",
+        "texture":"models/lowpolysonic/lowpolysonic.png"
+    }
+}

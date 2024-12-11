@@ -1,6 +1,6 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
-
+		
 #include "entity.h"
 #include "obstacles.h"
 #include "terraintest.h"
@@ -54,10 +54,18 @@ typedef struct {
 	int invincibilitypowerup; // 0 = no, 1 = yes
 	int haspowerup; // 0 = no, 1 = yes
 
+	// TERRAIN CONDITION MANAGEMENT
+	int inSand; // 0 = no, 1 = yes
+	int inWater; // 0 = no, 1 = yes
+	int inOil; // 0 = no, 1 = yes
+	int inIce; // 0 = no, 1 = yes
+	float oxygen;
+
 	// MUSIC
 	Mix_Music* normal_music;
 	Mix_Music* boss_music;
 	Mix_Music* wintheme;
+	Mix_Chunk* jump; // should be very similar to how music was implemented.. or i could just implement sounds as music but im not sure if thall cause memory issues
 
 	// boss check for ui
 	int killedboss;

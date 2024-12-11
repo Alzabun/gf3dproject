@@ -12,8 +12,13 @@
 
 // FINAL PROGRESSION [CURRENT]
 // music/sounds [0.5/1]
-// add minigame anyway
+// add start screen
+// add minigame anyway (maybe?)
+// changed pipeline
+// research component (advanced collision)	
+// basically just make the game look better
 // TBA...
+// 
 // 
 // maybe optional (unknown what the actual requirements are yet):
 // 3d camera/controls switch toggle
@@ -77,6 +82,8 @@ const float JUMPTIME = 10;
 const float MAXSPINDASHSPEED = 10;
 float RECOIL = 2; // when you bounce from doing/taking damage
 const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX LATER]
+const float OXYGEN = 30; // 30 seconds? from using the deltatime i have here
+const float DELTATIME = 0.025; // ok
 
 // ***** MOVED STRUCT TO PLAYER.H ******
 
@@ -125,11 +132,14 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
 		Mix_PlayMusic(data->normal_music, -1);
 
+		data->jump = gfc_sound_load("sounds/jump.wav", 1, 0);
+
 		data->boss_music = gfc_sound_load_music("music/bigarms.wav");
 		data->wintheme = gfc_sound_load_music("music/win.wav");
 
 		data->killedboss = 0;
 
+		data->oxygen = OXYGEN;
 
 		self->data = data;
 	}
@@ -202,8 +212,15 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 	else {
 		// FRICTION
+		// AFFECTED BY ICE (even though the way i have it now makes it feel like youre already on ice FIX THAT LPEASE)
 		if (self->velocity.y > 0) {
-			self->velocity.y -= 0.15;
+			if (data->inIce) {
+				self->velocity.y -= 0.05;
+			}
+			else {
+				self->velocity.y -= 0.15;
+			}
+
 			if (data->spindash == 1) {
 				self->rotation.y += (self->velocity.y * 0.1);
 			}
@@ -212,7 +229,13 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			}
 		}
 		else if (self->velocity.y < 0) {
-			self->velocity.y += 0.15;
+			if (data->inIce) {
+				self->velocity.y += 0.05;
+			}
+			else {
+				self->velocity.y += 0.15;
+			}
+
 			if (data->spindash == 1) {
 				self->rotation.y -= (self->velocity.y * 0.1);
 			}
@@ -247,6 +270,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// binded to w for now, but i want it to also be binded to space except i didnt find the input documentation for space yet
 	if (gfc_input_command_down("jump")) { 
 		if (data->airborne == 0 && data->spindash == 0) {
+			gfc_sound_play(data->jump, 0, 1, 0, -1);
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
@@ -265,8 +289,15 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 
 	if (gfc_input_command_held("jump") && data->jumpTime <= JUMPTIME && data->spindash == 0) {
-		data->jumpTime += 1;
-		self->velocity.z += 0.1;
+		if (data->inSand) {
+			data->jumpTime += 2;
+			self->velocity.z += 0.05;
+		}
+		else {
+			data->jumpTime += 1;
+			self->velocity.z += 0.1;
+		}
+		
 	}
 
 	// SPINDASH
@@ -415,21 +446,39 @@ void player_update(Entity* self) {
 	// GRAVITY
 	// DONT MOVE THIS, IT DOESNT WORK OTHERWISE
 	if (data->airborne == 1) {
-		self->velocity.z -= 0.1;
+		//account for enviromment conditions
+		if (data->inWater) {
+			self->velocity.z -= 0.05; // lower gravity for a slowness illusion
+		}
+		else if (data->inSand) {
+			self->velocity.z = 0; // jump out of the sand
+		}
+		else {
+			self->velocity.z -= 0.1; // default gravity
+		}
 
 		if (data->spindash == 0) { // prevent animation when spindashing unless its from the spindash itself
 			self->rotation.y += 0.1;
 		}
 
 		// respawn player on top of the map if they fall into the void
-		if (self->position.z <= -250) {
+		if (self->position.z <= -500) { // was -250, this thing should be changed because things are changing
 			self->position.z = 0;
 			self->position.x = 0;
 			self->position.y = 500;
 			self->velocity.z = 0;
 		}
-		// this is obviously going to cause problems when t	here has to be collisions with walls and probably enemies
-		// im pretty sure i can use the bounding box sides to fix this tho, but that means changing a lot of how this works right now (me from the future: it shouldnt)
+	}
+
+	// OXYGEN (WATER)
+	if (data->inWater) {
+		data->oxygen -= DELTATIME;
+		if (data->oxygen <= 10) {
+			// insert drowning music here (make sure it only plays once)
+		}
+		if (data->oxygen <= 0) {
+			player_die(self);
+		}
 	}
 
 	// ROTATION DIRECTION DETECTION
@@ -470,7 +519,7 @@ void player_update(Entity* self) {
 	// UI UPDATES
 	data->speed_y = fabs(self->velocity.y);
 	data->speed_z = fabs(self->velocity.z);
-	data->deltatime += 0.025; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
+	data->deltatime += DELTATIME; // this is NOT how time works but WHATEVER it's CLOSE ENOUGH	
 	//data->speed_x = self->velocity.x;
 	prepare_UI(data);
 
@@ -540,6 +589,42 @@ void player_touch(Entity* self, Entity* other) {
 		if (other->flag == TERRAIN || other->flag == SPRING || other->flag == PLATFORM || other->flag == ITEMBOX) {
 			data->doublejumped = 0;
 		}
+	}
+
+	// TERRAIN-SPECIFIC COLLISION
+
+	if (other->flag == SAND) {
+		data->inSand = 1;
+		// slowing + sinking
+		// jump should be "stuck" too
+		self->velocity.z -= 0.05;
+		self->velocity.y *= 0.5;
+		// make player get hurt at the bottom of the sand's hitbox (floor of bounding box)
+	}
+	else {
+		data->inSand = 0;
+	}
+
+	if (other->flag == WATER) {
+		data->inWater = 1;
+	}
+	else {
+		data->inWater = 0;
+		data->oxygen = OXYGEN;
+	}
+
+	if (other->flag == OIL) {
+		data->inOil = 1;
+	}
+	else {
+		data->inOil = 0;
+	}
+
+	if (other->flag == ICE) {
+		data->inIce = 1;
+	}
+	else {
+		data->inIce = 0;
 	}
 
 	// TOUCH COLLISIONS
@@ -638,6 +723,13 @@ void player_touch(Entity* self, Entity* other) {
 		// collide with rings unless they're the dropped ones from taking damage
 		// to prevent instantly picking them back up
 		// rings.c handles the DROPPED flag collision
+	}
+
+	if (other->flag == BUBBLE) {
+		// insert bubble sound effect here
+		// stop drowning music here unless i can figure out how to make it do that by itself in the drowning part of the code (not done here)
+		data->oxygen = OXYGEN;
+		sentence_to_death(other);
 	}
 
 	// BOSS LOGIC
