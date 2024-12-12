@@ -1058,8 +1058,8 @@ void debug_think(Entity* self) {
 		else if (data->entitycycle == 2) {
 			bomb_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
 		}
-		else if (data->entitycycle == 3) {
-			v_moving_platform_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
+		else if (data->entitycycle == 3) { // the platforms only move if you go into debug mode for some reason?
+			v_moving_platform_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z)); 
 		}
 		else if (data->entitycycle == 4) {
 			loop_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
@@ -1079,7 +1079,6 @@ void debug_think(Entity* self) {
 }
 
 void choose_entity(Entity* self) {
-	// you can add a if condition for only certain objects to be available depending on what level is activated (actually no)
 	// there must definietly be a way to make this better
 	playerData* data;
 	if (!self || !self->data) {

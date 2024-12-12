@@ -46,6 +46,7 @@ int gameStarted = 0;
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
 void load_game();
+void load_level();
 
 void exitGame()
 {
@@ -280,10 +281,95 @@ void load_game() {
     else if (currentState == DEBUG) {
 
         player_spawn(gfc_vector3d(0, 0, 0));
+        load_level();
         //terrain_spawn(gfc_vector3d(0, 0, -100));
 
         gameStarted = 1;
         slog("GAME STARTED");
+    }
+}
+// dont forget to put empty function at the top of this file if you change the parameters
+void load_level(/* should take filename, but ill do that later */) { // json file analyzer
+    SJson* file = sj_load("def/levels/toolchain.json");
+ 
+    if (!file) {
+        slog("could not open file");
+        return;
+    }
+
+    SJson* parse = sj_object_get_value(file, "entitylist");
+
+    if (!parse) {
+        slog("did not find any object name");
+        return;
+    }
+
+    if (!sj_is_array(parse)) {
+        slog("value of object is not an array");
+        return;
+    }
+
+    for (int i = 0; i < sj_array_get_count(parse); i++) {
+        SJson* list = sj_array_get_nth(parse, i);
+
+        char* name = sj_object_get_string(list, "name");
+
+        if (!name) {
+            slog("no 'name' found in json");
+        }
+
+        char* type = sj_object_get_string(list, "type");
+
+        if (!type) {
+            slog("no 'type' found in json");
+        }
+
+        float x, y, z;
+        SJson* position = sj_object_get_value(list, "position");
+
+
+        if (position) {
+            float temp_x, temp_y, temp_z;
+
+            SJson* x_pos = sj_array_get_nth(position, 0);
+            if (sj_get_float_value(x_pos, &temp_x)) {
+                x = temp_x;
+            }
+
+            SJson* y_pos = sj_array_get_nth(position, 1);
+            if (sj_get_float_value(y_pos, &temp_y)) {
+                y = temp_y;
+            }
+
+            SJson* z_pos = sj_array_get_nth(position, 2);
+            if (sj_get_float_value(z_pos, &temp_z)) {
+                z = temp_z;
+            }
+        }
+        else {
+            x, y, z = 0; // default
+            slog("no specific position found, all assigned to 0 by default");
+        }
+
+        GFC_Vector3D parsedposition = gfc_vector3d(x, y, z);
+
+        if (!type) {
+            slog("no type found, spawning default entity");
+        }
+
+        if (strcmp(name, "terrain")) {
+            if (strcmp(type, "floor")) {
+                terrain_spawn(parsedposition);
+            }
+            slog("terrain spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
+        }
+        if (strcmp(name, "obstacle")) {
+            if (strcmp(type, "spring")) {
+                spring_spawn(parsedposition);
+            }
+            slog("obstacle spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
+        }
+
     }
 }
 /*eol@eof*/

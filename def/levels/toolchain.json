@@ -1,0 +1,14 @@
+    {
+        "entitylist": [
+            {
+                "name": "terrain",
+                "position": [ 0, 1, 2],
+                "type": "floor"
+            },
+            {
+                "name": "obstacle",
+                "position": [ 0, 0, 50 ],
+                "type": "spring"
+            }
+        ]
+    }
