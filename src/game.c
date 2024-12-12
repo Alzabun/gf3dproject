@@ -324,30 +324,22 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
             slog("no 'type' found in json");
         }
 
-        float x, y, z;
+        float x = 0, y = 0, z = 0;
         SJson* position = sj_object_get_value(list, "position");
 
 
         if (position) {
-            float temp_x, temp_y, temp_z;
-
             SJson* x_pos = sj_array_get_nth(position, 0);
-            if (sj_get_float_value(x_pos, &temp_x)) {
-                x = temp_x;
-            }
+            sj_get_float_value(x_pos, &x);
 
             SJson* y_pos = sj_array_get_nth(position, 1);
-            if (sj_get_float_value(y_pos, &temp_y)) {
-                y = temp_y;
-            }
+            sj_get_float_value(y_pos, &y);
 
             SJson* z_pos = sj_array_get_nth(position, 2);
-            if (sj_get_float_value(z_pos, &temp_z)) {
-                z = temp_z;
-            }
+            sj_get_float_value(z_pos, &z);
         }
         else {
-            x, y, z = 0; // default
+            x = 0, y = 0, z = 0; // default
             slog("no specific position found, all assigned to 0 by default");
         }
 
@@ -357,14 +349,14 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
             slog("no type found, spawning default entity");
         }
 
-        if (strcmp(name, "terrain")) {
-            if (strcmp(type, "floor")) {
+        if (strcmp(name, "terrain") == 0) {
+            if (strcmp(type, "floor") == 0) {
                 terrain_spawn(parsedposition);
             }
             slog("terrain spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
         }
-        if (strcmp(name, "obstacle")) {
-            if (strcmp(type, "spring")) {
+        if (strcmp(name, "obstacle") == 0) {
+            if (strcmp(type, "spring") == 0) {
                 spring_spawn(parsedposition);
             }
             slog("obstacle spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
