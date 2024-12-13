@@ -43,10 +43,6 @@ typedef enum {
 typedef struct Entity_S{
 
 	Uint8 _inuse; // flag for memory management
-	GFC_TextLine name; // name of entity
-	GFC_Vector3D position; // where I am in space
-	GFC_Vector3D rotation; // how i should rotate 
-	GFC_Vector3D scale; // stretching
 	Model* model; // my graphics (pointer means it will be handled by the model manager)
 	//behavior
 	//'*' BEFORE NAME FOR SYNTAX
@@ -61,7 +57,15 @@ typedef struct Entity_S{
 	EntityFlag flag;
 	void (*touch) (struct Entity_s* self, struct Entity_S* other);
 
-	int bosshealth; // THIS IS TEMPORARY AND ONLY FOR THE BOSS BECUASE I AM NTO SPENDING MY TIME FIGURING OUT HOW TO SET BOSS'S DATA AT THIS TIME
+	int bosshealth; // (this will be a json file thing eventually, just dont forget about this)
+
+	// ENTITY DATA
+	char* name;
+	char* type;
+	GFC_Vector3D position; // where I am in space
+	GFC_Vector3D rotation; // how i should rotate 
+	GFC_Vector3D scale; // stretching
+
 
 }Entity; // you can change the name of this to the name of the game later (or dont)
 

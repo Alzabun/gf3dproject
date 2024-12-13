@@ -321,12 +321,14 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
 
         if (!name) {
             slog("no 'name' found in json");
+            return;
         }
 
         char* type = sj_object_get_string(list, "type");
 
         if (!type) {
             slog("no 'type' found in json");
+            return;
         }
 
         float x = 0, y = 0, z = 0;
@@ -355,7 +357,7 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
         }
 
         spawn_entity(name, type, parsedposition);
-        sj_free(file); // might aswell
+        //sj_free(file); // this crashes the game i did not use this right
 
     }
 }
@@ -366,12 +368,18 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
 
     if (strcmp(name, "terrain") == 0) {
         if (strcmp(type, "floor") == 0) {
-            terrain_spawn(position);
+            Entity* floor_terrain = terrain_spawn(position);
+            floor_terrain->name = name;
+            floor_terrain->type = type;
+            floor_terrain->position = position;
         }
     }
     if (strcmp(name, "spring") == 0) {
         if (strcmp(type, "yellow") == 0) {
-            spring_yellow_spawn(position);
+            Entity* spring_yellow = spring_yellow_spawn(position);
+            spring_yellow->name = name;
+            spring_yellow->type = type;
+            spring_yellow->position = position;
         }
     }
     if (strcmp(name, "spikes") == 0) {
@@ -402,6 +410,8 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             bomb_spawn(position);
         }
     }
+
+    //slog("spawned '%c' of type '%c'", name, type);
 }
 
 /*eol@eof*/

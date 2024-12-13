@@ -589,8 +589,19 @@ void player_touch(Entity* self, Entity* other) {
 	}
 	data = self->data;
 
+	// DEBUG MODE DELETION
+	if (other && data->debugmode == 1 && data->indebug == 1) {
+		if (gfc_input_key_pressed("[")) { // save to a file for each position
+			if (other->name == NULL || other->type == NULL) {
+				slog("name or type of entity is NULL, cannot delete");
+				return;
+			}
+			debug_delete(other);
+		}
+	}
+
 	if (data->indebug == 1) {
-		return; // no collisions while you are a magical flying entity
+		return; // no real collisions while you are a magical flying entity
 	}
 
 	//BUBBLE POWERUP CHANGES
@@ -798,7 +809,7 @@ void player_touch(Entity* self, Entity* other) {
 		else { // take damage
 			player_damage(self);
 		}
-	}
+	}	
 }
 
 void player_damage(Entity* self) {
@@ -1055,17 +1066,18 @@ void debug_think(Entity* self) {
 		data->health += 1;
 	}
 
+	// GO TO PLAYER_TOUCH FOR DELETE CONTROL AND TOOLCHAIN.C FOR DEBUG_DELETE
 
 }
 
-// FILE OPS SAVING IS ALSO DONE HERE
+// FILE OPS SAVING IS ALSO PREPARED HERE
 
 void debug_place(Entity* self) {
 	playerData* data;
 	char* name;
 	char* type;
 	float x = self->position.x;
-	float y = self->position.y; 
+	float y = self->position.y;
 	float z = self->position.z;
 
 	if (!self || !self->data) {
@@ -1120,6 +1132,8 @@ void debug_place(Entity* self) {
 
 void choose_entity(Entity* self) {
 	// there must definietly be a way to make this better
+	// this code is sad to look at
+
 	playerData* data;
 	if (!self || !self->data) {
 		return;
