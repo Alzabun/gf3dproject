@@ -48,6 +48,7 @@ void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
 void load_game();
 void load_level();
+void spawn_entity(char* name, char* type, GFC_Vector3D position);
 
 void exitGame()
 {
@@ -353,19 +354,53 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
             slog("no type found, spawning default entity");
         }
 
-        if (strcmp(name, "terrain") == 0) {
-            if (strcmp(type, "floor") == 0) {
-                terrain_spawn(parsedposition);
-            }
-            slog("terrain spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
-        }
-        if (strcmp(name, "spring") == 0) {
-            if (strcmp(type, "yellow") == 0) {
-                spring_yellow_spawn(parsedposition);
-            }
-            slog("obstacle spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
-        }
+        spawn_entity(name, type, parsedposition);
+        sj_free(file); // might aswell
 
+    }
+}
+
+void spawn_entity(char* name, char* type, GFC_Vector3D position) {
+    // holy unoptimized
+    // but again, idk how to make it better (this is fine for now)
+
+    if (strcmp(name, "terrain") == 0) {
+        if (strcmp(type, "floor") == 0) {
+            terrain_spawn(position);
+        }
+    }
+    if (strcmp(name, "spring") == 0) {
+        if (strcmp(type, "yellow") == 0) {
+            spring_yellow_spawn(position);
+        }
+    }
+    if (strcmp(name, "spikes") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            spikes_spawn(position);
+        }
+    }
+    if (strcmp(name, "moving_platform") == 0) {
+        if (strcmp(type, "vertical") == 0) {
+            v_moving_platform_spawn(position);
+        }
+    }
+    if (strcmp(name, "loop") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            loop_spawn(position);
+        }
+    }
+    if (strcmp(name, "itembox") == 0) {
+        if (strcmp(type, "fire_shield") == 0) {
+            itembox_spawn(position, 1);
+        }
+        if (strcmp(type, "bubble_shield") == 0) {
+            itembox_spawn(position, 2);
+        }
+    }
+    if (strcmp(name, "bomb_dropper") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            bomb_spawn(position);
+        }
     }
 }
 

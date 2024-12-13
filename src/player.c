@@ -1086,12 +1086,12 @@ void debug_place(Entity* self) {
 		spikes_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 2:
-		name = "bomb";
+		name = "bomb_dropper";
 		type = "generic";
 		bomb_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 3:
-		name = "platform";
+		name = "moving_platform";
 		type = "vertical";
 		v_moving_platform_spawn(gfc_vector3d(x, y, z));
 		break;
