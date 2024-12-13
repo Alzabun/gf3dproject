@@ -12,6 +12,7 @@
 
 #include "gfc_audio.h"
 #include "entitykiller.h"
+#include "toolchain.h"
 
 typedef struct {
 	// GENERIC
@@ -95,7 +96,10 @@ void player_die(Entity* self);
 void player_loop(Entity* self, loopData* loop);
 void player_powerup(Entity* self, itemboxData* itembox);
 
+// TOOL CHAIN SECTION
+
 void debug_think(Entity* self);
+void debug_place(Entity* self);
 void choose_entity(Entity* self);
 
 Entity* player_spawn(GFC_Vector3D position);

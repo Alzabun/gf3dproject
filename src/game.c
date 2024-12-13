@@ -42,6 +42,7 @@ static Uint32 frame_delay = 33;
 static float fps = 0;
 
 int gameStarted = 0;
+int debugmode = 0;
 
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
@@ -240,7 +241,7 @@ void load_game() {
 
         // OBSTACLE SPAWNS
         spikes_spawn(gfc_vector3d(0, -300, -155));
-        spring_spawn(gfc_vector3d(0, -350, -160));
+        spring_yellow_spawn(gfc_vector3d(0, -350, -160));
         v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
         loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20 except collisions break when you do that for some reason
 
@@ -284,13 +285,16 @@ void load_game() {
         load_level();
         //terrain_spawn(gfc_vector3d(0, 0, -100));
 
+        debugmode = 1;
         gameStarted = 1;
+
         slog("GAME STARTED");
     }
 }
 // dont forget to put empty function at the top of this file if you change the parameters
+// look in player.c and toolchain.c to see how it saves data
 void load_level(/* should take filename, but ill do that later */) { // json file analyzer
-    SJson* file = sj_load("def/levels/toolchain.json");
+    SJson* file = sj_load("def/levels/toolchain.json"); // placeholder
  
     if (!file) {
         slog("could not open file");
@@ -355,13 +359,14 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
             }
             slog("terrain spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
         }
-        if (strcmp(name, "obstacle") == 0) {
-            if (strcmp(type, "spring") == 0) {
-                spring_spawn(parsedposition);
+        if (strcmp(name, "spring") == 0) {
+            if (strcmp(type, "yellow") == 0) {
+                spring_yellow_spawn(parsedposition);
             }
             slog("obstacle spawned (x: %.2f, y: %.2f, z: %.2f)", x, y, z);
         }
 
     }
 }
+
 /*eol@eof*/

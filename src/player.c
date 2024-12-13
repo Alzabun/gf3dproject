@@ -1049,33 +1049,73 @@ void debug_think(Entity* self) {
 		data->entitycycle += 1;
 	}
 	if (gfc_input_key_pressed("p")) { // save to a file for each position
-		if (data->entitycycle == 0) { 
-			spring_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
-		}
-		else if (data->entitycycle == 1) {
-			spikes_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
-		}
-		else if (data->entitycycle == 2) {
-			bomb_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
-		}
-		else if (data->entitycycle == 3) { // the platforms only move if you go into debug mode for some reason?
-			v_moving_platform_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z)); 
-		}
-		else if (data->entitycycle == 4) {
-			loop_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
-		}
-		else if (data->entitycycle == 5) {
-			itembox_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z), 1);
-		}
-		else if (data->entitycycle == 6) {
-			terrain_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z));
-		}
+		debug_place(self);
 	}
 	if (gfc_input_command_down("giverings")) { // "h"
 		data->health += 1;
 	}
 
 
+}
+
+// FILE OPS SAVING IS ALSO DONE HERE
+
+void debug_place(Entity* self) {
+	playerData* data;
+	char* name;
+	char* type;
+	float x = self->position.x;
+	float y = self->position.y; 
+	float z = self->position.z;
+
+	if (!self || !self->data) {
+		return;
+	}
+	data = self->data;
+
+	// there is probably a way more optimized way to do this but idk how to do that
+	switch (data->entitycycle) {
+	case 0:
+		name = "spring";
+		type = "yellow";
+		spring_yellow_spawn(gfc_vector3d(x, y, z));
+		break;
+	case 1:
+		name = "spikes";
+		type = "generic";
+		spikes_spawn(gfc_vector3d(x, y, z));
+		break;
+	case 2:
+		name = "bomb";
+		type = "generic";
+		bomb_spawn(gfc_vector3d(x, y, z));
+		break;
+	case 3:
+		name = "platform";
+		type = "vertical";
+		v_moving_platform_spawn(gfc_vector3d(x, y, z));
+		break;
+	case 4:
+		name = "loop";
+		type = "generic";
+		loop_spawn(gfc_vector3d(x, y, z));
+		break;
+	case 5:
+		name = "itembox";
+		type = "fire_shield";
+		itembox_spawn(gfc_vector3d(x, y, z), 1);
+		break;
+	case 6:
+		name = "terrain";
+		type = "floor";
+		terrain_spawn(gfc_vector3d(x, y, z));
+		break;
+	default:
+		slog("could not spawn entity: %d", data->entitycycle);
+		return; // prevent uninitialized variables going to save_debug_file
+	}
+
+	save_debug_file(name, type, x, y, z);
 }
 
 void choose_entity(Entity* self) {

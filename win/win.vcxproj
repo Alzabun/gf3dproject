@@ -207,6 +207,7 @@
     <ClCompile Include="..\src\shield.c" />
     <ClCompile Include="..\src\terrain.c" />
     <ClCompile Include="..\src\terrain_hazards.c" />
+    <ClCompile Include="..\src\toolchain.c" />
     <ClCompile Include="..\src\UI.c" />
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +278,7 @@
     <ClInclude Include="..\include\shield.h" />
     <ClInclude Include="..\include\terrain.h" />
     <ClInclude Include="..\include\terrain_hazards.h" />
+    <ClInclude Include="..\include\toolchain.h" />
     <ClInclude Include="..\include\UI.h" />
   </ItemGroup>
   <ItemGroup>
