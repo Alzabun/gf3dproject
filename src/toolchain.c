@@ -104,11 +104,10 @@ void debug_delete(Entity* other /* get the file name for this */) {
         GFC_Vector3D parsedposition = gfc_vector3d(x, y, z);    
 
         if (strcmp(other->name, name) == 0 && strcmp(other->type, type) == 0 && position_comparison(parsedposition, other->position)) {
-            sj_array_delete_nth(parse, i);
-            sentence_to_death(other);
-            // this debug log does not show the right values
             slog("deleted entity: [name: '%s', type: '%s', position: '%.2f, %.2f, %.2f']", other->name, other->type, other->position.x,
                 other->position.y, other->position.z);
+            sj_array_delete_nth(parse, i);
+            sentence_to_death(other);
             break;
         }
 
@@ -124,4 +123,74 @@ int position_comparison(GFC_Vector3D self, GFC_Vector3D other) {
         return 1;
     }
     return 0;
+}
+
+void spawn_entity(char* name, char* type, GFC_Vector3D position) {
+    // holy unoptimized
+    // but again, idk how to make it better (this is fine for now)
+
+    if (strcmp(name, "terrain") == 0) {
+        if (strcmp(type, "floor") == 0) {
+            Entity* floor_terrain = terrain_spawn(position);
+            floor_terrain->name = name;
+            floor_terrain->type = type;
+            floor_terrain->position = position;
+        }
+    }
+    if (strcmp(name, "spring") == 0) {
+        if (strcmp(type, "yellow") == 0) {
+            Entity* spring_yellow = spring_yellow_spawn(position);
+            spring_yellow->name = name;
+            spring_yellow->type = type;
+            spring_yellow->position = position;
+        }
+    }
+    if (strcmp(name, "spikes") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            Entity* spikes_generic = spikes_spawn(position);
+            spikes_generic->name = name;
+            spikes_generic->type = type;
+            spikes_generic->position = position;
+        }
+    }
+    if (strcmp(name, "moving_platform") == 0) {
+        if (strcmp(type, "vertical") == 0) {
+            Entity* vertical_moving_platform = v_moving_platform_spawn(position);
+            vertical_moving_platform->name = name;
+            vertical_moving_platform->type = type;
+            vertical_moving_platform->position = position;
+        }
+    }
+    if (strcmp(name, "loop") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            Entity* loop_generic = loop_spawn(position);
+            loop_generic->name = name;
+            loop_generic->type = type;
+            loop_generic->position = position;
+        }
+    }
+    if (strcmp(name, "itembox") == 0) {
+        if (strcmp(type, "fire_shield") == 0) {
+            Entity* fire_shield_box = itembox_spawn(position, 1);
+            fire_shield_box->name = name;
+            fire_shield_box->type = type;
+            fire_shield_box->position = position;
+        }
+        if (strcmp(type, "bubble_shield") == 0) {
+            Entity* bubble_shield_box = itembox_spawn(position, 2);
+            bubble_shield_box->name = name;
+            bubble_shield_box->type = type;
+            bubble_shield_box->position = position;
+        }
+    }
+    if (strcmp(name, "bomb_dropper") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            Entity* generic_bomb_dropper = bomb_spawn(position);
+            generic_bomb_dropper->name = name;
+            generic_bomb_dropper->type = type;
+            generic_bomb_dropper->position = position;
+        }
+    }
+
+    //slog("spawned '%c' of type '%c'", name, type);
 }

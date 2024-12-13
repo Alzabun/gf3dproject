@@ -1074,11 +1074,13 @@ void debug_think(Entity* self) {
 
 void debug_place(Entity* self) {
 	playerData* data;
+
 	char* name;
 	char* type;
 	float x = self->position.x;
 	float y = self->position.y;
-	float z = self->position.z;
+	float z = self->position.z; 
+	GFC_Vector3D position = self->position;
 
 	if (!self || !self->data) {
 		return;
@@ -1090,44 +1092,39 @@ void debug_place(Entity* self) {
 	case 0:
 		name = "spring";
 		type = "yellow";
-		spring_yellow_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 1:
 		name = "spikes";
 		type = "generic";
-		spikes_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 2:
 		name = "bomb_dropper";
 		type = "generic";
-		bomb_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 3:
 		name = "moving_platform";
 		type = "vertical";
-		v_moving_platform_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 4:
 		name = "loop";
 		type = "generic";
-		loop_spawn(gfc_vector3d(x, y, z));
 		break;
 	case 5:
 		name = "itembox";
 		type = "fire_shield";
-		itembox_spawn(gfc_vector3d(x, y, z), 1);
 		break;
 	case 6:
 		name = "terrain";
 		type = "floor";
-		terrain_spawn(gfc_vector3d(x, y, z));
 		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
-		return; // prevent uninitialized variables going to save_debug_file
+		return;
 	}
 
+	spawn_entity(name, type, position);
 	save_debug_file(name, type, x, y, z);
+
 }
 
 void choose_entity(Entity* self) {

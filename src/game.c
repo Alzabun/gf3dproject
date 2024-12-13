@@ -48,7 +48,6 @@ void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
 void load_game();
 void load_level();
-void spawn_entity(char* name, char* type, GFC_Vector3D position);
 
 void exitGame()
 {
@@ -361,57 +360,4 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
 
     }
 }
-
-void spawn_entity(char* name, char* type, GFC_Vector3D position) {
-    // holy unoptimized
-    // but again, idk how to make it better (this is fine for now)
-
-    if (strcmp(name, "terrain") == 0) {
-        if (strcmp(type, "floor") == 0) {
-            Entity* floor_terrain = terrain_spawn(position);
-            floor_terrain->name = name;
-            floor_terrain->type = type;
-            floor_terrain->position = position;
-        }
-    }
-    if (strcmp(name, "spring") == 0) {
-        if (strcmp(type, "yellow") == 0) {
-            Entity* spring_yellow = spring_yellow_spawn(position);
-            spring_yellow->name = name;
-            spring_yellow->type = type;
-            spring_yellow->position = position;
-        }
-    }
-    if (strcmp(name, "spikes") == 0) {
-        if (strcmp(type, "generic") == 0) {
-            spikes_spawn(position);
-        }
-    }
-    if (strcmp(name, "moving_platform") == 0) {
-        if (strcmp(type, "vertical") == 0) {
-            v_moving_platform_spawn(position);
-        }
-    }
-    if (strcmp(name, "loop") == 0) {
-        if (strcmp(type, "generic") == 0) {
-            loop_spawn(position);
-        }
-    }
-    if (strcmp(name, "itembox") == 0) {
-        if (strcmp(type, "fire_shield") == 0) {
-            itembox_spawn(position, 1);
-        }
-        if (strcmp(type, "bubble_shield") == 0) {
-            itembox_spawn(position, 2);
-        }
-    }
-    if (strcmp(name, "bomb_dropper") == 0) {
-        if (strcmp(type, "generic") == 0) {
-            bomb_spawn(position);
-        }
-    }
-
-    //slog("spawned '%c' of type '%c'", name, type);
-}
-
 /*eol@eof*/
