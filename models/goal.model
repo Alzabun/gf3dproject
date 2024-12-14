@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/goalpost/goalpost.obj",
+        "texture":"models/goalpost/goalpost.png"
+    }
+}

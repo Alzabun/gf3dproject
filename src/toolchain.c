@@ -1,7 +1,7 @@
 #include "toolchain.h"
 
 void save_debug_file(char* name, char* type, float x, float y, float z/* , should use file name obtained from load game */) {
-    char* filename = "def/levels/toolchain.json"; // placeholder
+    char* filename = "level_editor/levels/toolchain.json"; // placeholder
     SJson* file = sj_load(filename);
 
     if (!file) {
@@ -45,7 +45,7 @@ void save_debug_file(char* name, char* type, float x, float y, float z/* , shoul
 }
 
 void debug_delete(Entity* other /* get the file name for this */) {
-    char* filename = "def/levels/toolchain.json"; // placeholder
+    char* filename = "level_editor/levels/toolchain.json"; // placeholder
     SJson* file = sj_load(filename); // placeholder
 
     if (!file) {
@@ -129,12 +129,27 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
     // holy unoptimized
     // but again, idk how to make it better (this is fine for now)
 
+    if (strcmp(name, "rings") == 0) {
+        if (strcmp(type, "normal") == 0) {
+            Entity* ring = rings_spawn(position, 0);
+            ring->name = name;
+            ring->type = type;
+            ring->position = position;
+        }
+    }
+
     if (strcmp(name, "terrain") == 0) {
         if (strcmp(type, "floor") == 0) {
-            Entity* floor_terrain = terrain_spawn(position);
+            Entity* floor_terrain = floor_terrain_spawn(position);
             floor_terrain->name = name;
             floor_terrain->type = type;
             floor_terrain->position = position;
+        }
+        if (strcmp(type, "small") == 0) {
+            Entity* small_terrain = small_terrain_spawn(position);
+            small_terrain->name = name;
+            small_terrain->type = type;
+            small_terrain->position = position;
         }
     }
     if (strcmp(name, "spring") == 0) {
@@ -182,7 +197,68 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             bubble_shield_box->type = type;
             bubble_shield_box->position = position;
         }
+        if (strcmp(type, "electricity_shield") == 0) {
+            Entity* electricity_shield_box = itembox_spawn(position, 3);
+            electricity_shield_box->name = name;
+            electricity_shield_box->type = type;
+            electricity_shield_box->position = position;
+        }
+        if (strcmp(type, "normal_shield") == 0) {
+            Entity* normal_shield_box = itembox_spawn(position, 4);
+            normal_shield_box->name = name;
+            normal_shield_box->type = type;
+            normal_shield_box->position = position;
+        }
+        if (strcmp(type, "invincibility") == 0) {
+            Entity* invincibility = itembox_spawn(position, 5);
+            invincibility->name = name;
+            invincibility->type = type;
+            invincibility->position = position;
+        }
     }
+
+    if (strcmp(name, "enemy") == 0) {
+        if (strcmp(type, "generic") == 0) {
+            Entity* generic_enemy = generic_enemy_spawn(position);
+            generic_enemy->name = name;
+            generic_enemy->type = type;
+            generic_enemy->position = position;
+        }
+        if (strcmp(type, "flying") == 0) {
+            Entity* flying_enemy = flying_enemy_spawn(position);
+            flying_enemy->name = name;
+            flying_enemy->type = type;
+            flying_enemy->position = position;
+        }
+        if (strcmp(type, "projectile") == 0) {
+            Entity* projectile_enemy = projectile_enemy_spawn(position);
+            projectile_enemy->name = name;
+            projectile_enemy->type = type;
+            projectile_enemy->position = position;
+        }
+        if (strcmp(type, "bomb") == 0) {
+            Entity* bomb_enemy = bomb_enemy_spawn(position);
+            bomb_enemy->name = name;
+            bomb_enemy->type = type;
+            bomb_enemy->position = position;
+        }
+        if (strcmp(type, "shield") == 0) {
+            Entity* shield_enemy = spike_enemy_spawn(position);
+            shield_enemy->name = name;
+            shield_enemy->type = type;
+            shield_enemy->position = position;
+        }
+    }
+
+    if (strcmp(name, "goal") == 0) {
+        if (strcmp(type, "post") == 0) {
+            Entity* goal_post = goal_spawn(position);
+            goal_post->name = name;
+            goal_post->type = type;
+            goal_post->position = position;
+        }
+    }
+
     if (strcmp(name, "bomb_dropper") == 0) {
         if (strcmp(type, "generic") == 0) {
             Entity* generic_bomb_dropper = bomb_spawn(position);

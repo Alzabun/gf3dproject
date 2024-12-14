@@ -436,5 +436,8 @@
     <None Include="..\menus\text_entry_window.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\def\levels\toolchain.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

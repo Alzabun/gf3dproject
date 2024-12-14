@@ -73,6 +73,9 @@ typedef struct {
 	Mix_Music* wintheme;
 	Mix_Chunk* jump; // should be very similar to how music was implemented.. or i could just implement sounds as music but im not sure if thall cause memory issues
 
+	// LEVEL ENDING
+	int reachedgoal; // 0 = no, 1 = yes
+	GFC_Vector3D lockedcamera;
 	// boss check for ui
 	int killedboss;
 

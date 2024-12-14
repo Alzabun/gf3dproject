@@ -129,6 +129,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->invincibility = 0; // no i-frames by default
 		data->deltatime = 0; // upon game begin
 		data->lives = 3; //typical
+		data->reachedgoal = 0; // to prevent bugs
 
 		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
 		Mix_PlayMusic(data->normal_music, -1);
@@ -146,7 +147,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 			data->debugmode = 1;
 			data->indebug = 1;
 		}
-
+		data->debugmode = 1; // just for testing, remove when done
 		self->data = data;
 	}
 	return self;
@@ -189,6 +190,11 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 
 	if (data->indebug == 1) {
 		debug_think(self); // go to bottom of this file
+		return;
+	}
+
+	if (data->reachedgoal == 1) {
+		self->velocity.y = -2;
 		return;
 	}
 	
@@ -549,6 +555,12 @@ void player_update(Entity* self) {
 	//getPlayer(data);
 }
 
+// if necessary for the final project or not, i originally want this to be like a modern sonic boost formula stage
+// what that means: gameplay switches from 3d to 2d, determined by the camera angle
+// that would require recoding a lot of the controls though because theyre based off 2d only
+// it would be cool to make this, but if i dont have time to or if there's no point then whatever
+// update: not necessary, but would be cool
+
 void player_camera(Entity* self) {
 	playerData* data;
 	GFC_Vector3D lookTarget, camera, dir = { 0 };
@@ -557,7 +569,7 @@ void player_camera(Entity* self) {
 		return;
 	}
 	data = self->data;
-	
+
 
 	// CAMERA SYSTEM
 	// if necessary for the final project or not, i originally want this to be like a modern sonic boost formula stage
@@ -576,9 +588,10 @@ void player_camera(Entity* self) {
 	//gfc_vector3d_rotate_about_z(&dir, self->rotation.z); // the rotation the camera will go along with
 	gfc_vector3d_sub(camera, self->position, dir);
 	camera.z += 15; // changes angle of camera from by rotating around the player's z 
-	gf3d_camera_look_at(lookTarget, &camera);
 
 	//data->cameraPitch += dy * 0.01;
+	gf3d_camera_look_at(lookTarget, &camera);
+
 }
 	
 void player_touch(Entity* self, Entity* other) {
@@ -810,6 +823,11 @@ void player_touch(Entity* self, Entity* other) {
 			player_damage(self);
 		}
 	}	
+
+	if (other->flag == GOAL && data->reachedgoal == 0) {
+		data->reachedgoal = 1;
+		data->lockedcamera = self->position;
+	}
 }
 
 void player_damage(Entity* self) {
@@ -834,13 +852,10 @@ void player_damage(Entity* self) {
 		self->velocity.y = RECOIL;
 	}
 
-	// take damage code here
-	// also include invincibility frames if there's time
-
 	if (data->haspowerup == 0) {
 		if (data->health > 0) {
 			rings_dropped(self, self->position, data->health); // scatter rings everywhere
-			data->health = 0; //needs ui element
+			data->health = 0;
 		}
 		else {
 			player_die(self); // took dmg at 0 health so you lose!
@@ -1090,8 +1105,8 @@ void debug_place(Entity* self) {
 	// there is probably a way more optimized way to do this but idk how to do that
 	switch (data->entitycycle) {
 	case 0:
-		name = "spring";
-		type = "yellow";
+		name = "rings";
+		type = "normal";
 		break;
 	case 1:
 		name = "spikes";
@@ -1114,8 +1129,59 @@ void debug_place(Entity* self) {
 		type = "fire_shield";
 		break;
 	case 6:
+		name = "itembox";
+		type = "bubble_shield";
+	case 7:
+		name = "itembox";
+		type = "electricity_shield";
+		break;
+	case 8:
+		name = "itembox";
+		type = "normal_shield";
+		break;
+	case 9:
+		name = "itembox";
+		type = "invincibility";
+		break;
+	case 10:
 		name = "terrain";
-		type = "floor";
+		type = "small";
+		break;
+	case 11:
+		name = "enemy";
+		type = "generic";
+		break;
+	case 12:
+		name = "enemy";
+		type = "flying";
+		break;
+	case 13:
+		name = "enemy";
+		type = "bomb";
+		break;
+	case 14:
+		name = "enemy";
+		type = "projectile";
+		break;
+	case 15:
+		name = "enemy";
+		type = "shield";
+		break;
+	case 16:
+		name = "spring";
+		type = "yellow";
+		break;
+	case 17:
+		name = "boss";
+		type = "1";
+		break;
+	case 18:
+		name = "spring";
+		type = "yellow";
+		break;
+	case 19:
+		name = "goal";
+		type = "post";
 		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
@@ -1138,7 +1204,7 @@ void choose_entity(Entity* self) {
 	data = self->data;
 
 	if (data->entitycycle == 0) {
-		self->model = gf3d_model_load("models/springs.model");
+		self->model = gf3d_model_load("models/rings.model");
 	}
 	else if (data->entitycycle == 1) {
 		self->model = gf3d_model_load("models/spikes.model");
@@ -1156,16 +1222,46 @@ void choose_entity(Entity* self) {
 		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
 	}
 	else if (data->entitycycle == 6) {
-		self->model = gf3d_model_load("models/collisiontest.model");
+		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
 	}
 	else if (data->entitycycle == 7) {
-		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
 	}
 	else if (data->entitycycle == 8) {
-		self->model = gf3d_model_load("models/boss.model");
+		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
 	}
 	else if (data->entitycycle == 9) {
+		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+	}
+	else if (data->entitycycle == 10) {
+		self->model = gf3d_model_load("models/smallterrain.model");
+	}
+	else if (data->entitycycle == 11) {
+		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 12) {
+		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 13) {
+		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 14) {
+		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 15) {
+		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 16) {
+		self->model = gf3d_model_load("models/spring.model"); // need a way to differentiate between each enemy
+	}
+	else if (data->entitycycle == 17) {
+		self->model = gf3d_model_load("models/boss.model");
+	}
+	else if (data->entitycycle == 18) {
 		self->model = gf3d_model_load("models/springs.model");
+	}
+	else if (data->entitycycle == 19) {
+		self->model = gf3d_model_load("models/goal.model");
 	}
 }
 

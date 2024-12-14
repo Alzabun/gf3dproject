@@ -283,6 +283,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\def\levels\act1.def" />
+    <None Include="..\def\levels\toolchain.json" />
     <None Include="..\menus\text_entry_window.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

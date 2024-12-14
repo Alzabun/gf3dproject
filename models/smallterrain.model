@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/terrain_small/terrain_small.obj",
+        "texture": "models/terrain_small/terrain_small.png"
+    }
+}

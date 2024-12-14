@@ -12,7 +12,7 @@ typedef struct {
 	Uint8 exist;
 }TerrainData;
 
-Entity* terrain_spawn(GFC_Vector3D position) {
+Entity* floor_terrain_spawn(GFC_Vector3D position) {
 	Entity* self;
 	TerrainData* exist;
 	GFC_Vector3D dir_z = { 0, 0, 1 };
@@ -40,9 +40,6 @@ Entity* terrain_spawn(GFC_Vector3D position) {
 	
 	self->flag = TERRAIN;
 
-	// spawnin every terrain and world obstacle as an entity seems dumb because ill have to manually spawn each terrain and align them accordingly
-	// but like.. this is how a level editor works, i'm just doing the labour
-
 	exist = gfc_allocate_array(sizeof(TerrainData), 1);
 	if (exist) {
 		self->data = exist;
@@ -62,6 +59,34 @@ void terrain_free(Entity* self) { // frees up entity
 	
 	free(exist);
 	self->data = NULL;
+}
+
+Entity* small_terrain_spawn(GFC_Vector3D position) {
+	Entity* self;
+	TerrainData* exist;
+
+	self = entity_new();
+	if (!self) {
+		return NULL;
+	}
+	self->model = gf3d_model_load("models/smallterrain.model");
+	self->position = position;
+
+	self->BoundingBox.x = position.x;
+	self->BoundingBox.y = (position.y / 2) - 25;
+	self->BoundingBox.z = position.z;
+
+	self->BoundingBox.w = 10; 
+	self->BoundingBox.d = 115; 
+	self->BoundingBox.h = 50;
+
+	self->flag = TERRAIN;
+
+	exist = gfc_allocate_array(sizeof(TerrainData), 1);
+	if (exist) {
+		self->data = exist;
+	}
+	return self;
 }
 
 Entity* test_spawn(GFC_Vector3D position) {

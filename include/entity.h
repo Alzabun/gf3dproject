@@ -36,6 +36,8 @@ typedef enum {
 	BOSS,
 	BOSS_PENDING,
 	BOSS_START,
+	// LEVEL ENDER
+	GOAL,
 	// MISC
 	IGNORE
 }EntityFlag;

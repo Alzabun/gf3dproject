@@ -3,7 +3,8 @@
 
 #include "entity.h"
 
-Entity* terrain_spawn(GFC_Vector3D position);
+Entity* floor_terrain_spawn(GFC_Vector3D position);
+Entity* small_terrain_spawn(GFC_Vector3D position);
 
 Entity* test_spawn(GFC_Vector3D position);
 

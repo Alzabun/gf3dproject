@@ -260,7 +260,7 @@ void load_midterm_level(){
     player_spawn(gfc_vector3d(0, 500, -150));
 
     // TERRAIN SPAWN
-    terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+    floor_terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
     //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
 
     // OBSTACLE SPAWNS
@@ -294,7 +294,8 @@ void load_midterm_level(){
     rings_spawn(gfc_vector3d(0, 30, -135), 0);
     rings_spawn(gfc_vector3d(0, 40, -135), 0);
     rings_spawn(gfc_vector3d(0, 50, -135), 0);
-    //
+    
+    goal_spawn(gfc_vector3d(0, -1400, -165));
 
     gameStarted = 1;
     slog("GAME STARTED");
@@ -305,14 +306,14 @@ void load_level(/* should take filename, but i cant figure it out */) { // json 
     menuState currentState = get_menu();
     SJson* file;
     if (currentState == DEBUG) {
-        file = sj_load("def/levels/toolchain.json");
+        file = sj_load("level_editor/levels/toolchain.json");
     }
     else {
         file = NULL;
     }
  
     if (!file) {
-        slog("could not open file");
+        slog("could not find 'toolchain.json'. WARNING: DATA WILL NOT SAVE");
         return;
     }
 
