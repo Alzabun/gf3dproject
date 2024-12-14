@@ -433,5 +433,8 @@
     <None Include="..\def\levels\act1.def">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\menus\text_entry_window.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

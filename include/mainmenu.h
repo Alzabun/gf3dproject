@@ -27,6 +27,7 @@ typedef struct {
 void draw_menu();
 void prepare_menu_UI();
 menuState get_menu();
+void file_menu(SJson* textentry);
 
 // fade in and fade out to black screen could be here
 // soething about while blackscren != alpha 1 , alpha += 0.1 then while blackscreen != alpha 0 , alpha -= 0.1

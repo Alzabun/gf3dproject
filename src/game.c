@@ -46,8 +46,10 @@ int debugmode = 0;
 
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
-void load_game();
+void identify_game_mode();
 void load_level();
+void load_midterm_level();
+//void get_filename(char* prompt);
 
 void exitGame()
 {
@@ -170,7 +172,7 @@ int main(int argc,char *argv[])
 
         if (gameStarted == 0) {
             draw_menu(); // show if game didnt start yet
-            load_game();
+            identify_game_mode();
         }
         
         gf3d_vgraphics_render_end();
@@ -215,10 +217,32 @@ void game_frame_delay()
 //     slog("fps: %f",fps);
 }
 
-void load_game() {
+void identify_game_mode() {
     menuState currentState = get_menu();
 
-    if (currentState == NORMAL) {
+    switch (currentState) {
+        case NORMAL:
+            load_midterm_level();
+            break;
+        case OBJECTIVE:
+            gameStarted = 1;
+            slog("GAME STARTED");
+            slog("but nothing happens because theres no objective mode yet");
+            break;
+        case DEBUG:
+            //player_spawn(gfc_vector3d(0, 0, 0));
+            debugmode = 1;
+            gameStarted = 1;
+            load_level();
+            player_spawn(gfc_vector3d(0, 0, 0));
+            slog("GAME STARTED");
+            break;
+        default:
+            break;
+    }
+}
+
+void load_midterm_level(){
     // LOADING SCREEN STUFF GOES HERE
 
     // maybe make music play for the first time the game is started until the menu ends or the music ends
@@ -233,68 +257,59 @@ void load_game() {
     // also check the master branch?
     // 
     // PLAYER SPAWN
-        player_spawn(gfc_vector3d(0, 500, -150));
+    player_spawn(gfc_vector3d(0, 500, -150));
 
-        // TERRAIN SPAWN
-        terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
-        //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
+    // TERRAIN SPAWN
+    terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+    //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
 
-        // OBSTACLE SPAWNS
-        spikes_spawn(gfc_vector3d(0, -300, -155));
-        spring_yellow_spawn(gfc_vector3d(0, -350, -160));
-        v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
-        loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20 except collisions break when you do that for some reason
+    // OBSTACLE SPAWNS
+    spikes_spawn(gfc_vector3d(0, -300, -155));
+    spring_yellow_spawn(gfc_vector3d(0, -350, -160));
+    v_moving_platform_spawn(gfc_vector3d(0, -450, -150));
+    loop_spawn(gfc_vector3d(0, -650, -165)); // x = 20 except collisions break when you do that for some reason
 
-        // ITEMBOX SPAWNS (OBSTACLE SUBCATEGORY)
-        itembox_spawn(gfc_vector3d(0, -800, -165), 1);
-        itembox_spawn(gfc_vector3d(0, -825, -165), 2);
-        itembox_spawn(gfc_vector3d(0, -850, -165), 3);
-        itembox_spawn(gfc_vector3d(0, -875, -165), 4);
-        itembox_spawn(gfc_vector3d(0, -900, -165), 5);
+    // ITEMBOX SPAWNS (OBSTACLE SUBCATEGORY)
+    itembox_spawn(gfc_vector3d(0, -800, -165), 1);
+    itembox_spawn(gfc_vector3d(0, -825, -165), 2);
+    itembox_spawn(gfc_vector3d(0, -850, -165), 3);
+    itembox_spawn(gfc_vector3d(0, -875, -165), 4);
+    itembox_spawn(gfc_vector3d(0, -900, -165), 5);
 
-        // ENEMY SPAWNS
-        generic_enemy_spawn(gfc_vector3d(0, -100, 0));
-        projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
-        flying_enemy_spawn(gfc_vector3d(0, 200, -140));
-        spike_enemy_spawn(gfc_vector3d(0, 350, -140));
-        bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
+    // ENEMY SPAWNS
+    generic_enemy_spawn(gfc_vector3d(0, -100, 0));
+    projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
+    flying_enemy_spawn(gfc_vector3d(0, 200, -140));
+    spike_enemy_spawn(gfc_vector3d(0, 350, -140));
+    bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
 
-        boss_spawn(gfc_vector3d(0, -1250, -155));
+    boss_spawn(gfc_vector3d(0, -1250, -155));
 
-        // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
-        // (first 3: grounded)
-        rings_spawn(gfc_vector3d(0, -50, -155), 0);
-        rings_spawn(gfc_vector3d(0, -40, -155), 0);
-        rings_spawn(gfc_vector3d(0, -30, -155), 0);
-        // (second 3: aerial)
-        rings_spawn(gfc_vector3d(0, 30, -135), 0);
-        rings_spawn(gfc_vector3d(0, 40, -135), 0);
-        rings_spawn(gfc_vector3d(0, 50, -135), 0);
-        //
+    // RING ENTITY LIST (WILL MOST LIKELY BE A LOT)
+    // (first 3: grounded)
+    rings_spawn(gfc_vector3d(0, -50, -155), 0);
+    rings_spawn(gfc_vector3d(0, -40, -155), 0);
+    rings_spawn(gfc_vector3d(0, -30, -155), 0);
+    // (second 3: aerial)
+    rings_spawn(gfc_vector3d(0, 30, -135), 0);
+    rings_spawn(gfc_vector3d(0, 40, -135), 0);
+    rings_spawn(gfc_vector3d(0, 50, -135), 0);
+    //
 
-        gameStarted = 1;
-        slog("GAME STARTED");
-    }
-    else if (currentState == OBJECTIVE) {
-        gameStarted = 1;
-        slog("GAME STARTED");
-    }
-    else if (currentState == DEBUG) {
-
-        player_spawn(gfc_vector3d(0, 0, 0));
-        load_level();
-        //terrain_spawn(gfc_vector3d(0, 0, -100));
-
-        debugmode = 1;
-        gameStarted = 1;
-
-        slog("GAME STARTED");
-    }
+    gameStarted = 1;
+    slog("GAME STARTED");
 }
-// dont forget to put empty function at the top of this file if you change the parameters
+
 // look in player.c and toolchain.c to see how it saves data
-void load_level(/* should take filename, but ill do that later */) { // json file analyzer
-    SJson* file = sj_load("def/levels/toolchain.json"); // placeholder
+void load_level(/* should take filename, but i cant figure it out */) { // json file analyzer
+    menuState currentState = get_menu();
+    SJson* file;
+    if (currentState == DEBUG) {
+        file = sj_load("def/levels/toolchain.json");
+    }
+    else {
+        file = NULL;
+    }
  
     if (!file) {
         slog("could not open file");
@@ -360,4 +375,17 @@ void load_level(/* should take filename, but ill do that later */) { // json fil
 
     }
 }
+
+/*
+* 
+* i am wasting way too much time on this i give up
+char* filename = "";
+int filefound = 0;
+void get_filename(char* prompt) {
+    char key;
+
+    slog("%c", prompt);
+}
+*/
+
 /*eol@eof*/
