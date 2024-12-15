@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/terrain_bridge/terrain_bridge.obj",
+        "texture": "models/terrain_bridge/terrain_bridge.png"
+    }
+}

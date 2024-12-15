@@ -85,6 +85,9 @@ const float IFRAMES = 10; // roughly 3 seconds? [USE DELTA TIME INSTEAD BUT FIX 
 const float OXYGEN = 30; // 30 seconds? from using the deltatime i have here
 const float DELTATIME = 0.025; // ok
 
+// SUPER STATS
+const float SUPERSPEEDMULT = 1.5;
+
 // ***** MOVED STRUCT TO PLAYER.H ******
 
 // SOUND EFFECTS
@@ -101,7 +104,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 	if (!self) {
 		return NULL;
 	}
-	self->model = gf3d_model_load("models/dino.model");
+	self->model = gf3d_model_load("models/lowpolysonic.model");
 	self->free = player_free;
 	self->think = player_think;
 	self->update = player_update; 
@@ -109,14 +112,28 @@ Entity* player_spawn(GFC_Vector3D position) {
 	self->touch = player_touch;
 	self->velocity = gfc_vector3d(0, 0, 0);
 
+	GFC_Box getBounds = self->model->bounds;
+
 	self->BoundingBox.x = position.x;
 	self->BoundingBox.y = position.y;
 	self->BoundingBox.z = position.z;
 
-	self->BoundingBox.w = 5;
-	self->BoundingBox.d = 5;
-	self->BoundingBox.h = 5; 
+	self->BoundingBox.w = getBounds.w;
+	self->BoundingBox.d = getBounds.d;
+	self->BoundingBox.h = getBounds.h;
 
+	self->scale.x = 1.2;
+	self->scale.y = 1.2;
+	self->scale.z = 1.2;
+	/*
+	self->BoundingBox.x = position.x + getBounds.x;
+	self->BoundingBox.y = position.y + getBounds.y;
+	self->BoundingBox.z = position.z + getBounds.z;
+
+	self->BoundingBox.w = getBounds.w;
+	self->BoundingBox.d = getBounds.d;
+	self->BoundingBox.h = getBounds.h;
+	*/
 	self->flag = PLAYER;
 
 	// MUSIC
@@ -148,6 +165,10 @@ Entity* player_spawn(GFC_Vector3D position) {
 			data->indebug = 1;
 		}
 		data->debugmode = 1; // just for testing, remove when done
+
+		data->cansuper = 1; // need to get all 7 chaos emeralds to meet this requirement, this is on by default for testing
+		data->fadeout = 0;
+
 		self->data = data;
 	}
 	return self;
@@ -185,7 +206,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		self->rotation.x = 0;
 		self->rotation.y = 0;
 		self->rotation.z = 0;
-		
+
 	}
 
 	if (data->indebug == 1) {
@@ -197,7 +218,16 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		self->velocity.y = -2;
 		return;
 	}
-	
+
+	if (data->insuper == 1) {
+		super_think(self);
+		return;
+	}
+
+	if (data->cansuper == 1 && gfc_input_command_down("powerupability")) {
+		data->insuper = 1;
+	}
+
 	// right is negative and left is positive because ?????????
 
 	// MOVEMENT
@@ -209,7 +239,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 
 		// SPEED CAP
 		if (self->velocity.y >= MAXSPEED + data->storedvelocity) {
-			self->velocity.y = MAXSPEED + data->storedvelocity;
+			self->velocity.y -= 1;
 		}
 		else {
 			self->velocity.y += 0.075;
@@ -226,7 +256,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 
 		// SPEED CAP
 		if (self->velocity.y <= -MAXSPEED - data->storedvelocity) {
-			self->velocity.y = -MAXSPEED - data->storedvelocity;
+			self->velocity.y += 1;
 		}
 		else {
 			self->velocity.y -= 0.075;
@@ -309,7 +339,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->velocity.z = 2;
 			
 			if (data->invincibility <= 0) {
-				self->model = gf3d_model_load("models/dino_jump.model");
+				self->model = gf3d_model_load("models/lowpolysonic_jump.model");
 			}
 			else {
 				self->model = gf3d_model_load("models/dino_jump_iframe.model");
@@ -338,7 +368,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		data->inball = 1;
 		
 		if (data->invincibility <= 0) {
-			self->model = gf3d_model_load("models/dino_jump.model");
+			self->model = gf3d_model_load("models/lowpolysonic_jump.model");
 		}
 		else {
 			self->model = gf3d_model_load("models/dino_jump_iframe.model");
@@ -453,6 +483,21 @@ void player_update(Entity* self) {
 		sentence_to_death(self); // GAME OVER
 	}
 
+	if (data->insuper == 1) {
+		if (data->health <= 0) {
+			data->insuper = 0;
+			data->health = 0;
+		}
+		else {
+			//data->health -= 1;
+			// i need to add a cooldown
+		}
+	}
+		
+	if (data->fadeout >= 1) {
+		data->fadeout -= 0.01;
+	}
+
 	// IFRAME TIMER
 	if (data->invincibility > 0) {
 		data->invincibility -= 0.1;
@@ -465,7 +510,13 @@ void player_update(Entity* self) {
 
 	// GRAVITY
 	if (data->airborne == 1 && data->indebug == 0) {
-		self->model = gf3d_model_load("models/dino_jump.model");
+		if (data->insuper == 1) {
+			self->model = gf3d_model_load("models/supersonic_jump.model");
+		}
+		else {
+			self->model = gf3d_model_load("models/lowpolysonic_jump.model");
+		}
+		
 		//account for enviromment conditions
 		if (data->inWater) {
 			self->velocity.z -= 0.05; // lower gravity for a slowness illusion
@@ -617,6 +668,11 @@ void player_touch(Entity* self, Entity* other) {
 		return; // no real collisions while you are a magical flying entity
 	}
 
+	if (data->insuper == 1) {
+		super_touch(self, other);
+		return;
+	}
+
 	//BUBBLE POWERUP CHANGES
 	if (data->bubblebounce == 1) {
 		if (other->flag == TERRAIN || other->flag == PLATFORM || other->flag == ITEMBOX) {
@@ -689,7 +745,7 @@ void player_touch(Entity* self, Entity* other) {
 		if (data->spindash == 0) {
 			self->rotation.y = 0;
 			if (data->invincibility <= 0) {
-				self->model = gf3d_model_load("models/dino.model");
+				self->model = gf3d_model_load("models/lowpolysonic.model");
 			}
 			else {
 				self->model = gf3d_model_load("models/dino_iframe.model");
@@ -737,7 +793,7 @@ void player_touch(Entity* self, Entity* other) {
 		if (data->spindash == 0) {
 			self->rotation.y = 0;
 			if (data->invincibility <= 0) {
-				self->model = gf3d_model_load("models/dino.model");
+				self->model = gf3d_model_load("models/lowpolysonic.model");
 			}
 			else {
 				self->model = gf3d_model_load("models/dino_iframe.model");
@@ -1016,6 +1072,392 @@ void player_powerup(Entity* self, itemboxData* itembox) {
 	}
 }
 
+// **************
+// SUPER SONIC
+// **************
+
+void super_think(Entity* self) {
+	playerData* data;
+	if (!self || !self->data) {
+		return;
+	}
+	data = self->data;
+
+	// SUPER MOVEMENT
+	if (gfc_input_command_held("walkleft") && data->spindash == 0) {
+
+		// SPEED CAP
+		if (self->velocity.y >= (MAXSPEED + data->storedvelocity) * SUPERSPEEDMULT) {
+			self->velocity.y = (MAXSPEED + data->storedvelocity) * SUPERSPEEDMULT;
+		}
+		else {
+			self->velocity.y += 1.1;
+		}
+		// ROTATION CAP
+		if (self->rotation.z <= -3.2) {
+			self->rotation.z = -3.2;
+		}
+		else {
+			self->rotation.z -= 0.4;
+		}
+	}
+	else if (gfc_input_command_held("walkright") && data->spindash == 0) {
+
+		// SPEED CAP
+		if (self->velocity.y <=  (-MAXSPEED - data->storedvelocity) * SUPERSPEEDMULT) {
+			self->velocity.y = (-MAXSPEED - data->storedvelocity) * SUPERSPEEDMULT;
+		}
+		else {
+			self->velocity.y -= 1.1;
+		}
+		// ROTATION CAP
+		if (self->rotation.z >= 0) {
+			self->rotation.z = 0;
+		}
+		else {
+			self->rotation.z += 0.4;
+		}
+	}
+	else {
+		// FRICTION
+		// AFFECTED BY ICE (even though the way i have it now makes it feel like youre already on ice FIX THAT LPEASE)
+		if (self->velocity.y > 0) {
+
+			if (data->inIce) {
+				self->velocity.y -= 0.05;
+			}
+			else {
+				self->velocity.y -= 0.15;
+			}
+
+			if (data->spindash == 1) {
+				self->rotation.y += (self->velocity.y * 0.1);
+			}
+			if (self->velocity.y < 0) {
+				self->velocity.y = 0;
+			}
+		}
+		else if (self->velocity.y < 0) {
+			if (data->inIce) {
+				self->velocity.y += 0.05;
+			}
+			else {
+				self->velocity.y += 0.15;
+			}
+
+			if (data->spindash == 1) {
+				self->rotation.y -= (self->velocity.y * 0.1);
+			}
+			if (self->velocity.y > 0) {
+				self->velocity.y = 0;
+			}
+		}
+		// ROTATION FALLBACK (stopping mid-turn) (also a left direction cap)
+		if (self->rotation.z <= -1.5) { // LEFT
+
+			if (self->rotation.z <= -3.2) {
+				self->rotation.z = -3.2;
+			}
+			else {
+				self->rotation.z -= 1;
+			}
+		}
+		else if (self->rotation.z >= -1.5) { // RIGHT
+			if (self->rotation.z >= 0) {
+				self->rotation.z = 0;
+
+			}
+			else {
+				self->rotation.z += 1;
+			}
+		}
+	}
+
+	// JUMPING / DASHING / ENEMY KILLER
+
+	if (gfc_input_command_down("jump")) {
+		if (data->airborne == 0 && data->spindash == 0) {
+			gfc_sound_play(data->jump, 0, 1, 0, -1);
+			data->inball = 1;
+			data->jumpTime = 0;
+			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
+				self->position.z += 8; // 8 is a big enough number to disconnect from the platform apparently
+				data->onPlatform = 0;
+			}
+			self->velocity.z = 2;
+		}
+	}
+
+	if (gfc_input_command_held("jump") && data->jumpTime <= JUMPTIME && data->spindash == 0) {
+		if (data->inSand) {
+			// 2x mult
+			data->jumpTime += 1;
+			self->velocity.z += 0.1;
+		}
+		else {
+			// 2x mult
+			data->jumpTime += 0.5;
+			self->velocity.z += 0.2;
+		}
+
+	}
+
+	// SPINDASH
+	// functions just like sonic's spindash
+	// hold down (s) to curl into a ball then spam jump to charge it until maximum allowed speed
+	// you can also hold jump to charge it but thats not intended, though i shouldnt waste time trying to fix that since this still works
+	if (gfc_input_command_held("spindash")) {
+		data->spindash = 1;
+		data->inball = 1;
+
+		self->model = gf3d_model_load("models/supersonic_jump.model");
+
+		if (gfc_input_command_down("jump") && data->airborne == 0) {
+			self->velocity.y = 0;
+			if (data->rotdir == 1) {
+				if (data->storedvelocity <= MAXSPINDASHSPEED * SUPERSPEEDMULT) { // LEFT DIR SPINDASH
+					data->storedvelocity += 1;
+					//play sound or display velocity on a ui
+				}
+			}
+			else if (data->rotdir == 2) {
+				if (data->storedvelocity >= -MAXSPINDASHSPEED * SUPERSPEEDMULT) { // RIGHT DIR SPINDASH
+					data->storedvelocity -= 1;
+					//play sound or display velocity on a ui
+				}
+			}
+		}
+		// if charged at least once, keep spinning and scale with speed
+		if (data->storedvelocity > 0) {
+			data->inball = 1; // you dont get to do dmg if you're just curled without speed
+			self->rotation.y += (data->storedvelocity * 0.1); // left
+		}
+		else if (data->storedvelocity < 0) {
+			self->rotation.y -= (data->storedvelocity * 0.1); // right
+		}
+
+		if (data->storedvelocity >= MAXSPINDASHSPEED * SUPERSPEEDMULT && data->rotdir == 1) {
+			data->storedvelocity = MAXSPINDASHSPEED * SUPERSPEEDMULT;
+		}
+		else if (data->storedvelocity <= -MAXSPINDASHSPEED * SUPERSPEEDMULT && data->rotdir == 2) {
+			data->storedvelocity = -MAXSPINDASHSPEED * SUPERSPEEDMULT;
+		}
+	}
+	else {
+		data->spindash = 0;
+		if (data->storedvelocity != 0) {
+			// implement damage while you still have speed from spindashing (and still in a ball) later
+			self->velocity.y = data->storedvelocity;
+			data->storedvelocity = 0;
+		}
+	}
+
+	// *******
+	// SUPER ABILITIES
+	// *******
+
+	if (gfc_input_command_pressed("powerupability")) {
+		Sprite* flash = gf2d_sprite_load_image("images/super/flash.png");
+		data->fadeout = 1; // fadeout logic in player_update
+		GFC_Color flash_color = { 1,1,1, data->fadeout };
+
+		GFC_Vector2D generic = gfc_vector2d(1, 1);
+		GFC_Vector2D posref = gfc_vector2d(flash->widthPercent, flash->heightPercent);
+
+		// KILL ALL
+		if (data->airborne == 1) {
+			if (data->rotdir == 1 && self->velocity.y <= MAXSPEED * 2) {
+				self->velocity.y += MAXSPEED * 5;
+			}
+			else if (data->rotdir && self->velocity.y >= -MAXSPEED * 2) {
+				self->velocity.y -= MAXSPEED * 5;
+			}
+		}
+
+		if (data->airborne == 0) {
+			//spawn_kamehameha
+		}
+
+		gf2d_sprite_draw(flash, gfc_vector2d(0, 0), &generic, &posref, NULL, NULL, &flash_color, NULL, 0);
+	}
+
+}
+
+void super_touch(Entity* self, Entity* other) {
+	playerData* data;
+
+	if (!self) {
+		return;
+	}
+	data = self->data;
+
+	// DEBUG MODE DELETION
+	if (other && data->debugmode == 1 && data->indebug == 1) {
+		if (gfc_input_key_pressed("[")) { // save to a file for each position
+			if (other->name == NULL || other->type == NULL) {
+				slog("name or type of entity is NULL, cannot delete");
+				return;
+			}
+			debug_delete(other);
+		}
+	}
+
+	// TOUCH COLLISIONS
+
+	if (other->flag == TERRAIN) {
+		//slog("collided with terrain");
+		self->velocity.z = 0;
+		data->airborne = 0;
+		data->onPlatform = 0;
+		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
+
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+			self->model = gf3d_model_load("models/supersonic.model");
+		}
+	}
+
+	if (other->flag == ENEMY) { // kill the enemy instantly no questions asked
+		if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
+			self->velocity.z = RECOIL; // reject gravity 
+		}
+		other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
+		sentence_to_death(other);
+	}
+
+	if (other->flag == RINGS) {
+		data->health += 1;
+		//play sound
+		sentence_to_death(other);
+	}
+
+	if (other->flag == SPRING) {
+		self->velocity.z = 5;
+		//slog("collided with spring");
+		// NOTE: this is assuming it's a grounded spring. orientation will chanage velocity direction but that's not added yet
+	}
+
+	if (other->flag == PLATFORM) {
+		self->position.z = other->position.z;
+		self->velocity.z = 0;
+		data->onPlatform = 1;
+		data->airborne = 0;
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+			self->model = gf3d_model_load("models/supersonic.model");
+		}
+	}
+
+	if (other->flag == LOOP) {
+		if (data->inloop == 0) {
+			data->inloop = 1;
+			data->thisloop = (loopData*)other->data; // this is how to get control over the loopdata struct here
+			data->currentpoint = 0;
+		}
+	}
+
+	if (other->flag == ITEMBOX) { // super sonic doesnt use power ups, but get recoil from breaking it anyway
+		if (data->inball == 1 || data->storedvelocity > 0) { // why isnt this working????
+			if (data->spindash != 1) {
+				self->velocity.z = RECOIL;
+			}
+
+			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
+			sentence_to_death(other);
+		}
+	}
+
+	if (other->flag == BUBBLE) { // super sonic doesnt drown, but i didnt add water yet
+		// insert bubble sound effect here
+		// stop drowning music here unless i can figure out how to make it do that by itself in the drowning part of the code (not done here)
+		data->oxygen = OXYGEN;
+		sentence_to_death(other);
+	}
+
+	// BOSS LOGIC
+	if (other->flag == BOSS_PENDING) {
+		// prepare thy boss
+		other->flag = BOSS_START;
+		other->BoundingBox.w = 10;
+		other->BoundingBox.d = 20;
+		other->BoundingBox.h = 50;
+
+		Mix_HaltMusic();
+		Mix_PlayMusic(data->boss_music, -1);
+
+		//slog("activated bounding box change");
+	}
+
+	if (other->flag == BOSS) {
+		if (data->inball == 1 || data->storedvelocity > 0) { // i might have only needed to check for stored velocity for this to work
+			if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
+				if (data->rotdir == 1) {
+					self->velocity.y = -2;
+					self->velocity.z = 1;
+				}
+				else if (data->rotdir == 2) {
+					self->velocity.y = -2;
+					self->velocity.z = 1;
+				}
+			}
+			if (other->bosshealth > 0) {
+				other->bosshealth -= 1;
+			}
+			else {
+				sentence_to_death(other);
+				Mix_HaltMusic();
+				data->killedboss = 1;
+				Mix_PlayMusic(data->wintheme, 0);
+			}
+
+		}
+		else { // take damage
+			player_damage(self);
+		}
+	}
+
+	if (other->flag == GOAL && data->reachedgoal == 0) {
+		data->reachedgoal = 1;
+		data->lockedcamera = self->position;
+	}
+
+	// TERRAIN-SPECIFIC COLLISION
+
+	if (other->flag == SAND) {
+		data->inSand = 1;
+		// slowing + sinking
+		// jump should be "stuck" too
+		self->velocity.z -= 0.05;
+		self->velocity.y *= 0.5;
+		// make player get hurt at the bottom of the sand's hitbox (floor of bounding box)
+	}
+	else {
+		data->inSand = 0;
+	}
+
+	if (other->flag == WATER) {
+		data->inWater = 1;
+	}
+	else {
+		data->inWater = 0;
+		data->oxygen = OXYGEN;
+	}
+
+	if (other->flag == OIL) {
+		data->inOil = 1;
+	}
+	else {
+		data->inOil = 0;
+	}
+
+	if (other->flag == ICE) {
+		data->inIce = 1;
+	}
+	else {
+		data->inIce = 0;
+	}
+}
+
 // TOOL CHAIN FUNCTIONALITY
 // TO DO: optimize the entity list picker so its not just a bunch of if/else statements (if possible)
 
@@ -1049,11 +1491,11 @@ void debug_think(Entity* self) {
 		self->position.x -= 1 * data->debugspeedup;
 	}
 	if (gfc_input_key_held("LSHIFT")) { // move faster
-		slog("debug speed activated");
+		//slog("debug speed activated");
 		data->debugspeedup = 5;
 	}
 	else if (gfc_input_key_held("LCTRL")) { // move slower
-		slog("debug slow activated");
+		//slog("debug slow activated");
 		data->debugspeedup = 0.1;
 	}
 	else {
@@ -1183,6 +1625,10 @@ void debug_place(Entity* self) {
 		name = "goal";
 		type = "post";
 		break;
+	case 20:
+		name = "terrain";
+		type = "bridge";
+		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
 		return;
@@ -1262,6 +1708,9 @@ void choose_entity(Entity* self) {
 	}
 	else if (data->entitycycle == 19) {
 		self->model = gf3d_model_load("models/goal.model");
+	}
+	else if (data->entitycycle == 20) {
+		self->model = gf3d_model_load("models/terrainbridge.model");
 	}
 }
 

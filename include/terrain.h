@@ -5,6 +5,7 @@
 
 Entity* floor_terrain_spawn(GFC_Vector3D position);
 Entity* small_terrain_spawn(GFC_Vector3D position);
+Entity* bridge_terrain_spawn(GFC_Vector3D position);
 
 Entity* test_spawn(GFC_Vector3D position);
 

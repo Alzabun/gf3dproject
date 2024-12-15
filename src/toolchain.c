@@ -151,6 +151,12 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             small_terrain->type = type;
             small_terrain->position = position;
         }
+        if (strcmp(type, "bridge") == 0) {
+            Entity* bridge_terrain = bridge_terrain_spawn(position);
+            bridge_terrain->name = name;
+            bridge_terrain->type = type;
+            bridge_terrain->position = position;
+        }
     }
     if (strcmp(name, "spring") == 0) {
         if (strcmp(type, "yellow") == 0) {

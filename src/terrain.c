@@ -8,13 +8,9 @@
 // change this to object.c or terrain.c
 // structure similarily to enemy.c
 
-typedef struct {
-	Uint8 exist;
-}TerrainData;
 
 Entity* floor_terrain_spawn(GFC_Vector3D position) {
 	Entity* self;
-	TerrainData* exist;
 	GFC_Vector3D dir_z = { 0, 0, 1 };
 
 	self = entity_new();
@@ -40,30 +36,11 @@ Entity* floor_terrain_spawn(GFC_Vector3D position) {
 	
 	self->flag = TERRAIN;
 
-	exist = gfc_allocate_array(sizeof(TerrainData), 1);
-	if (exist) {
-		self->data = exist;
-	}
 	return self;
-}
-
-void terrain_free(Entity* self) { // frees up entity
-	TerrainData* exist;
-	if (!self) {
-		return;
-	}
-	if (!self->data) {
-		return;
-	}
-	exist = (TerrainData*) self->data;
-	
-	free(exist);
-	self->data = NULL;
 }
 
 Entity* small_terrain_spawn(GFC_Vector3D position) {
 	Entity* self;
-	TerrainData* exist;
 
 	self = entity_new();
 	if (!self) {
@@ -71,38 +48,41 @@ Entity* small_terrain_spawn(GFC_Vector3D position) {
 	}
 	self->model = gf3d_model_load("models/smallterrain.model");
 	self->position = position;
+	GFC_Box getBounds = self->model->bounds;
 
-	self->BoundingBox.x = position.x;
-	self->BoundingBox.y = (position.y / 2) - 25;
-	self->BoundingBox.z = position.z;
+	self->BoundingBox.x = position.x + getBounds.x;
+	self->BoundingBox.y = position.y + getBounds.y + 3; // weird offset
+	self->BoundingBox.z = position.z + getBounds.z;
 
-	self->BoundingBox.w = 10; 
-	self->BoundingBox.d = 115; 
-	self->BoundingBox.h = 50;
+	self->BoundingBox.w = getBounds.w;
+	self->BoundingBox.d = getBounds.d;
+ 	self->BoundingBox.h = getBounds.h + 8; // weird offset
 
 	self->flag = TERRAIN;
 
-	exist = gfc_allocate_array(sizeof(TerrainData), 1);
-	if (exist) {
-		self->data = exist;
-	}
 	return self;
 }
-
-Entity* test_spawn(GFC_Vector3D position) {
+// no collision for some reason?????
+Entity* bridge_terrain_spawn(GFC_Vector3D position) {
 	Entity* self;
-	TerrainData* exist;
 
 	self = entity_new();
 	if (!self) {
 		return NULL;
 	}
-	self->model = gf3d_model_load("models/forest.model");
+	self->model = gf3d_model_load("models/terrainbridge.model");
 	self->position = position;
+	GFC_Box getBounds = self->model->bounds;
 
-	exist = gfc_allocate_array(sizeof(TerrainData), 1);
-	if (exist) {
-		self->data = exist;
-	}
+	self->BoundingBox.x = position.x + getBounds.x;
+	self->BoundingBox.y = position.y + getBounds.y; // weird offset
+	self->BoundingBox.z = position.z + getBounds.z;
+
+	self->BoundingBox.w = getBounds.w;
+	self->BoundingBox.d = getBounds.d;
+	self->BoundingBox.h = getBounds.h; // weird offset
+
+	self->flag = TERRAIN;
+
 	return self;
 }

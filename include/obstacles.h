@@ -26,4 +26,6 @@ Entity* itembox_spawn(GFC_Vector3D position, int type);
 
 Entity* goal_spawn(GFC_Vector3D position);
 
+Entity* collapsing_bridge_spawn(GFC_Vector3D position);
+
 #endif

@@ -79,6 +79,11 @@ typedef struct {
 	// boss check for ui
 	int killedboss;
 
+	// SUPER SONIC
+	int insuper;
+	int cansuper;
+	float fadeout;
+
 	//debug
 	int debugmode; // 0 = no, 1 = yes
 	int indebug; // 0 = no, 1 = yes
@@ -98,6 +103,11 @@ void player_damage(Entity* self);
 void player_die(Entity* self);
 void player_loop(Entity* self, loopData* loop);
 void player_powerup(Entity* self, itemboxData* itembox);
+
+// SUPER SONIC CHANGES
+
+void super_think(Entity* self);
+void super_touch(Entity* self, Entity* other);
 
 // TOOL CHAIN SECTION
 

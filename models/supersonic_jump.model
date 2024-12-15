@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/lowpolysonic/supersonic_jump.obj",
+        "texture":"models/lowpolysonic/supersonic_jump.png"
+    }
+}
