@@ -1290,7 +1290,7 @@ void super_think(Entity* self) {
 			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y + 25, self->position.z), data->rotdir); // 25 for offset
 		}
 		else {
-			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y = 25, self->position.z), data->rotdir); // 25 for offset
+			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y - 25, self->position.z), data->rotdir); // 25 for offset
 		}
 	}
 
