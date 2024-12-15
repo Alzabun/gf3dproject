@@ -263,3 +263,26 @@ void entity_show_box(Entity* self, GFC_Color color) {
 	//printf("box position: x=%.2f, y=%.2f, z=%.2f\n", self->position.x, self->position.y, self->position.z);
 	gf3d_draw_cube_solid(box, position, rotation, scale, color);
 }
+
+void detect_enemy(Entity* self, Entity** limit, int* amount) {
+	Entity* other;
+	GFC_Vector3D sp = self->position;
+
+	for (int i = 0; i < entity_manager.entityMax; i++) {
+		other = &entity_manager.entityList[i];
+		if (other->flag == ENEMY) {
+			// distance formula (memory saving version)
+			float dx = other->position.x - sp.x;
+			float dy = other->position.y - sp.y;
+			float dz = other->position.z - sp.z;
+			float distance = (dx * dx) + (dy * dy) + (dz * dz);
+
+			if (distance <= 100 * 100) { // 100 is range
+				limit[*amount] = other;
+				(*amount)++;
+
+			}
+		}
+
+	}
+}

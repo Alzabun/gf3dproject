@@ -282,6 +282,7 @@
     <ClInclude Include="..\include\UI.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\config\input.cfg" />
     <None Include="..\def\levels\act1.def" />
     <None Include="..\menus\text_entry_window.json" />
   </ItemGroup>

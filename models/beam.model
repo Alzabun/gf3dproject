@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/beam/beam.obj",
+        "texture":"models/beam/beam.png"
+    }
+}

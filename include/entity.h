@@ -126,4 +126,6 @@ void collision_check();
 // * bounding box debugging *
 void entity_show_box(Entity* self, GFC_Color color);
 
+void detect_enemy(Entity* self, Entity** limit, int* amount);
+
 #endif

@@ -80,9 +80,10 @@ typedef struct {
 	int killedboss;
 
 	// SUPER SONIC
-	int insuper;
-	int cansuper;
-	float fadeout;
+	int insuper; // 0 = no, 1 = yes
+	int cansuper; // 0 = no, 1 = yes
+	float fadeout; // 1 = full alpha, goes down to 0 for transparency (DEOSNT WORK FOR SOME REAOSNNIRHOEWEWRHJO)
+	Sprite* flash;
 
 	//debug
 	int debugmode; // 0 = no, 1 = yes

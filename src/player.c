@@ -125,15 +125,7 @@ Entity* player_spawn(GFC_Vector3D position) {
 	self->scale.x = 1.2;
 	self->scale.y = 1.2;
 	self->scale.z = 1.2;
-	/*
-	self->BoundingBox.x = position.x + getBounds.x;
-	self->BoundingBox.y = position.y + getBounds.y;
-	self->BoundingBox.z = position.z + getBounds.z;
 
-	self->BoundingBox.w = getBounds.w;
-	self->BoundingBox.d = getBounds.d;
-	self->BoundingBox.h = getBounds.h;
-	*/
 	self->flag = PLAYER;
 
 	// MUSIC
@@ -166,8 +158,10 @@ Entity* player_spawn(GFC_Vector3D position) {
 		}
 		data->debugmode = 1; // just for testing, remove when done
 
+		// SUPER STUFF
 		data->cansuper = 1; // need to get all 7 chaos emeralds to meet this requirement, this is on by default for testing
 		data->fadeout = 0;
+		data->flash = gf2d_sprite_load_image("images/super/flash.png");
 
 		self->data = data;
 	}
@@ -1255,33 +1249,77 @@ void super_think(Entity* self) {
 	// *******
 	// SUPER ABILITIES
 	// *******
+	// TO DO:
+	// all the moves are extremely op idk if i should keep it that way
 
-	if (gfc_input_command_pressed("powerupability")) {
-		Sprite* flash = gf2d_sprite_load_image("images/super/flash.png");
+	// stomp (permanent bubble bounce)
+	// TO DO:
+	// this unintentionally combined with the normal ability when you press e... but this is cool so maybe ill keep it
+	if (gfc_input_command_pressed("superbounce")) { // press e and s at the same time
+		if (data->airborne == 1) {
+			self->velocity.z = -8;
+			data->bubblebounce = 1;
+		}
+	}
+
+	// dash (permanent fire shield)
+	if (gfc_input_command_pressed("powerupability") && data->airborne == 1) {
 		data->fadeout = 1; // fadeout logic in player_update
 		GFC_Color flash_color = { 1,1,1, data->fadeout };
 
-		GFC_Vector2D generic = gfc_vector2d(1, 1);
-		GFC_Vector2D posref = gfc_vector2d(flash->widthPercent, flash->heightPercent);
+		GFC_Vector2D generic = gfc_vector2d(10, 10);
 
-		// KILL ALL
-		if (data->airborne == 1) {
-			if (data->rotdir == 1 && self->velocity.y <= MAXSPEED * 2) {
-				self->velocity.y += MAXSPEED * 5;
-			}
-			else if (data->rotdir && self->velocity.y >= -MAXSPEED * 2) {
-				self->velocity.y -= MAXSPEED * 5;
-			}
+		if (data->rotdir == 1 && self->velocity.y <= MAXSPEED * 2) { // left
+			self->velocity.y += MAXSPEED * 2.5;
+		}
+		else if (data->rotdir && self->velocity.y >= -MAXSPEED * 2) { // right
+			self->velocity.y -= MAXSPEED * 2.5;
 		}
 
-		if (data->airborne == 0) {
-			//spawn_kamehameha
-		}
-
-		gf2d_sprite_draw(flash, gfc_vector2d(0, 0), &generic, &posref, NULL, NULL, &flash_color, NULL, 0);
+		// THIS EFFECT ISNT WORKING IDK WHY
+		gf2d_sprite_draw(data->flash, gfc_vector2d(self->position.y, self->position.z), &generic, NULL, NULL, NULL, &flash_color, NULL, NULL);
+		//slog("sprite at %f, %f", self->position.y, self->position.z);
 	}
 
+	// kamehameha (beam that kills enemies upon contact)
+	if (data->airborne == 0 && gfc_input_command_held("powerupability")) {
+		self->velocity.y = 0;
+		self->velocity.z = 0;
+		self->velocity.x = 0;
+		if (data->rotdir == 1) {
+			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y + 25, self->position.z), data->rotdir); // 25 for offset
+		}
+		else {
+			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y = 25, self->position.z), data->rotdir); // 25 for offset
+		}
+	}
+
+	// screen killing attack/kill each enemy after teleporting to them attack (this sounds cooler)
+	// (this does both, but teleports too fast to see it happen)
+	// TO DO:
+	// make the teleportation be visible for maximum coolness
+	// add cooldown? maybe not
+	if (gfc_input_key_pressed("r")) {
+		data->fadeout = 1; // fadeout logic in player_update
+		GFC_Color flash_color = { 1,1,1, data->fadeout };
+		GFC_Vector2D generic = gfc_vector2d(10, 10);
+		Entity* limit[100]; 
+		int amount = 0;
+		GFC_Vector3D resetted_position = self->position;
+
+		detect_enemy(self, limit, &amount); // detect all enemies nearby
+		//slog("amount detected: %d", amount);
+		
+		for (int i = 0; i < amount; i++) {
+			self->position = limit[i]->position;
+			sentence_to_death(limit[i]); // failsafe
+		}
+		self->position = resetted_position;
+		// STILL DOESNT WORK....
+		gf2d_sprite_draw(data->flash, gfc_vector2d(self->position.y, self->position.z), &generic, NULL, NULL, NULL, &flash_color, NULL, NULL);
+	}
 }
+
 
 void super_touch(Entity* self, Entity* other) {
 	playerData* data;
@@ -1299,6 +1337,21 @@ void super_touch(Entity* self, Entity* other) {
 				return;
 			}
 			debug_delete(other);
+		}
+	}
+
+	// ABILITY LOGIC
+
+	if (data->bubblebounce == 1) {
+		if (other->flag == TERRAIN || other->flag == PLATFORM || other->flag == ITEMBOX) {
+			// insert screen flash here
+			data->bubblebounce = 0;
+			self->velocity.z = 6;
+			self->position.z += 5; // prevents player from falling through floor and from randomly not bouncing (lazy way to fix it? i dont really think so)
+			if (self->position.y <= other->position.y) {
+				self->position.y = other->position.y + 5;
+			}
+			return;
 		}
 	}
 
@@ -1434,7 +1487,7 @@ void super_touch(Entity* self, Entity* other) {
 	else {
 		data->inSand = 0;
 	}
-
+	
 	if (other->flag == WATER) {
 		data->inWater = 1;
 	}
@@ -1713,30 +1766,3 @@ void choose_entity(Entity* self) {
 		self->model = gf3d_model_load("models/terrainbridge.model");
 	}
 }
-
-/*
-typedef struct {
-
-	Entity* entityList;
-	Uint32 entityMax;
-
-}EntityManager;
-
-void choose_entity(Entity* self) {
-	static EntityManager entity_manager = { 0 };
-	playerData* data;
-
-	if (!self || !self->data) {
-		return;
-	}
-	data = self->data;
-
-	int i = data->entitycycle;
-	for (i = 0; i < entity_manager.entityMax; i++) {
-		if (!entity_manager.entityList[i]._inuse) {
-			continue; // skip ones not set
-		}
-		data->entitycycle = &entity_manager.entityList[i];
-	}
-}
-*/

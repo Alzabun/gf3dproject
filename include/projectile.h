@@ -9,4 +9,6 @@ Entity* projectile_spawn(GFC_Vector3D position, int direction);
 
 Entity* bomb_spawn(GFC_Vector3D position);
 
+Entity* kamehameha_spawn(GFC_Vector3D position, int direction);
+
 #endif
