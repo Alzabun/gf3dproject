@@ -122,10 +122,6 @@ Entity* player_spawn(GFC_Vector3D position) {
 	self->BoundingBox.d = getBounds.d;
 	self->BoundingBox.h = getBounds.h;
 
-	self->scale.x = 1.2;
-	self->scale.y = 1.2;
-	self->scale.z = 1.2;
-
 	self->flag = PLAYER;
 
 	// MUSIC
@@ -271,7 +267,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 				self->velocity.y -= 0.05;
 			}
 			else {
-				self->velocity.y -= 0.15;
+				self->velocity.y -= 0.25;
 			}
 
 			if (data->spindash == 1) {
@@ -286,7 +282,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 				self->velocity.y += 0.05;
 			}
 			else {
-				self->velocity.y += 0.15;
+				self->velocity.y += 0.25;
 			}
 
 			if (data->spindash == 1) {
@@ -336,7 +332,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 				self->model = gf3d_model_load("models/lowpolysonic_jump.model");
 			}
 			else {
-				self->model = gf3d_model_load("models/dino_jump_iframe.model");
+				self->model = gf3d_model_load("models/lowpolysonic_jump_iframe.model");
 			}
 		}
 	}
@@ -365,7 +361,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->model = gf3d_model_load("models/lowpolysonic_jump.model");
 		}
 		else {
-			self->model = gf3d_model_load("models/dino_jump_iframe.model");
+			self->model = gf3d_model_load("models/lowpolysonic_jump_iframe.model");
 		}
 
 		if (gfc_input_command_down("jump") && data->airborne == 0) {
@@ -742,7 +738,7 @@ void player_touch(Entity* self, Entity* other) {
 				self->model = gf3d_model_load("models/lowpolysonic.model");
 			}
 			else {
-				self->model = gf3d_model_load("models/dino_iframe.model");
+				self->model = gf3d_model_load("models/lowpolysonic_iframe.model");
 			}
 		}
 	}
@@ -790,7 +786,7 @@ void player_touch(Entity* self, Entity* other) {
 				self->model = gf3d_model_load("models/lowpolysonic.model");
 			}
 			else {
-				self->model = gf3d_model_load("models/dino_iframe.model");
+				self->model = gf3d_model_load("models/lowpolysonic_iframe.model");
 			}
 		}
 	}

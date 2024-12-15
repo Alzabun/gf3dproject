@@ -1,0 +1,2 @@
+rename any file in levels to "toolchain". now start the game in debug mode and you can edit that level.
+if you want to make a new level from scratch, copy and paste the FRAMEWORK file then rename it to "toolchain"
