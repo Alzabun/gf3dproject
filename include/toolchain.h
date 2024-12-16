@@ -9,9 +9,11 @@
 #include "player.h"
 #include "rings.h"
 #include "terrain_hazards.h"
+#include "obstacles.h"
+#include "projectile.h"
 
-void save_debug_file(char* name, char* type, float x, float y, float z/* , should use file name obtained from load game */);
-void debug_delete(Entity* other /* get the file name for this */);
+void save_debug_file(char* name, char* type, float x, float y, float z);
+void debug_delete(Entity* other);
 void spawn_entity(char* name, char* type, GFC_Vector3D position);
 
 #endif

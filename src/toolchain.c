@@ -216,6 +216,16 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
         }
     }
 
+    if (strcmp(name, "bubble") == 0) {
+        if (strcmp(type, "spawner") == 0) {
+            Entity* bubble_spawner = bubble_spawner_spawn(position);
+            bubble_spawner->name = name;
+            bubble_spawner->type = type;
+            bubble_spawner->position = position;
+            slog("spawned bubble spawner");
+        }
+    }
+
     if (strcmp(name, "spring") == 0) {
         if (strcmp(type, "yellow") == 0) {
             Entity* spring_yellow = spring_yellow_spawn(position);

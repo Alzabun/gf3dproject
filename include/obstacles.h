@@ -2,6 +2,7 @@
 #define __OBSTACLES_H__
 
 #include "entity.h"
+#include "projectile.h"
 
 Entity* spikes_spawn(GFC_Vector3D position);
 
@@ -27,5 +28,7 @@ Entity* itembox_spawn(GFC_Vector3D position, int type);
 Entity* goal_spawn(GFC_Vector3D position);
 
 Entity* collapsing_bridge_spawn(GFC_Vector3D position);
+
+Entity* bubble_spawner_spawn(GFC_Vector3D position);
 
 #endif

@@ -11,18 +11,18 @@
 #include "boss.h"
 
 // FINAL PROGRESSION [CURRENT]
-// music/sounds [0.5/1]
-// add start screen
-// add minigame anyway (maybe?)
-// changed pipeline
-// research component (advanced collision)	
-// basically just make the game look better
-// TBA...
+// animated 3d models 
+// audio [0.5/1]
+// multiple levels [kind of?]
+// main menu [ugly/1]
+// custom pipeline
+// custom research component [nope]
 // 
-// 
-// maybe optional (unknown what the actual requirements are yet):
-// 3d camera/controls switch toggle
-// menu screen / start screen
+// 5 dynamic obstacles [1/5]
+// 4 terrain hazards [4/4]
+// 1 game mode [0/1]
+// 1 transformation [1/1]
+// bonus stage [nope]
 // 
 // ---------------------------------
 // 
@@ -886,6 +886,7 @@ void player_touch(Entity* self, Entity* other) {
 		// insert bubble sound effect here
 		// stop drowning music here unless i can figure out how to make it do that by itself in the drowning part of the code (not done here)
 		data->oxygen = OXYGEN;
+		self->velocity.z = 0;
 		sentence_to_death(other);
 	}
 
@@ -1775,6 +1776,10 @@ void debug_place(Entity* self) {
 		name = "environment";
 		type = "lava_32";
 		break;
+	case 30:
+		name = "bubble";
+		type = "spawner";
+		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
 		return;
@@ -1893,5 +1898,9 @@ void choose_entity(Entity* self) {
 	else if (data->entitycycle == 29) {
 		self->model = gf3d_model_load("models/terrain_lava_32.model");
 		slog("32 lava");
+	}
+	else if (data->entitycycle == 30) {
+		self->model = gf3d_model_load("models/enemytest.model"); // placeholder
+		//slog("bubble spawner");
 	}
 }
