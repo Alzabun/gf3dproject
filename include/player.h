@@ -63,7 +63,7 @@ typedef struct {
 	// TERRAIN CONDITION MANAGEMENT
 	int inSand; // 0 = no, 1 = yes
 	int inWater; // 0 = no, 1 = yes
-	int inOil; // 0 = no, 1 = yes
+	int inLava; // 0 = no, 1 = yes
 	int inIce; // 0 = no, 1 = yes
 	float oxygen;
 

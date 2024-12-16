@@ -17,7 +17,7 @@ typedef enum {
 	TERRAIN,
 	SAND,
 	WATER,
-	OIL,
+	LAVA,
 	ICE,
 	// OBSTACLE RELATED (GENERAL)
 	DAMAGE, // (spikes) for enviromental/obstacles things that will damage the player upon contact

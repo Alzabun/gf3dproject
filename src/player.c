@@ -199,7 +199,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		data->inWater = 0;
 		data->inSand = 0;
 		data->inIce = 0;
-		data->inOil = 0;
+		data->inLava = 0;
 
 	}
 
@@ -236,7 +236,12 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->velocity.y -= 1;
 		}
 		else {
-			self->velocity.y += 0.075;
+			if (data->inIce) {
+				self->velocity.y += 0.075;
+			}
+			else {
+				self->velocity.y += 0.25;
+			}
 		}
 		// ROTATION CAP
 		if (self->rotation.z <= -3.2) { 
@@ -247,13 +252,17 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		}
 	}
 	else if (gfc_input_command_held("walkright") && data->spindash == 0) {
-
 		// SPEED CAP
 		if (self->velocity.y <= -MAXSPEED - data->storedvelocity) {
 			self->velocity.y += 1;
 		}
 		else {
-			self->velocity.y -= 0.075;
+			if (data->inIce) {
+				self->velocity.y -= 0.075;
+			}
+			else {
+				self->velocity.y -= 0.25;
+			}
 		}
 		// ROTATION CAP
 		if (self->rotation.z >= 0) {
@@ -322,7 +331,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// hold longer to jump higher
 	// binded to w for now, but i want it to also be binded to space except i didnt find the input documentation for space yet
 	if (gfc_input_command_down("jump")) { 
-		if (data->airborne == 0 && data->spindash == 0) {
+		if (data->airborne == 0 && data->spindash == 0 || data->inSand) {
 			gfc_sound_play(data->jump, 0, 1, 0, -1);
 			data->inball = 1;
 			data->jumpTime = 0;
@@ -342,7 +351,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 
 	if (gfc_input_command_held("jump") && data->jumpTime <= JUMPTIME && data->spindash == 0) {
-		if (data->inSand) {
+		if (data->inSand || data->inWater) {
 			data->jumpTime += 2;
 			self->velocity.z += 0.05;
 		}
@@ -487,13 +496,10 @@ void player_update(Entity* self) {
 			// i need to add a cooldown
 		}
 	}
+
 		
 	if (data->fadeout >= 1) {
 		data->fadeout -= 0.01;
-	}
-
-	if (data->inWater) {
-		slog("in water");
 	}
 
 	// IFRAME TIMER
@@ -517,7 +523,7 @@ void player_update(Entity* self) {
 		
 		//account for enviromment conditions
 		if (data->inWater) {
-			self->velocity.z -= 0.01; // lower gravity for a slowness illusion
+			self->velocity.z -= 0.05; // lower gravity for a slowness illusion
 		}
 		else if (data->inSand) {
 			self->velocity.z = 0; // jump out of the sand
@@ -540,13 +546,19 @@ void player_update(Entity* self) {
 	}
 
 	// OXYGEN (WATER)
-	if (data->inWater && data->indebug == 0) {
+	if (data->inWater && data->indebug == 0 && data->bubbleshield == 0) {
 		data->oxygen -= DELTATIME;
+		slog("oxygen: %.2f", data->oxygen);
 		if (data->oxygen <= 10) {
 			// insert drowning music here (make sure it only plays once)
 		}
 		if (data->oxygen <= 0) {
+			// idk
+			data->inWater = 0;
+			data->oxygen = OXYGEN;
 			player_die(self);
+			data->inWater = 0;
+			data->oxygen = OXYGEN;
 		}
 	}
 
@@ -707,8 +719,8 @@ void player_touch(Entity* self, Entity* other) {
 		data->inSand = 1;
 		// slowing + sinking
 		// jump should be "stuck" too
-		self->velocity.z -= 0.05;
-		self->velocity.y *= 0.5;
+		self->velocity.z -= 0.1;
+		self->velocity.y *= 0.25;
 		// make player get hurt at the bottom of the sand's hitbox (floor of bounding box)
 	}
 	else {
@@ -717,20 +729,55 @@ void player_touch(Entity* self, Entity* other) {
 
 	if (other->flag == WATER) {
 		data->inWater = 1;
+		self->velocity.y *= 0.9; // slowness (not as bad as sand)
+		//slog("touching water");
 	}
 	else {
-		data->inWater = 0;
-		data->oxygen = OXYGEN;
+		// by this logic, it wont ever deactivate....
+		if (other->flag != TERRAIN && other->flag != ENEMY && other->flag != PLATFORM) {
+			data->inWater = 0;
+			data->oxygen = OXYGEN;
+			//slog("not touching water");
+		}
 	}
 
-	if (other->flag == OIL) {
-		data->inOil = 1;
+	if (other->flag == LAVA) {
+		data->inLava = 1;
+		self->velocity.z = 0;
+		data->airborne = 0;
+		data->onPlatform = 0;
+		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
+
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+			if (data->invincibility <= 0) {
+				self->model = gf3d_model_load("models/lowpolysonic.model");
+			}
+			else {
+				self->model = gf3d_model_load("models/lowpolysonic_iframe.model");
+			}
+		}
+		player_damage(self);
 	}
 	else {
-		data->inOil = 0;
+		data->inLava = 0;
 	}
 
 	if (other->flag == ICE) {
+		self->velocity.z = 0;
+		data->airborne = 0;
+		data->onPlatform = 0;
+		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
+
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+			if (data->invincibility <= 0) {
+				self->model = gf3d_model_load("models/lowpolysonic.model");
+			}
+			else {
+				self->model = gf3d_model_load("models/lowpolysonic_iframe.model");
+			}
+		}
 		data->inIce = 1;
 	}
 	else {
@@ -1490,8 +1537,8 @@ void super_touch(Entity* self, Entity* other) {
 		data->inSand = 1;
 		// slowing + sinking
 		// jump should be "stuck" too
-		self->velocity.z -= 0.05;
-		self->velocity.y *= 0.5;
+		self->velocity.z -= 0.1;
+		self->velocity.y *= 0.25;
 		// make player get hurt at the bottom of the sand's hitbox (floor of bounding box)
 	}
 	else {
@@ -1503,14 +1550,14 @@ void super_touch(Entity* self, Entity* other) {
 	}
 	else {
 		data->inWater = 0;
-		data->oxygen = OXYGEN;
+		data->oxygen = 999999999999999999;
 	}
 
-	if (other->flag == OIL) {
-		data->inOil = 1;
+	if (other->flag == LAVA) {
+		data->inLava = 1;
 	}
 	else {
-		data->inOil = 0;
+		data->inLava = 0;
 	}
 
 	if (other->flag == ICE) {
@@ -1716,6 +1763,18 @@ void debug_place(Entity* self) {
 		name = "environment";
 		type = "water_32";
 		break;
+	case 27:
+		name = "environment";
+		type = "sand_32";
+		break;
+	case 28:
+		name = "environment";
+		type = "ice_32";
+		break;
+	case 29:
+		name = "environment";
+		type = "lava_32";
+		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
 		return;
@@ -1822,5 +1881,17 @@ void choose_entity(Entity* self) {
 	else if (data->entitycycle == 26) {
 		self->model = gf3d_model_load("models/terrain_water_32.model");
 		slog("32 water");
+	}
+	else if (data->entitycycle == 27) {
+		self->model = gf3d_model_load("models/terrain_sand_32.model");
+		slog("32 sand");
+	}
+	else if (data->entitycycle == 28) {
+		self->model = gf3d_model_load("models/terrain_ice_32.model");
+		slog("32 ice");
+	}
+	else if (data->entitycycle == 29) {
+		self->model = gf3d_model_load("models/terrain_lava_32.model");
+		slog("32 lava");
 	}
 }

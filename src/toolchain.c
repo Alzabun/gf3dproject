@@ -101,7 +101,7 @@ void debug_delete(Entity* other /* get the file name for this */) {
             return;
         }
 
-        GFC_Vector3D parsedposition = gfc_vector3d(x, y, z);    
+        GFC_Vector3D parsedposition = gfc_vector3d(x, y, z);
 
         if (strcmp(other->name, name) == 0 && strcmp(other->type, type) == 0 && position_comparison(parsedposition, other->position)) {
             slog("deleted entity: [name: '%s', type: '%s', position: '%.2f, %.2f, %.2f']", other->name, other->type, other->position.x,
@@ -195,6 +195,24 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             water_32_environment->name = name;
             water_32_environment->type = type;
             water_32_environment->position = position;
+        }
+        if (strcmp(type, "sand_32") == 0){
+            Entity* sand_32_environment = sand_spawn_32(position);
+            sand_32_environment->name = name;
+            sand_32_environment->type = type;
+            sand_32_environment->position = position;
+        }
+        if (strcmp(type, "ice_32") == 0) {
+            Entity* ice_32_environment = ice_spawn_32(position);
+            ice_32_environment->name = name;
+            ice_32_environment->type = type;
+            ice_32_environment->position = position;
+        }
+        if (strcmp(type, "lava_32") == 0) {
+            Entity* lava_32_environment = lava_spawn_32(position);
+            lava_32_environment->name = name;
+            lava_32_environment->type = type;
+            lava_32_environment->position = position;
         }
     }
 

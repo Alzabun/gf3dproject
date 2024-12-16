@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/terrain_lava_32/terrain_lava_32.obj",
+        "texture": "models/terrain_lava_32/lava.png"
+    }
+}
