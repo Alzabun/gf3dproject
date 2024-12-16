@@ -100,7 +100,7 @@ void entity_draw(Entity *self) {
 	}
 
 	entity_draw_generic(self);
-	//entity_show_box(self, red); // for debugging reasons, shows bounding box for every entity
+	//entity_show_box(self, red); // for debugging reasons, shows bounding box for every entity [NOTE: VERY UNRELIABLE AND BROKEN]
 }
 
 void entity_draw_all() {

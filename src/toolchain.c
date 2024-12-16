@@ -151,6 +151,36 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             small_terrain->type = type;
             small_terrain->position = position;
         }
+        if (strcmp(type, "half") == 0) {
+            Entity* floor_half_terrain = floor_half_terrain_spawn(position);
+            floor_half_terrain->name = name;
+            floor_half_terrain->type = type;
+            floor_half_terrain->position = position;
+        }
+        if (strcmp(type, "quarter") == 0) {
+            Entity* floor_quarter_terrain = floor_quarter_terrain_spawn(position);
+            floor_quarter_terrain->name = name;
+            floor_quarter_terrain->type = type;
+            floor_quarter_terrain->position = position;
+        }
+        if (strcmp(type, "eighth") == 0) {
+            Entity* floor_eighth_terrain = floor_eighth_terrain_spawn(position);
+            floor_eighth_terrain->name = name;
+            floor_eighth_terrain->type = type;
+            floor_eighth_terrain->position = position;
+        }
+        if (strcmp(type, "sixteenth") == 0) {
+            Entity* floor_sixteenth_terrain = floor_sixteenth_terrain_spawn(position);
+            floor_sixteenth_terrain->name = name;
+            floor_sixteenth_terrain->type = type;
+            floor_sixteenth_terrain->position = position;
+        }
+        if (strcmp(type, "32") == 0) {
+            Entity* floor_32_terrain = floor_32_terrain_spawn(position);
+            floor_32_terrain->name = name;
+            floor_32_terrain->type = type;
+            floor_32_terrain->position = position;
+        }
         if (strcmp(type, "bridge") == 0) {
             Entity* bridge_terrain = bridge_terrain_spawn(position);
             bridge_terrain->name = name;
@@ -158,6 +188,16 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             bridge_terrain->position = position;
         }
     }
+
+    if (strcmp(name, "environment") == 0) {
+        if (strcmp(type, "water_32") == 0) {
+            Entity* water_32_environment = water_spawn_32(position);
+            water_32_environment->name = name;
+            water_32_environment->type = type;
+            water_32_environment->position = position;
+        }
+    }
+
     if (strcmp(name, "spring") == 0) {
         if (strcmp(type, "yellow") == 0) {
             Entity* spring_yellow = spring_yellow_spawn(position);

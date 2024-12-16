@@ -1,7 +1,7 @@
-# Blender 4.2.1 LTS MTL File: 'None'
+# Blender 4.2.1 LTS MTL File: 'lowpolysonic.blend'
 # www.blender.org
 
-newmtl Texture
+newmtl Texture.001
 Ns 15.686275
 Ka 1.000000 1.000000 1.000000
 Ks 0.000000 0.000000 0.000000

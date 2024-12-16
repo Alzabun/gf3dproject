@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/terrain_water_32/terrain_water_32.obj",
+        "texture": "models/terrain_water_32/water.png"
+    }
+}

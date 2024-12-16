@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/terrain_floor_32/terrain_floor_32.obj",
+        "texture": "models/terrain_floor_32/terrain_floor_32.png"
+    }
+}

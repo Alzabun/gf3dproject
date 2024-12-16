@@ -260,7 +260,7 @@ void load_midterm_level(){
     player_spawn(gfc_vector3d(0, 500, -150));
 
     // TERRAIN SPAWN
-    floor_terrain_spawn(gfc_vector3d(0, -9000, -200)); // the ground has a LOT to go off of
+    floor_terrain_spawn(gfc_vector3d(0, -9000, -240)); // the ground has a LOT to go off of
     //test_spawn(gfc_vector3d(-1000, 0, -750)); // the model never loads for some reason and i dont feel like figuring it out anymore
 
     // OBSTACLE SPAWNS
@@ -277,11 +277,11 @@ void load_midterm_level(){
     itembox_spawn(gfc_vector3d(0, -900, -165), 5);
 
     // ENEMY SPAWNS
-    generic_enemy_spawn(gfc_vector3d(0, -100, 0));
-    projectile_enemy_spawn(gfc_vector3d(0, 100, -140));
-    flying_enemy_spawn(gfc_vector3d(0, 200, -140));
-    spike_enemy_spawn(gfc_vector3d(0, 350, -140));
-    bomb_enemy_spawn(gfc_vector3d(0, 400, -100));
+    generic_enemy_spawn(gfc_vector3d(0, -100, -75));
+    projectile_enemy_spawn(gfc_vector3d(0, 100, -75));
+    flying_enemy_spawn(gfc_vector3d(0, 200, -100));
+    spike_enemy_spawn(gfc_vector3d(0, 350, -75));
+    bomb_enemy_spawn(gfc_vector3d(0, 400, -75));
 
     boss_spawn(gfc_vector3d(0, -1250, -155));
 

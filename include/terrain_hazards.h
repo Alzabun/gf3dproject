@@ -3,6 +3,6 @@
 
 #include "entity.h"
 
-//Entity* spikes_spawn(GFC_Vector3D position);
+Entity* water_spawn_32(GFC_Vector3D position);
 
 #endif

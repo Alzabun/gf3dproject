@@ -196,6 +196,10 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		self->rotation.x = 0;
 		self->rotation.y = 0;
 		self->rotation.z = 0;
+		data->inWater = 0;
+		data->inSand = 0;
+		data->inIce = 0;
+		data->inOil = 0;
 
 	}
 
@@ -488,6 +492,10 @@ void player_update(Entity* self) {
 		data->fadeout -= 0.01;
 	}
 
+	if (data->inWater) {
+		slog("in water");
+	}
+
 	// IFRAME TIMER
 	if (data->invincibility > 0) {
 		data->invincibility -= 0.1;
@@ -509,7 +517,7 @@ void player_update(Entity* self) {
 		
 		//account for enviromment conditions
 		if (data->inWater) {
-			self->velocity.z -= 0.05; // lower gravity for a slowness illusion
+			self->velocity.z -= 0.01; // lower gravity for a slowness illusion
 		}
 		else if (data->inSand) {
 			self->velocity.z = 0; // jump out of the sand
@@ -622,7 +630,13 @@ void player_camera(Entity* self) {
 
 	//lookTarget.z += 0; // this changes the offset of the camera
 
-	dir.x = 175.0; // set to 500 for bounding box view, 175 (may be adjusted) for normal gameplay
+	if (data->indebug == 1) {
+		dir.x = 500;
+	}
+	else {
+		dir.x = 175.0; // set to 500 for bounding box view, 175 (may be adjusted) for normal gameplay
+	}
+	
 
 	//gf3d_camera_look_at(lookTarget, const GFC_Vector3D *position);
 	// could change to 3d pov just by changing the values of this and the camera below
@@ -1678,6 +1692,30 @@ void debug_place(Entity* self) {
 		name = "terrain";
 		type = "bridge";
 		break;
+	case 21:
+		name = "terrain";
+		type = "half";
+		break;
+	case 22:
+		name = "terrain";
+		type = "quarter";
+		break;
+	case 23:
+		name = "terrain";
+		type = "eighth";
+		break;
+	case 24:
+		name = "terrain";
+		type = "sixteenth";
+		break;
+	case 25:
+		name = "terrain";
+		type = "32";
+		break;
+	case 26:
+		name = "environment";
+		type = "water_32";
+		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
 		return;
@@ -1747,7 +1785,7 @@ void choose_entity(Entity* self) {
 		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
 	}
 	else if (data->entitycycle == 16) {
-		self->model = gf3d_model_load("models/spring.model"); // need a way to differentiate between each enemy
+		self->model = gf3d_model_load("models/springs.model");
 	}
 	else if (data->entitycycle == 17) {
 		self->model = gf3d_model_load("models/boss.model");
@@ -1760,5 +1798,29 @@ void choose_entity(Entity* self) {
 	}
 	else if (data->entitycycle == 20) {
 		self->model = gf3d_model_load("models/terrainbridge.model");
+	}
+	else if (data->entitycycle == 21) {
+		self->model = gf3d_model_load("models/terrain_floor_half.model");
+		slog("half");
+	}
+	else if (data->entitycycle == 22) {
+		self->model = gf3d_model_load("models/terrain_floor_quarter.model");
+		slog("quarter");
+	}
+	else if (data->entitycycle == 23) {
+		self->model = gf3d_model_load("models/terrain_floor_eighth.model");
+		slog("eighth");
+	}
+	else if (data->entitycycle == 24) {
+		self->model = gf3d_model_load("models/terrain_floor_sixteenth.model");
+		slog("sixteenth");
+	}
+	else if (data->entitycycle == 25) {
+		self->model = gf3d_model_load("models/terrain_floor_32.model");
+		slog("32 floor");
+	}
+	else if (data->entitycycle == 26) {
+		self->model = gf3d_model_load("models/terrain_water_32.model");
+		slog("32 water");
 	}
 }
