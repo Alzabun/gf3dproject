@@ -2,6 +2,7 @@
 #define __ENEMY_H__
 
 #include "entity.h"
+#include "entitykiller.h"
 
 Entity* generic_enemy_spawn(GFC_Vector3D position);
 

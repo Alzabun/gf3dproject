@@ -129,6 +129,21 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
     // holy unoptimized
     // but again, idk how to make it better (this is fine for now)
 
+    if (strcmp(name, "spawn") == 0) {
+        Entity* player = NULL;
+        if (strcmp(type, "player") == 0) {
+            if (!player) {
+                player = player_spawn(position);
+            }
+        }
+        else {
+            if (!player) {
+                player = player_spawn(gfc_vector3d(0, 0, 0)); // fallback spawn
+            }
+        }
+    }
+
+
     if (strcmp(name, "rings") == 0) {
         if (strcmp(type, "normal") == 0) {
             Entity* ring = rings_spawn(position, 0);
@@ -272,6 +287,21 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             platform_crushing->name = name;
             platform_crushing->type = type;
             platform_crushing->position = position;
+        }
+    }
+
+    if (strcmp(name, "laser") == 0) {
+        if (strcmp(type, "laser") == 0) {
+            Entity* laser = laser_spawn(position);
+            laser->name = name;
+            laser->type = type;
+            laser->position = position;
+        }
+        if (strcmp(type, "pattern") == 0) {
+            Entity* laser_pattern = laser_pattern_spawn(position, 5); // you're supposed to be able to pick a value for teh delay, but idk if i have time ot add that so this is fine for now
+            laser_pattern->name = name;
+            laser_pattern->type = type;
+            laser_pattern->position = position;
         }
     }
 

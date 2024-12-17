@@ -230,11 +230,10 @@ void identify_game_mode() {
             slog("but nothing happens because theres no objective mode yet");
             break;
         case DEBUG:
-            //player_spawn(gfc_vector3d(0, 0, 0));
             debugmode = 1;
             gameStarted = 1;
             load_level();
-            player_spawn(gfc_vector3d(0, 0, 0));
+            //player_spawn(gfc_vector3d(0, 0, 0));
             slog("GAME STARTED");
             break;
         default:

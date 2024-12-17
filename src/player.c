@@ -1616,7 +1616,7 @@ void debug_think(Entity* self) {
 	}
 	if (gfc_input_key_held("LSHIFT")) { // move faster
 		//slog("debug speed activated");
-		data->debugspeedup = 5;
+		data->debugspeedup = 10;
 	}
 	else if (gfc_input_key_held("LCTRL")) { // move slower
 		//slog("debug slow activated");
@@ -1805,6 +1805,18 @@ void debug_place(Entity* self) {
 		name = "platform";
 		type = "crushing";
 		break;
+	case 34:
+		name = "laser";
+		type = "laser";
+		break;
+	case 35:
+		name = "laser";
+		type = "pattern";
+		break;
+	case 36:
+		name = "spawn";
+		type = "player";
+		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
 		return;
@@ -1940,5 +1952,17 @@ void choose_entity(Entity* self) {
 	else if (data->entitycycle == 33) {
 		self->model = gf3d_model_load("models/platform_crushing.model");
 		slog("crushing platform");
+	}
+	else if (data->entitycycle == 34) {
+		self->model = gf3d_model_load("models/laser.model");
+		slog("laser");
+	}
+	else if (data->entitycycle == 35) {
+		self->model = gf3d_model_load("models/laser_pattern.model");
+		slog("laser pattern");
+	}
+	else if (data->entitycycle == 36) {
+		self->model = gf3d_model_load("models/enemytest.model");
+		slog("player spawn point");
 	}
 }

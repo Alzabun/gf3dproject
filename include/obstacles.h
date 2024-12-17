@@ -38,4 +38,6 @@ Entity* platform_sinking_spawn(GFC_Vector3D position);
 
 Entity* platform_crushing_spawn(GFC_Vector3D position);
 
+Entity* laser_pattern_spawn(GFC_Vector3D position, float delay);
+
 #endif

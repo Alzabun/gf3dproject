@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/laser_pattern/laser_pattern.obj",
+        "texture": "models/laser_pattern/laser_pattern.png"
+    }
+}
