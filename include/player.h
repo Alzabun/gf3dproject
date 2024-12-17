@@ -71,7 +71,21 @@ typedef struct {
 	Mix_Music* normal_music;
 	Mix_Music* boss_music;
 	Mix_Music* wintheme;
-	Mix_Chunk* jump; // should be very similar to how music was implemented.. or i could just implement sounds as music but im not sure if thall cause memory issues
+	Mix_Music* super_music;
+	// SOUND EFFECTS
+	Mix_Chunk* sfx_jump;
+	Mix_Chunk* sfx_spindash;
+	Mix_Chunk* sfx_spindash_release;
+	Mix_Chunk* sfx_hurt;
+	Mix_Chunk* sfx_ring;
+	Mix_Chunk* sfx_hit;
+	Mix_Chunk* sfx_spring;
+	// (super)
+	Mix_Chunk* sfx_super;
+	Mix_Chunk* sfx_super_boost;
+	Mix_Chunk* sfx_beam_charge;
+	Mix_Chunk* sfx_beam_release;
+	int playonce; // beam sound management
 
 	// LEVEL ENDING
 	int reachedgoal; // 0 = no, 1 = yes
@@ -84,6 +98,7 @@ typedef struct {
 	int cansuper; // 0 = no, 1 = yes
 	float fadeout; // 1 = full alpha, goes down to 0 for transparency (DEOSNT WORK FOR SOME REAOSNNIRHOEWEWRHJO)
 	Sprite* flash;
+	float charge;
 
 	//debug
 	int debugmode; // 0 = no, 1 = yes

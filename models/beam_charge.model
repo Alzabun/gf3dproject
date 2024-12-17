@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/beam/beam_charge.obj",
+        "texture":"models/beam/beam.png"
+    }
+}

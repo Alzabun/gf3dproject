@@ -136,13 +136,26 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->lives = 3; //typical
 		data->reachedgoal = 0; // to prevent bugs
 
-		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
-		Mix_PlayMusic(data->normal_music, -1);
+		// SOUND EFFECTS
+		data->sfx_jump = gfc_sound_load("sounds/jump.wav", 1, 0);
+		data->sfx_spindash = gfc_sound_load("sounds/spindash.wav", 1, 0);
+		data->sfx_spindash_release = gfc_sound_load("sounds/spindash_release.wav", 1, 0);
+		data->sfx_hurt = gfc_sound_load("sounds/hurt.wav", 1, 0);
+		data->sfx_ring = gfc_sound_load("sounds/ring.wav", 1, 0);
+		data->sfx_spring = gfc_sound_load("sounds/spring.wav", 1, 0);
+		data->sfx_hit = gfc_sound_load("sounds/hit.wav", 1, 0);
+		// (super)
+		data->sfx_super = gfc_sound_load("sounds/super.wav", 1, 0);
+		data->sfx_super_boost = gfc_sound_load("sounds/super_boost.wav", 1, 0);
+		data->sfx_beam_charge = gfc_sound_load("sounds/beam_charge.wav", 1, 0);
+		data->sfx_beam_release = gfc_sound_load("sounds/beam_release.wav", 1, 0);
 
-		data->jump = gfc_sound_load("sounds/jump.wav", 1, 0);
-
+		// MUSIC
 		data->boss_music = gfc_sound_load_music("music/bigarms.wav");
 		data->wintheme = gfc_sound_load_music("music/win.wav");
+		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
+		data->super_music = gfc_sound_load_music("music/super_music.wav");
+		Mix_PlayMusic(data->normal_music, -1);
 
 		data->killedboss = 0;
 
@@ -222,7 +235,11 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		return;
 	}
 
-	if (data->cansuper == 1 && gfc_input_command_down("powerupability")) {
+	if (data->cansuper == 1 && gfc_input_command_down("powerupability") && data->health >= 50) {
+		Mix_HaltMusic();
+
+		gfc_sound_play(data->sfx_super, 0, 1, 3, -1);
+		Mix_PlayMusic(data->super_music, -1);
 		data->insuper = 1;
 	}
 
@@ -336,7 +353,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	// binded to w for now, but i want it to also be binded to space except i didnt find the input documentation for space yet
 	if (gfc_input_command_down("jump")) { 
 		if (data->airborne == 0 && data->spindash == 0 || data->inSand) {
-			gfc_sound_play(data->jump, 0, 1, 0, -1);
+			gfc_sound_play(data->sfx_jump, 0, 1, 0, -1);
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
@@ -381,17 +398,19 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			self->model = gf3d_model_load("models/lowpolysonic_jump_iframe.model");
 		}
 
-		if (gfc_input_command_down("jump") && data->airborne == 0) {
+		if (gfc_input_command_pressed("jump") && data->airborne == 0) {
+			gfc_sound_play(data->sfx_spindash, 0, 1, 0, -1);
+
 			self->velocity.y = 0;
 			if (data->rotdir == 1) {
 				if (data->storedvelocity <= MAXSPINDASHSPEED) { // LEFT DIR SPINDASH
-					data->storedvelocity += 0.5;
+					data->storedvelocity += 5;
 					//play sound or display velocity on a ui
 				}
 			}
 			else if (data->rotdir == 2) {
 				if (data->storedvelocity >= -MAXSPINDASHSPEED) { // RIGHT DIR SPINDASH
-					data->storedvelocity -= 0.5;
+					data->storedvelocity -= 5;
 					//play sound or display velocity on a ui
 				}
 			}
@@ -419,6 +438,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		data->spindash = 0;
 		if (data->storedvelocity != 0) {
 			// implement damage while you still have speed from spindashing (and still in a ball) later
+			gfc_sound_play(data->sfx_spindash_release, 0, 1, 0, -1);
 			self->velocity.y = data->storedvelocity;
 			data->storedvelocity = 0;
 		}
@@ -705,6 +725,7 @@ void player_touch(Entity* self, Entity* other) {
 			return;
 		}
 		if (other->flag == ENEMY) {
+			gfc_sound_play(data->sfx_hit, 0, 1, 4, -1);
 			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
 			sentence_to_death(other);
 			return;
@@ -815,6 +836,7 @@ void player_touch(Entity* self, Entity* other) {
 			if (data->spindash != 1) { // not implemented correctly, fix later (spindash is not being detected when the code gets here)
 				self->velocity.z = RECOIL; // reject gravity 
 			}
+			gfc_sound_play(data->sfx_hit, 0, 1, 4, -1);
 			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
 			sentence_to_death(other);
 			//slog("collided with enemy (attack)");
@@ -832,7 +854,7 @@ void player_touch(Entity* self, Entity* other) {
 
 	if (other->flag == RINGS) {
 		data->health += 1;
-		//play sound
+		gfc_sound_play(data->sfx_ring, 0, 1, 1, -1); //play sound
 		sentence_to_death(other);
 	}
 
@@ -875,7 +897,7 @@ void player_touch(Entity* self, Entity* other) {
 
 			data->thispowerup = (itemboxData*)other->data;
 			player_powerup(self, data->thispowerup);
-
+			gfc_sound_play(data->sfx_hit, 0, 1, 4, -1);
 			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
 			sentence_to_death(other);
 		}
@@ -962,6 +984,8 @@ void player_damage(Entity* self) {
 	if (data->invincibility > 0) {
 		return;
 	}
+
+	gfc_sound_play(data->sfx_hurt, 0, 1, 2, -1); // damage
 
 	data->invincibility = IFRAMES; // prevent taking damage again for a while
 	
@@ -1242,7 +1266,7 @@ void super_think(Entity* self) {
 
 	if (gfc_input_command_down("jump")) {
 		if (data->airborne == 0 && data->spindash == 0) {
-			gfc_sound_play(data->jump, 0, 1, 0, -1);
+			gfc_sound_play(data->sfx_jump, 0, 1, 0, -1);
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
@@ -1278,16 +1302,17 @@ void super_think(Entity* self) {
 		self->model = gf3d_model_load("models/supersonic_jump.model");
 
 		if (gfc_input_command_down("jump") && data->airborne == 0) {
+			gfc_sound_play(data->sfx_spindash, 0, 1, 0, -1);
 			self->velocity.y = 0;
 			if (data->rotdir == 1) {
 				if (data->storedvelocity <= MAXSPINDASHSPEED * SUPERSPEEDMULT) { // LEFT DIR SPINDASH
-					data->storedvelocity += 1;
+					data->storedvelocity += 10;
 					//play sound or display velocity on a ui
 				}
 			}
 			else if (data->rotdir == 2) {
 				if (data->storedvelocity >= -MAXSPINDASHSPEED * SUPERSPEEDMULT) { // RIGHT DIR SPINDASH
-					data->storedvelocity -= 1;
+					data->storedvelocity -= 10;
 					//play sound or display velocity on a ui
 				}
 			}
@@ -1314,6 +1339,7 @@ void super_think(Entity* self) {
 			// implement damage while you still have speed from spindashing (and still in a ball) later
 			self->velocity.y = data->storedvelocity;
 			data->storedvelocity = 0;
+			gfc_sound_play(data->sfx_spindash_release, 0, 1, 0, -1);
 		}
 	}
 
@@ -1327,6 +1353,7 @@ void super_think(Entity* self) {
 	// TO DO:
 	// this unintentionally combined with the normal ability when you press e... but this is cool so maybe ill keep it
 	if (gfc_input_command_pressed("superbounce")) { // press e and s at the same time
+		gfc_sound_play(data->sfx_super_boost, 0, 1, 1, -1);
 		if (data->airborne == 1) {
 			self->velocity.z = -8;
 			data->bubblebounce = 1;
@@ -1335,6 +1362,7 @@ void super_think(Entity* self) {
 
 	// dash (permanent fire shield)
 	if (gfc_input_command_pressed("powerupability") && data->airborne == 1) {
+		gfc_sound_play(data->sfx_super_boost, 0, 1, 1, -1);
 		data->fadeout = 1; // fadeout logic in player_update
 		GFC_Color flash_color = { 1,1,1, data->fadeout };
 
@@ -1353,16 +1381,32 @@ void super_think(Entity* self) {
 	}
 
 	// kamehameha (beam that kills enemies upon contact)
+	if (data->airborne == 0 && gfc_input_command_pressed("powerupability")) {
+		gfc_sound_play(data->sfx_beam_charge, 0, 1, 3, 0);
+	}
 	if (data->airborne == 0 && gfc_input_command_held("powerupability")) {
 		self->velocity.y = 0;
 		self->velocity.z = 0;
 		self->velocity.x = 0;
+		if (data->charge <= 2) {
+			data->charge += 0.025;
+		}
+
+		if (data->charge >= 2 && data->playonce == 0) {
+			gfc_sound_play(data->sfx_beam_release, 0, 1, 3, 0);
+			data->playonce = 1;
+		}
+
 		if (data->rotdir == 1) {
-			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y + 25, self->position.z), data->rotdir); // 25 for offset
+			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y + 25, self->position.z), data->rotdir, data->charge); // 25 for offset
 		}
 		else {
-			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y - 25, self->position.z), data->rotdir); // 25 for offset
+			kamehameha_spawn(gfc_vector3d(self->position.x, self->position.y - 25, self->position.z), data->rotdir, data->charge); // 25 for offset
 		}
+	}
+	else {
+		data->charge = 0;
+		data->playonce = 0;
 	}
 
 	// screen killing attack/kill each enemy after teleporting to them attack (this sounds cooler)
@@ -1383,6 +1427,7 @@ void super_think(Entity* self) {
 		
 		for (int i = 0; i < amount; i++) {
 			self->position = limit[i]->position;
+			gfc_sound_play(data->sfx_hit, 0, 1, 4, -1);
 			sentence_to_death(limit[i]); // failsafe
 		}
 		self->position = resetted_position;
@@ -1446,12 +1491,13 @@ void super_touch(Entity* self, Entity* other) {
 			self->velocity.z = RECOIL; // reject gravity 
 		}
 		other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
+		gfc_sound_play(data->sfx_hit, 0, 1, 4, -1);
 		sentence_to_death(other);
 	}
 
 	if (other->flag == RINGS) {
 		data->health += 1;
-		//play sound
+		gfc_sound_play(data->sfx_ring, 0, 1, 1, -1); //play sound
 		sentence_to_death(other);
 	}
 
@@ -1485,7 +1531,7 @@ void super_touch(Entity* self, Entity* other) {
 			if (data->spindash != 1) {
 				self->velocity.z = RECOIL;
 			}
-
+			gfc_sound_play(data->sfx_hit, 0, 1, 4, -1);
 			other->model = gf3d_model_load("models/explosion.model"); // NOTE: entity freeing happens too fast for this to show, so fix later if theres time since it's not that important
 			sentence_to_death(other);
 		}

@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/lowpolysonic/lowpolysonic_jump_iframe.obj",
+        "texture":"models/lowpolysonic/lowpolysonic_jump_iframe.png"
+    }
+}
