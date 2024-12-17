@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/platform_sinking/platform_sinking.obj",
+        "texture":"models/platform_sinking/platform_sinking.png"
+    }
+}

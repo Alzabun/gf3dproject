@@ -189,6 +189,15 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
         }
     }
 
+    if (strcmp(name, "bridge") == 0) {
+        if (strcmp(type, "collapsing") == 0) {
+            Entity* bridge_collapse = collapsing_bridge_spawn(position);
+            bridge_collapse->name = name;
+            bridge_collapse->type = type;
+            bridge_collapse->position = position;
+        }
+    }
+
     if (strcmp(name, "environment") == 0) {
         if (strcmp(type, "water_32") == 0) {
             Entity* water_32_environment = water_spawn_32(position);
@@ -222,7 +231,7 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             bubble_spawner->name = name;
             bubble_spawner->type = type;
             bubble_spawner->position = position;
-            slog("spawned bubble spawner");
+            //slog("spawned bubble spawner");
         }
     }
 
@@ -250,6 +259,22 @@ void spawn_entity(char* name, char* type, GFC_Vector3D position) {
             vertical_moving_platform->position = position;
         }
     }
+
+    if (strcmp(name, "platform") == 0) {
+        if (strcmp(type, "sinking") == 0) {
+            Entity* platform_sinking = platform_sinking_spawn(position);
+            platform_sinking->name = name;
+            platform_sinking->type = type;
+            platform_sinking->position = position;
+        }
+        if (strcmp(type, "crushing") == 0) {
+            Entity* platform_crushing = platform_crushing_spawn(position);
+            platform_crushing->name = name;
+            platform_crushing->type = type;
+            platform_crushing->position = position;
+        }
+    }
+
     if (strcmp(name, "loop") == 0) {
         if (strcmp(type, "generic") == 0) {
             Entity* loop_generic = loop_spawn(position);

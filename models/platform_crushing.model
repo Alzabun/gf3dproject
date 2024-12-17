@@ -1,0 +1,7 @@
+{
+    "model":
+    {
+        "obj":"models/platform_crushing/platform_crushing.obj",
+        "texture":"models/platform_crushing/platform_crushing.png"
+    }
+}

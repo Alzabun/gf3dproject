@@ -39,7 +39,8 @@ typedef enum {
 	// LEVEL ENDER
 	GOAL,
 	// MISC
-	IGNORE
+	IGNORE,
+	NOTHING
 }EntityFlag;
 
 typedef struct Entity_S{

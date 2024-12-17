@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include "projectile.h"
+#include "entitykiller.h"
 
 Entity* spikes_spawn(GFC_Vector3D position);
 
@@ -30,5 +31,11 @@ Entity* goal_spawn(GFC_Vector3D position);
 Entity* collapsing_bridge_spawn(GFC_Vector3D position);
 
 Entity* bubble_spawner_spawn(GFC_Vector3D position);
+
+Entity* collapsing_bridge_spawn(GFC_Vector3D position);
+
+Entity* platform_sinking_spawn(GFC_Vector3D position);
+
+Entity* platform_crushing_spawn(GFC_Vector3D position);
 
 #endif

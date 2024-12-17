@@ -1,0 +1,6 @@
+{
+    "model": {
+        "obj": "models/bridge_collapse/bridge_collapse.obj",
+        "texture": "models/bridge_collapse/bridge_collapse.png"
+    }
+}

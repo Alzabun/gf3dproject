@@ -115,12 +115,12 @@ Entity* player_spawn(GFC_Vector3D position) {
 	GFC_Box getBounds = self->model->bounds;
 
 	self->BoundingBox.x = position.x;
-	self->BoundingBox.y = position.y;
-	self->BoundingBox.z = position.z;
+	self->BoundingBox.y = position.y - 5;
+	self->BoundingBox.z = position.z - (8 / 2);
 
-	self->BoundingBox.w = getBounds.w;
-	self->BoundingBox.d = getBounds.d;
-	self->BoundingBox.h = getBounds.h;
+	self->BoundingBox.w = 6;
+	self->BoundingBox.d = 5 * 2;
+	self->BoundingBox.h = 8;
 
 	self->flag = PLAYER;
 
@@ -204,8 +204,12 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 	}
 
 	if (data->indebug == 1) {
+		self->flag = IGNORE; // REMEMBER THIS!!
 		debug_think(self); // go to bottom of this file
 		return;
+	}
+	else {
+		self->flag = PLAYER;
 	}
 
 	if (data->reachedgoal == 1) {
@@ -477,8 +481,8 @@ void player_update(Entity* self) {
 	// for keeping the bounding box position consistent
 	// changing bounding box to be set to its velocity causes problems that idk if im supposed to fix or not (me from the future: no not really)
 	self->BoundingBox.x = self->position.x;
-	self->BoundingBox.y = self->position.y;
-	self->BoundingBox.z = self->position.z;
+	self->BoundingBox.y = self->position.y - 5;
+	self->BoundingBox.z = self->position.z - (8 / 2);;
 
 	//printf("rotdir: %i\n", data->rotdir);
 
@@ -537,10 +541,10 @@ void player_update(Entity* self) {
 		}
 
 		// respawn player on top of the map if they fall into the void
-		if (self->position.z <= -500) { // was -250, this thing should be changed because things are changing
-			self->position.z = 0;
+		if (self->position.z <= -2000) { // was -250, this thing should be changed because things are changing
+			self->position.z = 500;
 			self->position.x = 0;
-			self->position.y = 500;
+			self->position.y = 0;
 			self->velocity.z = 0;
 		}
 	}
@@ -757,7 +761,9 @@ void player_touch(Entity* self, Entity* other) {
 				self->model = gf3d_model_load("models/lowpolysonic_iframe.model");
 			}
 		}
-		player_damage(self);
+		if (!data->fireshield) {
+			player_damage(self);
+		}
 	}
 	else {
 		data->inLava = 0;
@@ -935,6 +941,13 @@ void player_touch(Entity* self, Entity* other) {
 	if (other->flag == GOAL && data->reachedgoal == 0) {
 		data->reachedgoal = 1;
 		data->lockedcamera = self->position;
+	}
+
+	if (other->flag == NOTHING) {
+		data->inWater = 0;
+		data->inSand = 0;
+		data->inIce = 0;
+		data->inLava = 0;
 	}
 }
 
@@ -1551,7 +1564,7 @@ void super_touch(Entity* self, Entity* other) {
 	}
 	else {
 		data->inWater = 0;
-		data->oxygen = 999999999999999999;
+		data->oxygen = 999999999999999999; // lazy
 	}
 
 	if (other->flag == LAVA) {
@@ -1780,11 +1793,24 @@ void debug_place(Entity* self) {
 		name = "bubble";
 		type = "spawner";
 		break;
+	case 31:
+		name = "bridge";
+		type = "collapsing";
+		break;
+	case 32:
+		name = "platform";
+		type = "sinking";
+		break;
+	case 33:
+		name = "platform";
+		type = "crushing";
+		break;
 	default:
 		slog("could not spawn entity: %d", data->entitycycle);
 		return;
 	}
 
+	slog("spawning entity -- name: %s, type: %s", name, type);
 	spawn_entity(name, type, position);
 	save_debug_file(name, type, x, y, z);
 
@@ -1902,5 +1928,17 @@ void choose_entity(Entity* self) {
 	else if (data->entitycycle == 30) {
 		self->model = gf3d_model_load("models/enemytest.model"); // placeholder
 		//slog("bubble spawner");
+	}
+	else if (data->entitycycle == 31) {
+		self->model = gf3d_model_load("models/bridge_collapse.model");
+		slog("collapsing bridge");
+	}
+	else if (data->entitycycle == 32) {
+		self->model = gf3d_model_load("models/platform_sinking.model");
+		slog("sinking platform");
+	}
+	else if (data->entitycycle == 33) {
+		self->model = gf3d_model_load("models/platform_crushing.model");
+		slog("crushing platform");
 	}
 }
