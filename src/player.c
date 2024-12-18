@@ -95,6 +95,9 @@ const float SUPERSPEEDMULT = 1.5;
 //GFC_Sound* jump = gfc_sound_load("sounds/jump", 1 ,0); // not how it works
 //Mix_FreeChunk(jump); // use this a lot
 
+int reachedgoal = 0; // fixed
+int level_number = 1; // not from 0
+
 Entity* player_spawn(GFC_Vector3D position) {
 	Entity* self;
 	playerData* data;
@@ -134,7 +137,6 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->invincibility = 0; // no i-frames by default
 		data->deltatime = 0; // upon game begin
 		data->lives = 3; //typical
-		data->reachedgoal = 0; // to prevent bugs
 
 		// SOUND EFFECTS
 		data->sfx_jump = gfc_sound_load("sounds/jump.wav", 1, 0);
@@ -144,18 +146,24 @@ Entity* player_spawn(GFC_Vector3D position) {
 		data->sfx_ring = gfc_sound_load("sounds/ring.wav", 1, 0);
 		data->sfx_spring = gfc_sound_load("sounds/spring.wav", 1, 0);
 		data->sfx_hit = gfc_sound_load("sounds/hit.wav", 1, 0);
+		data->sfx_bubble = gfc_sound_load("sounds/getbubble.wav", 1, 0);
+		data->sfx_drowned = gfc_sound_load("sounds/drowned.wav", 1, 0);
 		// (super)
 		data->sfx_super = gfc_sound_load("sounds/super.wav", 1, 0);
 		data->sfx_super_boost = gfc_sound_load("sounds/super_boost.wav", 1, 0);
 		data->sfx_beam_charge = gfc_sound_load("sounds/beam_charge.wav", 1, 0);
 		data->sfx_beam_release = gfc_sound_load("sounds/beam_release.wav", 1, 0);
+		data->sfx_super_ultimate = gfc_sound_load("sounds/super_ultimate.wav", 1, 0);
 
 		// MUSIC
 		data->boss_music = gfc_sound_load_music("music/bigarms.wav");
 		data->wintheme = gfc_sound_load_music("music/win.wav");
 		data->normal_music = gfc_sound_load_music("music/windyvalley.wav");
+		data->level2_music = gfc_sound_load_music("music/windyvalley_2.wav");
+		data->level3_music = gfc_sound_load_music("music/launchbase_1.wav");
 		data->super_music = gfc_sound_load_music("music/super_music.wav");
-		Mix_PlayMusic(data->normal_music, -1);
+		data->drowning_music = gfc_sound_load_music("music/drowning.wav");
+		data->debug_music = gfc_sound_load_music("music/debug_music.wav");
 
 		data->killedboss = 0;
 
@@ -165,16 +173,46 @@ Entity* player_spawn(GFC_Vector3D position) {
 			data->debugmode = 1;
 			data->indebug = 1;
 		}
-		data->debugmode = 1; // just for testing, remove when done
+		data->debugmode = 1; // just for testing, remove when not testing
+		data->mutemusic = 0;
 
 		// SUPER STUFF
 		data->cansuper = 1; // need to get all 7 chaos emeralds to meet this requirement, this is on by default for testing
 		data->fadeout = 0;
-		data->flash = gf2d_sprite_load_image("images/super/flash.png");
+		data->flash = gf2d_sprite_load_image("images/super/flash.png"); // odesnt work:(
+		data->drowning = 0;
+		data->ringtimer = 1; // tracks if a second has passed
 
 		self->data = data;
+		play_music(self);
 	}
 	return self;
+}
+
+void play_music(Entity* self) {
+	playerData* data;
+	if (!self || !self->data) {
+		return;
+	}
+	data = self->data;
+
+	Mix_HaltMusic(); // if any
+
+	if (level_number == 1) {
+		Mix_PlayMusic(data->normal_music, -1);
+	}
+	else if (level_number == 2) {
+		Mix_PlayMusic(data->level2_music, -1);
+	}
+	else if (level_number == 3) {
+		Mix_PlayMusic(data->level3_music, -1);
+	}
+	else if (level_number == 999) { // debug thingy
+		Mix_PlayMusic(data->debug_music, -1);
+	}
+	else {
+		Mix_PlayMusic(data->level3_music, -1); //fallback for now
+	}
 }
 
 void player_free(Entity* self) { // frees up entity
@@ -213,6 +251,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		data->inSand = 0;
 		data->inIce = 0;
 		data->inLava = 0;
+		data->oxygen = OXYGEN;
 
 	}
 
@@ -225,8 +264,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 		self->flag = PLAYER;
 	}
 
-	if (data->reachedgoal == 1) {
-		self->velocity.y = -2;
+	if (reachedgoal == 1) {
 		return;
 	}
 
@@ -357,7 +395,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
-				self->position.z += 8; // 8 is a big enough number to disconnect from the platform apparently
+				self->position.z += 10; // 10 is a big enough number to disconnect from the platform apparently
 				data->onPlatform = 0;
 			}
 			self->velocity.z = 2;
@@ -514,10 +552,15 @@ void player_update(Entity* self) {
 		if (data->health <= 0) {
 			data->insuper = 0;
 			data->health = 0;
+			Mix_HaltMusic();
+			play_music(self);
 		}
 		else {
-			//data->health -= 1;
-			// i need to add a cooldown
+			data->ringtimer -= DELTATIME;
+			if (data->ringtimer <= 0) {
+				data->ringtimer = 1;
+				data->health -= 1;
+			}
 		}
 	}
 
@@ -573,14 +616,19 @@ void player_update(Entity* self) {
 	if (data->inWater && data->indebug == 0 && data->bubbleshield == 0) {
 		data->oxygen -= DELTATIME;
 		slog("oxygen: %.2f", data->oxygen);
-		if (data->oxygen <= 10) {
-			// insert drowning music here (make sure it only plays once)
+		if (data->oxygen <= 12 && data->drowning == 0) { // weird number but i wnated it to sync wih the music
+			Mix_HaltMusic();
+			Mix_PlayMusic(data->drowning_music, 0);
+			data->drowning = 1;
 		}
 		if (data->oxygen <= 0) {
-			// idk
+			// idk why i have it like this but i guess it prevented something from breaking
 			data->inWater = 0;
 			data->oxygen = OXYGEN;
+			data->drowning = 0;
+			gfc_sound_play(data->sfx_drowned, 0, 1, 3, -1);
 			player_die(self);
+			data->drowning = 0;
 			data->inWater = 0;
 			data->oxygen = OXYGEN;
 		}
@@ -854,12 +902,13 @@ void player_touch(Entity* self, Entity* other) {
 
 	if (other->flag == RINGS) {
 		data->health += 1;
-		gfc_sound_play(data->sfx_ring, 0, 1, 1, -1); //play sound
+		gfc_sound_play(data->sfx_ring, 0, 1, 5, -1); //play sound
 		sentence_to_death(other);
 	}
 
 	if (other->flag == SPRING) {
 		self->velocity.z = 5;
+		gfc_sound_play(data->sfx_spring, 0, 1, 5, -1); //play sound
 		//slog("collided with spring");
 		// NOTE: this is assuming it's a grounded spring. orientation will chanage velocity direction but that's not added yet
 	}
@@ -911,8 +960,11 @@ void player_touch(Entity* self, Entity* other) {
 	}
 
 	if (other->flag == BUBBLE) {
-		// insert bubble sound effect here
-		// stop drowning music here unless i can figure out how to make it do that by itself in the drowning part of the code (not done here)
+		gfc_sound_play(data->sfx_bubble, 0, 1, 3, -1); // insert bubble sound effect here
+		if (data->drowning == 1) {
+			play_music(self);
+			data->drowning = 0;
+		}
 		data->oxygen = OXYGEN;
 		self->velocity.z = 0;
 		sentence_to_death(other);
@@ -960,9 +1012,9 @@ void player_touch(Entity* self, Entity* other) {
 		}
 	}	
 
-	if (other->flag == GOAL && data->reachedgoal == 0) {
-		data->reachedgoal = 1;
-		data->lockedcamera = self->position;
+	if (other->flag == GOAL && reachedgoal == 0) {
+		reachedgoal = 1;
+		sentence_to_death(self);
 	}
 
 	if (other->flag == NOTHING) {
@@ -985,8 +1037,6 @@ void player_damage(Entity* self) {
 		return;
 	}
 
-	gfc_sound_play(data->sfx_hurt, 0, 1, 2, -1); // damage
-
 	data->invincibility = IFRAMES; // prevent taking damage again for a while
 	
 	self->velocity.z = RECOIL;
@@ -1000,6 +1050,7 @@ void player_damage(Entity* self) {
 	if (data->haspowerup == 0) {
 		if (data->health > 0) {
 			rings_dropped(self, self->position, data->health); // scatter rings everywhere
+			gfc_sound_play(data->sfx_hurt, 0, 1, 2, -1); // damage
 			data->health = 0;
 		}
 		else {
@@ -1270,7 +1321,7 @@ void super_think(Entity* self) {
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
-				self->position.z += 8; // 8 is a big enough number to disconnect from the platform apparently
+				self->position.z += 10; // 10 is a big enough number to disconnect from the platform apparently
 				data->onPlatform = 0;
 			}
 			self->velocity.z = 2;
@@ -1433,6 +1484,8 @@ void super_think(Entity* self) {
 		self->position = resetted_position;
 		// STILL DOESNT WORK....
 		gf2d_sprite_draw(data->flash, gfc_vector2d(self->position.y, self->position.z), &generic, NULL, NULL, NULL, &flash_color, NULL, NULL);
+
+		gfc_sound_play(data->sfx_super_ultimate, 0, 1, 0, -1);
 	}
 }
 
@@ -1537,10 +1590,9 @@ void super_touch(Entity* self, Entity* other) {
 		}
 	}
 
-	if (other->flag == BUBBLE) { // super sonic doesnt drown, but i didnt add water yet
-		// insert bubble sound effect here
-		// stop drowning music here unless i can figure out how to make it do that by itself in the drowning part of the code (not done here)
-		data->oxygen = OXYGEN;
+	if (other->flag == BUBBLE) { // super sonic doesnt drown ACCORDING TO CANON I DONT CARE IF HE DROWNS ANYWAY IN GAMEPLAY!!!
+		gfc_sound_play(data->sfx_bubble, 0, 1, 3, -1); // insert bubble sound effect here
+		self->velocity.z = 0;
 		sentence_to_death(other);
 	}
 
@@ -1581,14 +1633,11 @@ void super_touch(Entity* self, Entity* other) {
 			}
 
 		}
-		else { // take damage
-			player_damage(self);
-		}
 	}
 
-	if (other->flag == GOAL && data->reachedgoal == 0) {
-		data->reachedgoal = 1;
-		data->lockedcamera = self->position;
+	if (other->flag == GOAL && reachedgoal == 0) {
+		reachedgoal = 1;
+		sentence_to_death(self);
 	}
 
 	// TERRAIN-SPECIFIC COLLISION
@@ -1604,29 +1653,53 @@ void super_touch(Entity* self, Entity* other) {
 	else {
 		data->inSand = 0;
 	}
-	
+
 	if (other->flag == WATER) {
 		data->inWater = 1;
+		self->velocity.y *= 0.9; // slowness (not as bad as sand)
+		//slog("touching water");
 	}
 	else {
-		data->inWater = 0;
-		data->oxygen = 999999999999999999; // lazy
+		// by this logic, it wont ever deactivate....
+		if (other->flag != TERRAIN && other->flag != ENEMY && other->flag != PLATFORM) {
+			data->inWater = 0;
+			data->oxygen = OXYGEN;
+			//slog("not touching water");
+		}
 	}
 
 	if (other->flag == LAVA) {
 		data->inLava = 1;
+		self->velocity.z = 0;
+		data->airborne = 0;
+		data->onPlatform = 0;
+		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
+
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+		}
 	}
 	else {
 		data->inLava = 0;
 	}
 
 	if (other->flag == ICE) {
+		self->velocity.z = 0;
+		data->airborne = 0;
+		data->onPlatform = 0;
+		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
+
+		if (data->spindash == 0) {
+			self->rotation.y = 0;
+		}
 		data->inIce = 1;
 	}
 	else {
 		data->inIce = 0;
 	}
+
 }
+
 
 // TOOL CHAIN FUNCTIONALITY
 // TO DO: optimize the entity list picker so its not just a bunch of if/else statements (if possible)
@@ -1688,6 +1761,15 @@ void debug_think(Entity* self) {
 	}
 	if (gfc_input_key_pressed("p")) { // save to a file for each position
 		debug_place(self);
+	}
+	if (gfc_input_key_pressed("m")) {
+		data->mutemusic ^= 1;
+		if (data->mutemusic == 1) {
+			Mix_HaltMusic();
+		}
+		else {
+			play_music(self);
+		}
 	}
 	if (gfc_input_command_down("giverings")) { // "h"
 		data->health += 1;

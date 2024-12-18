@@ -15,5 +15,6 @@
 void save_debug_file(char* name, char* type, float x, float y, float z);
 void debug_delete(Entity* other);
 void spawn_entity(char* name, char* type, GFC_Vector3D position);
+void is_player_spawned();
 
 #endif

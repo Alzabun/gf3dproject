@@ -32,13 +32,13 @@ Entity* floor_terrain_spawn(GFC_Vector3D position) {
 
 	self->BoundingBox.x = position.x;
 	self->BoundingBox.y = position.y - 10000;
-	self->BoundingBox.z = position.z - (150 / 2);
+	self->BoundingBox.z = position.z - (160 / 2);
 
 	// i think you can reference the scale values in blender for how big the bounding box should be
 
 	self->BoundingBox.w = 500; // pretty irrelevant because this game is mainly 2d
 	self->BoundingBox.d = 10000 * 2; // changes the length - good for ground
-	self->BoundingBox.h = 150; // reference from (0, 0, 0) in the world for how high it should be
+	self->BoundingBox.h = 160; // reference from (0, 0, 0) in the world for how high it should be
 	
 	self->flag = TERRAIN;
 

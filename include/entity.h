@@ -94,7 +94,8 @@ void entity_system_init(Uint32 maxEnts);
 Entity* entity_new();
 
 //freeing stuff
-void entity_free(Entity* self);	
+void entity_free(Entity* self);
+void entity_free_all();
 
 // * drawing stuff *
 

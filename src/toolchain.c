@@ -125,24 +125,26 @@ int position_comparison(GFC_Vector3D self, GFC_Vector3D other) {
     return 0;
 }
 
+Entity* player = NULL; // prevent recall
+
+void is_player_spawned() {
+    if (!player) {
+        player = player_spawn(gfc_vector3d(0, 0, 0)); // fallback spawn
+        slog("no spawn point found, spawned player at default position (0, 0, 0)");
+    }
+}
+
 void spawn_entity(char* name, char* type, GFC_Vector3D position) {
     // holy unoptimized
     // but again, idk how to make it better (this is fine for now)
 
     if (strcmp(name, "spawn") == 0) {
-        Entity* player = NULL;
         if (strcmp(type, "player") == 0) {
             if (!player) {
                 player = player_spawn(position);
             }
         }
-        else {
-            if (!player) {
-                player = player_spawn(gfc_vector3d(0, 0, 0)); // fallback spawn
-            }
-        }
     }
-
 
     if (strcmp(name, "rings") == 0) {
         if (strcmp(type, "normal") == 0) {

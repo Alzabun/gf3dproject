@@ -152,12 +152,22 @@ void entity_free(Entity* self) {
 	if (!self) {
 		return; // check if its null first because you cant trust pointers
 	}
-	// these clear up memory just in case its being used already for some reason
-	if (self->free) {
-		self->free(self); // this is how you call a function pointer
+	if (self->_inuse == 1) { // i could have just made this from the beginning there was no need for sentence_to_death.... whatever it works the same
+		self->_inuse = 0;
+		// these clear up memory just in case its being used already for some reason
+		if (self->free) {
+			self->free(self); // this is how you call a function pointer
+		}
+		gf3d_model_free(self->model);
+		memset(self, 0, sizeof(Entity));
 	}
-	gf3d_model_free(self->model);
-	memset(self, 0, sizeof(Entity));
+}
+
+void entity_free_all() {
+	for (int i = 0; i < entity_manager.entityMax; i++) {
+		Entity* this = &entity_manager.entityList[i];
+		entity_free(this);
+	}
 }
 
 // * updating stuff * 

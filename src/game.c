@@ -142,6 +142,9 @@ int main(int argc,char *argv[])
 
     // main game loop    
     // ME: self explanatory - updates the primary functions constantly as long as the game is open
+
+    playerData* player;
+
     while(!_done) {
 
         gfc_input_update();
@@ -173,6 +176,14 @@ int main(int argc,char *argv[])
         if (gameStarted == 0) {
             draw_menu(); // show if game didnt start yet
             identify_game_mode();
+        }
+
+        if (reachedgoal == 1) {
+            reachedgoal = 0;
+            level_number++;
+            load_level();
+            is_player_spawned(); // final check
+            slog("Loaded new level, level Number: %i", level_number);
         }
         
         gf3d_vgraphics_render_end();
@@ -222,19 +233,24 @@ void identify_game_mode() {
 
     switch (currentState) {
         case NORMAL:
-            load_midterm_level();
+            load_level();
+            //is_player_spawned(); this is hardcoded in for midterm level, uncomment if this is a data driven level being loaded
+            gameStarted = 1;
+            slog("GAME STARTED");
             break;
         case OBJECTIVE:
             gameStarted = 1;
-            slog("GAME STARTED");
+            slog("GAME STARTED IN MISSION");
             slog("but nothing happens because theres no objective mode yet");
             break;
         case DEBUG:
             debugmode = 1;
             gameStarted = 1;
+            level_number = 999;
             load_level();
+            is_player_spawned(); 
             //player_spawn(gfc_vector3d(0, 0, 0));
-            slog("GAME STARTED");
+            slog("GAME STARTED IN DEBUG");
             break;
         default:
             break;
@@ -296,12 +312,10 @@ void load_midterm_level(){
     
     goal_spawn(gfc_vector3d(0, -1400, -165));
 
-    gameStarted = 1;
-    slog("GAME STARTED");
 }
 
 // look in player.c and toolchain.c to see how it saves data
-void load_level(/* should take filename, but i cant figure it out */) { // json file analyzer
+void load_level() { // json file analyzer
     menuState currentState = get_menu();
     SJson* file;
     if (currentState == DEBUG) {
@@ -310,9 +324,38 @@ void load_level(/* should take filename, but i cant figure it out */) { // json 
     else {
         file = NULL;
     }
+
+    entity_free_all();
+
+    if (currentState == NORMAL) {
+        switch (level_number) {
+            case 1: // act 1 (midterm showcase)
+                // hardcoded level used for midterm
+                // im not gonna recreate this entire thing in the toolchain, and this will be skipped in the presentation to demonstrate
+                // multiple levels anyway
+                load_midterm_level();
+                return;
+            case 2: // act 2 (final showcase)
+                slog("Loading Act 2");
+                file = sj_load("level_editor/levels/act2.json");
+                break;
+            case 3: // act 3 (another level just in case idk)
+                slog("Loading Act 3");
+                file = sj_load("level_editor/levels/act3.json");
+                break;
+            default:
+                slog("ran out of levels!");
+                return;
+        }
+    }
  
-    if (!file) {
+    if (!file && currentState == DEBUG) {
         slog("could not find 'toolchain.json'. WARNING: DATA WILL NOT SAVE");
+        return;
+    }
+
+    if (!file) {
+        slog("could not find file for next level, ending");
         return;
     }
 

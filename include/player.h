@@ -72,6 +72,10 @@ typedef struct {
 	Mix_Music* boss_music;
 	Mix_Music* wintheme;
 	Mix_Music* super_music;
+	Mix_Music* drowning_music;	
+	Mix_Music* level2_music;
+	Mix_Music* level3_music;
+	Mix_Music* debug_music;
 	// SOUND EFFECTS
 	Mix_Chunk* sfx_jump;
 	Mix_Chunk* sfx_spindash;
@@ -80,16 +84,20 @@ typedef struct {
 	Mix_Chunk* sfx_ring;
 	Mix_Chunk* sfx_hit;
 	Mix_Chunk* sfx_spring;
+	Mix_Chunk* sfx_bubble;
+	Mix_Chunk* sfx_drowned;
 	// (super)
 	Mix_Chunk* sfx_super;
 	Mix_Chunk* sfx_super_boost;
 	Mix_Chunk* sfx_beam_charge;
 	Mix_Chunk* sfx_beam_release;
+	Mix_Chunk* sfx_super_ultimate;
 	int playonce; // beam sound management
+	int drowning; // drowning sound management
 
 	// LEVEL ENDING
-	int reachedgoal; // 0 = no, 1 = yes
-	GFC_Vector3D lockedcamera;
+	//int reachedgoal; // 0 = no, 1 = yes
+	GFC_Vector3D lockedcamera; // never mind
 	// boss check for ui
 	int killedboss;
 
@@ -99,16 +107,21 @@ typedef struct {
 	float fadeout; // 1 = full alpha, goes down to 0 for transparency (DEOSNT WORK FOR SOME REAOSNNIRHOEWEWRHJO)
 	Sprite* flash;
 	float charge;
+	float ringtimer;
 
 	//debug
 	int debugmode; // 0 = no, 1 = yes
 	int indebug; // 0 = no, 1 = yes
 	float debugspeedup; // if no: 1x speed, if yes: multiplier
+	int mutemusic;
 
 	int entitycycle; 
 	int entitylist;
 
 }playerData;
+
+extern int reachedgoal;
+extern int level_number; // starts with 1 not 0, handled in game.c because idk, but used here for music
 
 void player_think(Entity* self);
 void player_update(Entity* self);
@@ -119,6 +132,8 @@ void player_damage(Entity* self);
 void player_die(Entity* self);
 void player_loop(Entity* self, loopData* loop);
 void player_powerup(Entity* self, itemboxData* itembox);
+
+void play_music(Entity* self);
 
 // SUPER SONIC CHANGES
 
@@ -132,5 +147,6 @@ void debug_place(Entity* self);
 void choose_entity(Entity* self);
 
 Entity* player_spawn(GFC_Vector3D position);
+
 
 #endif
