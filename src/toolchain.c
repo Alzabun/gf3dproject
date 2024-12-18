@@ -131,6 +131,11 @@ void is_player_spawned() {
     if (!player) {
         player = player_spawn(gfc_vector3d(0, 0, 0)); // fallback spawn
         slog("no spawn point found, spawned player at default position (0, 0, 0)");
+        return;
+    }
+    if (player) {
+        slog("player already exists");
+        return;
     }
 }
 

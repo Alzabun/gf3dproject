@@ -122,6 +122,7 @@ typedef struct {
 
 extern int reachedgoal;
 extern int level_number; // starts with 1 not 0, handled in game.c because idk, but used here for music
+extern Entity* player;
 
 void player_think(Entity* self);
 void player_update(Entity* self);

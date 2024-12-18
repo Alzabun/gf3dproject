@@ -182,6 +182,7 @@ int main(int argc,char *argv[])
             load_level();
             is_player_spawned(); // final check
             slog("Loaded new level, level Number: %i", level_number);
+            //is_player_spawned(); // final check
         }
         
         gf3d_vgraphics_render_end();
@@ -232,7 +233,8 @@ void identify_game_mode() {
     switch (currentState) {
         case NORMAL:
             load_level();
-            //is_player_spawned(); this is hardcoded in for midterm level, uncomment if this is a data driven level being loaded
+            is_player_spawned();
+            // normally check if player spawned here if level is data driven
             gameStarted = 1;
             slog("GAME STARTED");
             break;
@@ -270,7 +272,7 @@ void load_midterm_level(){
     // also check the master branch?
     // 
     // PLAYER SPAWN
-    player_spawn(gfc_vector3d(0, 500, -150));
+   // player_spawn(gfc_vector3d(0, 500, -150));
 
     // TERRAIN SPAWN
     floor_terrain_spawn(gfc_vector3d(0, -9000, -240)); // the ground has a LOT to go off of
@@ -324,6 +326,7 @@ void load_level() { // json file analyzer
     }
 
     entity_free_all();
+    player = NULL;
 
     if (currentState == NORMAL) {
         switch (level_number) {
@@ -339,7 +342,7 @@ void load_level() { // json file analyzer
                 break;
             case 3: // act 3 (another level just in case idk)
                 slog("Loading Act 3");
-                file = sj_load("level_editor/levels/act3.json");
+                file = sj_load("level_editor/levels/mission1.json");
                 break;
             default:
                 slog("ran out of levels!");

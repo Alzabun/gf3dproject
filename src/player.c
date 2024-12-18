@@ -1014,7 +1014,7 @@ void player_touch(Entity* self, Entity* other) {
 
 	if (other->flag == GOAL && reachedgoal == 0) {
 		reachedgoal = 1;
-		sentence_to_death(self);
+		//sentence_to_death(self);
 	}
 
 	if (other->flag == NOTHING) {
@@ -1643,7 +1643,7 @@ void super_touch(Entity* self, Entity* other) {
 
 	if (other->flag == GOAL && reachedgoal == 0) {
 		reachedgoal = 1;
-		sentence_to_death(self);
+		//sentence_to_death(self);
 	}
 
 	// TERRAIN-SPECIFIC COLLISION
