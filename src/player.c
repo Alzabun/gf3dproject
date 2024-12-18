@@ -615,7 +615,7 @@ void player_update(Entity* self) {
 	// OXYGEN (WATER)
 	if (data->inWater && data->indebug == 0 && data->bubbleshield == 0) {
 		data->oxygen -= DELTATIME;
-		slog("oxygen: %.2f", data->oxygen);
+		//slog("oxygen: %.2f", data->oxygen);
 		if (data->oxygen <= 12 && data->drowning == 0) { // weird number but i wnated it to sync wih the music
 			Mix_HaltMusic();
 			Mix_PlayMusic(data->drowning_music, 0);
@@ -1991,36 +1991,46 @@ void choose_entity(Entity* self) {
 	}
 	else if (data->entitycycle == 5) {
 		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+		slog("fire shield box");
 	}
 	else if (data->entitycycle == 6) {
 		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+		slog("bubble shield box");
 	}
 	else if (data->entitycycle == 7) {
 		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+		slog("electricity shield box");
 	}
 	else if (data->entitycycle == 8) {
 		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+		slog("normal shield box");
 	}
 	else if (data->entitycycle == 9) {
 		self->model = gf3d_model_load("models/itembox.model"); // need a way to differentiate between each box
+		slog("invincibility box");
 	}
 	else if (data->entitycycle == 10) {
 		self->model = gf3d_model_load("models/smallterrain.model");
 	}
 	else if (data->entitycycle == 11) {
 		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+		slog("generic enemy");
 	}
 	else if (data->entitycycle == 12) {
 		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+		slog("flying enemy");
 	}
 	else if (data->entitycycle == 13) {
 		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+		slog("bomb enemy");
 	}
 	else if (data->entitycycle == 14) {
 		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+		slog("projectile enemy");
 	}
 	else if (data->entitycycle == 15) {
 		self->model = gf3d_model_load("models/enemytest.model"); // need a way to differentiate between each enemy
+		slog("shield enemy");
 	}
 	else if (data->entitycycle == 16) {
 		self->model = gf3d_model_load("models/springs.model");
@@ -2075,7 +2085,7 @@ void choose_entity(Entity* self) {
 	}
 	else if (data->entitycycle == 30) {
 		self->model = gf3d_model_load("models/enemytest.model"); // placeholder
-		//slog("bubble spawner");
+		slog("bubble spawner");
 	}
 	else if (data->entitycycle == 31) {
 		self->model = gf3d_model_load("models/bridge_collapse.model");
