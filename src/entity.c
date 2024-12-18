@@ -273,7 +273,7 @@ void entity_show_box(Entity* self, GFC_Color color) {
 	//printf("box position: x=%.2f, y=%.2f, z=%.2f\n", self->position.x, self->position.y, self->position.z);
 	gf3d_draw_cube_solid(box, position, rotation, scale, color);
 }
-
+// for super sonic but could be used for other things i guess
 void detect_enemy(Entity* self, Entity** limit, int* amount) {
 	Entity* other;
 	GFC_Vector3D sp = self->position;

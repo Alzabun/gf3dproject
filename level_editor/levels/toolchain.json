@@ -1,1 +1,1 @@
-{"entitylist":[{"name":"terrain","type":"32","position":[0.000000,0.000000,-19.000000]}]}
+{"entitylist":[{"name":"terrain","type":"32","position":[0.000000,0.000000,-19.000000]},{"name":"moving_platform","type":"vertical","position":[0.000000,-228.849701,109.100128]}]}

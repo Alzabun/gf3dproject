@@ -1,0 +1,8 @@
+{
+    "model":
+    {
+        "gltf": "models/lowpolysonic/animations/idle/lowpolysonic_idle.gltf",
+        "texture":"models/lowpolysonic/lowpolysonic.png"
+	"loop": 1
+    }
+}

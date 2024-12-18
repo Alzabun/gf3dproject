@@ -1,0 +1,12 @@
+{
+    "model":
+    {
+        "obj": [
+		"models/lowpolysonic/animations/idle/lowpolysonic_idle1.obj",
+		"models/lowpolysonic/animations/idle/lowpolysonic_idle2.obj",
+		"models/lowpolysonic/animations/idle/lowpolysonic_idle3.obj",
+		"models/lowpolysonic/animations/idle/lowpolysonic_idle4.obj"
+	],
+        "texture":"models/lowpolysonic/lowpolysonic.png"
+    }
+}

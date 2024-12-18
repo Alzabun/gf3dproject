@@ -26,7 +26,7 @@
 // 
 // ---------------------------------
 // 
-// MIDTERM PROGRESSION [ENDED]
+// MIDTERM PROGRESSION [ENDED]s
 // Deliverables Status:
 // world obstacles (5/5):
 // springs [x]
@@ -395,7 +395,7 @@ void player_think(Entity* self) { // these are the actions the entity will do wh
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
-				self->position.z += 10; // 10 is a big enough number to disconnect from the platform apparently
+				self->position.z += 20; // 10 is a big enough number to disconnect from the platform apparently
 				data->onPlatform = 0;
 			}
 			self->velocity.z = 2;
@@ -540,7 +540,7 @@ void player_update(Entity* self) {
 	// changing bounding box to be set to its velocity causes problems that idk if im supposed to fix or not (me from the future: no not really)
 	self->BoundingBox.x = self->position.x;
 	self->BoundingBox.y = self->position.y - 5;
-	self->BoundingBox.z = self->position.z - (8 / 2);;
+	self->BoundingBox.z = self->position.z - (8 / 2);
 
 	//printf("rotdir: %i\n", data->rotdir);
 
@@ -1321,7 +1321,7 @@ void super_think(Entity* self) {
 			data->inball = 1;
 			data->jumpTime = 0;
 			if (data->onPlatform == 1) { // allow jumping off platforms (temporary implementation because this gives you an unintentional jump boost)
-				self->position.z += 10; // 10 is a big enough number to disconnect from the platform apparently
+				self->position.z += 20; // 10 is a big enough number to disconnect from the platform apparently
 				data->onPlatform = 0;
 			}
 			self->velocity.z = 2;
@@ -1346,11 +1346,17 @@ void super_think(Entity* self) {
 	// functions just like sonic's spindash
 	// hold down (s) to curl into a ball then spam jump to charge it until maximum allowed speed
 	// you can also hold jump to charge it but thats not intended, though i shouldnt waste time trying to fix that since this still works
+	// UPDATE:
+	// ok now with the stomp ability i accidenatlly made a drop dash ability.. it look cool so Ok
 	if (gfc_input_command_held("spindash")) {
 		data->spindash = 1;
 		data->inball = 1;
 
 		self->model = gf3d_model_load("models/supersonic_jump.model");
+
+		if (data->airborne == 1) {
+			self->velocity.z = -5; // stomp (sort-of)
+		}
 
 		if (gfc_input_command_down("jump") && data->airborne == 0) {
 			gfc_sound_play(data->sfx_spindash, 0, 1, 0, -1);
@@ -1677,6 +1683,7 @@ void super_touch(Entity* self, Entity* other) {
 
 		if (data->spindash == 0) {
 			self->rotation.y = 0;
+			self->model = gf3d_model_load("models/lowpolysonic.model");
 		}
 	}
 	else {
@@ -1690,6 +1697,7 @@ void super_touch(Entity* self, Entity* other) {
 		data->inball = 0; // fix later since this is probably gonna conflict with spindashing
 
 		if (data->spindash == 0) {
+			self->model = gf3d_model_load("models/lowpolysonic.model");
 			self->rotation.y = 0;
 		}
 		data->inIce = 1;
@@ -1958,7 +1966,7 @@ void debug_place(Entity* self) {
 
 void choose_entity(Entity* self) {
 	// there must definietly be a way to make this better
-	// this code is sad to look at
+	// this code is sad to lo	 at
 
 	playerData* data;
 	if (!self || !self->data) {
