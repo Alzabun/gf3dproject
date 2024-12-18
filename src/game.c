@@ -143,8 +143,6 @@ int main(int argc,char *argv[])
     // main game loop    
     // ME: self explanatory - updates the primary functions constantly as long as the game is open
 
-    playerData* player;
-
     while(!_done) {
 
         gfc_input_update();
